@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
-    <div className="bg-white border-[#f25b29] border-[1px] rounded-xl  w-full max-w-7xl shadow-md overflow-hidden flex flex-col justify-between transition-transform hover:-translate-y-1">
+    <div className="bg-white border-[#1d1c1c2a] border-[0.2px] rounded-xl  w-full max-w-7xl shadow-md overflow-hidden flex flex-col justify-between transition-transform hover:-translate-y-1">
       <div className="p-4 ">
         <div className="relative h-48 w-full mb-4">
           <Image

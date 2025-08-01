@@ -97,13 +97,13 @@ export default function Banner() {
                     </Button>
                   </div>
 
-                  <div className="md:w-1/2 flex justify-center">
+                  <div className="md:w-1/2 flex justify-center ">
                     <Image
                       src={banner.image}
                       alt={banner.title}
                       width={500}
                       height={400}
-                      className="rounded-xl object-cover max-h-[300px] md:max-h-[500px]"
+                      className="rounded-xl border-[#f25b29] border-1 object-cover max-h-[300px] md:max-h-[500px]"
                       priority
                     />
                   </div>
