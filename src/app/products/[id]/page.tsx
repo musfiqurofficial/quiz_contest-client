@@ -46,7 +46,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const product: Product = await res.json();
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-20">
+    <main className="max-w-7xl bg-white mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         {/* Product Image */}
         <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md p-4 flex justify-center">

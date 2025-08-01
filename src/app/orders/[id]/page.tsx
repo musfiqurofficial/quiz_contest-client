@@ -16,7 +16,7 @@ export default function OrderDetailsPage() {
 
   if (!order) {
     return (
-      <main className="max-w-7xl mx-auto p-6 mt-20">
+      <main className="max-w-7xl mx-auto p-6 pt-20 bg-white sm:pt-24">
         <div className="bg-white shadow-md rounded-xl p-6 text-center">
           <h1 className="text-xl font-semibold text-gray-800">
             Order not found
@@ -33,7 +33,7 @@ export default function OrderDetailsPage() {
 
   return (
     <>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 mt-20 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 bg-white lg:px-8 py-8">
         <div className="bg-white shadow-md rounded-2xl p-6 space-y-6">
           <div className="border-b pb-4">
             <h1 className="text-3xl font-bold text-gray-900">
@@ -107,7 +107,8 @@ export default function OrderDetailsPage() {
       {/* MODAL */}
       {showInvoice && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-          <div className="bg-white w-full h-full overflow-y-auto p-10 print:p-8 relative">
+          <div className="bg-white w-full h-full max-w-screen overflow-y-auto px-4 sm:px-10 py-6 sm:py-10 print:p-8 relative">
+            {/* Close Button */}
             <button
               onClick={() => setShowInvoice(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl print:hidden"
@@ -115,15 +116,15 @@ export default function OrderDetailsPage() {
               &times;
             </button>
 
-            <div className=" w-full mx-auto text-gray-900">
+            <div className="w-full mx-auto text-gray-900 max-w-4xl">
               {/* Header */}
-              <div className="flex justify-between items-start mb-10">
-                <div>
-                  <h2 className="text-2xl font-bold">Invoice</h2>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-6">
+                <div className="flex-1">
+                  <h2 className="text-xl sm:text-2xl font-bold">Invoice</h2>
                   <p className="text-sm text-gray-500 mt-2">
                     <span className="font-semibold">Tech Element</span>, 126
                     Lavel/Lift-16 Lily Pond Center,
-                    <br />3 RK Mission Rd, Dhaka 1000
+                    <br /> 3 RK Mission Rd, Dhaka 1000
                   </p>
 
                   <div className="mt-6 text-sm">
@@ -134,14 +135,14 @@ export default function OrderDetailsPage() {
                   </div>
                 </div>
 
-                <div className="text-right text-sm">
+                <div className="text-sm text-right">
                   <Image
-                    src={"/public/Asset/logo.png"}
+                    src="/Asset/logo.png"
                     alt="alt"
-                    width={100}
-                    height={100}
+                    width={80}
+                    height={80}
+                    className="mx-auto sm:mx-0 w-20 h-auto"
                   />
-
                   <p>
                     <strong>Invoice No.:</strong> {order.id}
                   </p>
@@ -160,24 +161,24 @@ export default function OrderDetailsPage() {
               </div>
 
               {/* Highlight row */}
-              <div className="grid grid-cols-4 text-white text-center mb-10 text-sm font-semibold">
-                <div className="bg-blue-600 py-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-white text-center mb-10 text-sm font-semibold">
+                <div className="bg-blue-600 py-2 px-2 rounded">
                   <p>Invoice No.</p>
-                  <p className="text-lg font-bold">{order.id}</p>
+                  <p className="text-lg font-bold break-all">{order.id}</p>
                 </div>
-                <div className="bg-blue-600 py-2">
+                <div className="bg-blue-600 py-2 px-2 rounded">
                   <p>Issue date</p>
                   <p className="text-lg font-bold">
                     {new Date(order.date).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="bg-blue-600 py-2">
+                <div className="bg-blue-600 py-2 px-2 rounded">
                   <p>Due date</p>
                   <p className="text-lg font-bold">
                     {new Date(order.date).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="bg-gray-800 py-2">
+                <div className="bg-gray-800 py-2 px-2 rounded">
                   <p>Total due (USD)</p>
                   <p className="text-lg font-bold">
                     ${order.totalAmount.toFixed(2)}
@@ -186,49 +187,54 @@ export default function OrderDetailsPage() {
               </div>
 
               {/* Item Table */}
-              <table className="w-full border border-gray-300 text-sm mb-6">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="border px-4 py-2 text-left">Description</th>
-                    <th className="border px-4 py-2 text-center">Quantity</th>
-                    <th className="border px-4 py-2 text-right">
-                      Unit Price ($)
-                    </th>
-                    <th className="border px-4 py-2 text-right">Amount ($)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {order.items.map((item) => (
-                    <tr key={item.id}>
-                      <td className="border px-4 py-2">{item.title}</td>
-                      <td className="border px-4 py-2 text-center">
-                        {item.quantity}
-                      </td>
-                      <td className="border px-4 py-2 text-right">
-                        {item.price.toFixed(2)}
-                      </td>
-                      <td className="border px-4 py-2 text-right">
-                        {(item.price * item.quantity).toFixed(2)}
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full border border-gray-300 text-sm mb-6 min-w-[500px]">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="border px-4 py-2 text-left">
+                        Description
+                      </th>
+                      <th className="border px-4 py-2 text-center">Quantity</th>
+                      <th className="border px-4 py-2 text-right">
+                        Unit Price ($)
+                      </th>
+                      <th className="border px-4 py-2 text-right">
+                        Amount ($)
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {order.items.map((item) => (
+                      <tr key={item.id}>
+                        <td className="border px-4 py-2">{item.title}</td>
+                        <td className="border px-4 py-2 text-center">
+                          {item.quantity}
+                        </td>
+                        <td className="border px-4 py-2 text-right">
+                          {item.price.toFixed(2)}
+                        </td>
+                        <td className="border px-4 py-2 text-right">
+                          {(item.price * item.quantity).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
               {/* Total */}
-              <div className="text-right text-lg font-bold mb-12">
+              <div className="text-right text-base sm:text-lg font-bold mb-8">
                 Total (USD): ${order.totalAmount.toFixed(2)}
               </div>
 
               {/* Signature and Footer */}
-              <div className="flex justify-between items-end text-sm mt-12">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end text-sm mt-12 gap-6">
                 <div>
                   <p>
                     <strong>Issued by, signature:</strong>
                   </p>
                   <p className="text-2xl font-signature mt-4">Tech Element</p>
                 </div>
-
                 <div className="text-right leading-tight text-sm">
                   <p>Tech Element</p>
                   <p>1Lavel/Lift-16</p>

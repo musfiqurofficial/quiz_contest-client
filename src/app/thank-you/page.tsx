@@ -10,7 +10,7 @@ export default function ThankYouPage() {
   const latestOrder = orders[orders.length - 1];
 
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-green-100 to-green-200 p-6">
+    <main className="min-h-screen flex bg-white  flex-col justify-center items-center bg-gradient-to-br from-green-100 to-green-200 p-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.6 }}
         animate={{ opacity: 1, scale: 1 }}

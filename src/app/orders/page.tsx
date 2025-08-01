@@ -8,7 +8,7 @@ export default function OrdersPage() {
   const orders = useSelector((state: RootState) => state.order.orders);
 
   return (
-    <main className="max-w-7xl mx-auto px-e sm:px-4 lg:px-8 py-10 mt-20">
+    <main className="max-w-7xl mx-auto px-e bg-white px-4 sm:px-4 lg:px-8 py-10 pt-20 sm:pt-24">
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">Your Orders</h1>
 
       {orders.length === 0 ? (

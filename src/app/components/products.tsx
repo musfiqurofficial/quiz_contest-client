@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
-    <div className="bg-white border-[#f25b29] border-[0.5px rounded-2xl  w-full max-w-7xl shadow-md overflow-hidden flex flex-col justify-between transition-transform hover:-translate-y-1">
+    <div className="bg-white border-[#f25b29] border-[1px] rounded-xl  w-full max-w-7xl shadow-md overflow-hidden flex flex-col justify-between transition-transform hover:-translate-y-1">
       <div className="p-4 ">
         <div className="relative h-48 w-full mb-4">
           <Image
@@ -18,16 +18,18 @@ export default function ProductCard({ product }: { product: Product }) {
             sizes="(max-width: 768px) 100vw, 25vw"
           />
         </div>
-        <h3 className="font-semibold text-lg mb-1 line-clamp-2">
+        <h3 className="font-semibold dark:text-[#f25b29] text-blue-600 text-lg mb-1 line-clamp-2">
           {product?.title}
         </h3>
-        <p className="text-gray-600 font-medium mb-4">${product?.price}</p>
+        <p className="text-gray-600 dark:text-[#f25b29] font-medium mb-4">
+          ${product?.price}
+        </p>
       </div>
       <div className="flex justify-between gap-2 border-t border-[#f25b29] border-[0.5px p-4 bg-gray-50">
         <Link href={`/products/${product?.id}`}>
           <Button
             variant="secondary"
-            className="flex-1 border-[#f25b29] border-[0.5px]"
+            className="flex-1 text-[#f25b29] border-[#f25b29] border-[0.5px]"
           >
             View Details
           </Button>

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import Head from "next/head";
 
 export default function ProductListPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -112,7 +113,7 @@ export default function ProductListPage() {
   };
 
   const SidebarFilters = () => (
-    <div className="space-y-6 text-sm">
+    <div className="space-y-6 text-sm bg-white p-4  text-blue-600 dark:text-[#f25b29]">
       {/* Search */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold">All Products</h1>
@@ -208,70 +209,79 @@ export default function ProductListPage() {
   );
 
   return (
-    <main className="p-4 md:p-6 max-w-screen-xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold"></h1>
+    <>
+      <Head>
+        <title>All Product | Tech Element</title>
+        <meta
+          name="description"
+          content="Browse a wide variety of tech products including phones, accessories, and more at Tech Element."
+        />
+      </Head>
+      <main className="p-4 md:p-6 max-w-screen-xl mx-auto bg-white pt-20 sm:pt-24">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold"></h1>
 
-        <div className="flex items-center gap-4 flex-wrap">
-          <span className="text-sm text-gray-500">
-            Showing {filtered.length} results
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-1"
-          >
-            Sort by popularity
-            <ChevronDown className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-4 flex-wrap">
+            <span className="text-sm text-gray-500">
+              Showing {filtered.length} results
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              Sort by popularity
+              <ChevronDown className="h-4 w-4" />
+            </Button>
 
-          {/* Mobile filter */}
-          <div className="md:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <MenuIcon className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-64">
-                <SidebarFilters />
-              </SheetContent>
-            </Sheet>
+            {/* Mobile filter */}
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <MenuIcon className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-64">
+                  <SidebarFilters />
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Sidebar Filters */}
-        <aside className="hidden md:block bg-white rounded border p-4 shadow-sm h-fit w-64 shrink-0 sticky top-1">
-          <SidebarFilters />
-        </aside>
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Sidebar Filters */}
+          <aside className="hidden md:block bg-white rounded border p-4 shadow-sm h-fit w-64 shrink-0 sticky top-1">
+            <SidebarFilters />
+          </aside>
 
-        {/* Products Grid */}
-        <section className="flex-1 grid grid-cols-1 sm:grid-cols-3  gap-4 sm:gap-6">
-          {loading ? (
-            Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-72 w-full rounded" />
-            ))
-          ) : filtered.length ? (
-            filtered.map((product, idx) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))
-          ) : (
-            <p className="col-span-full text-center text-gray-500 text-lg font-medium">
-              No products found.
-            </p>
-          )}
-        </section>
-      </div>
-    </main>
+          {/* Products Grid */}
+          <section className="flex-1 grid grid-cols-1 sm:grid-cols-3  gap-4 sm:gap-6">
+            {loading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-72 w-full rounded" />
+              ))
+            ) : filtered.length ? (
+              filtered.map((product, idx) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))
+            ) : (
+              <p className="col-span-full text-center text-gray-500 text-lg font-medium">
+                No products found.
+              </p>
+            )}
+          </section>
+        </div>
+      </main>
+    </>
   );
 }
