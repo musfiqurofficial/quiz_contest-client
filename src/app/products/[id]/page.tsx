@@ -4,15 +4,23 @@ import { Product } from "@/types/product";
 import Image from "next/image";
 import { AddToCartButton } from "@/app/components/addToCard";
 
+// Define a single Props interface
 interface Props {
-  params: { id: string };
+  params: Promise<{
+    id: string;
+  }>;
 }
 
-// ✅ Dynamic Meta Title & Description
+// Generate metadata for the page
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
   try {
-    const res = await fetch(`https://fakestoreapi.com/products/${params.id}`);
-    if (!res.ok) return { title: "Product Not Found" };
+    const res = await fetch(`https://fakestoreapi.com/products/${id}`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) {
+      return { title: "Product Not Found" };
+    }
 
     const product: Product = await res.json();
 
@@ -20,14 +28,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${product.title} | MyStore`,
       description: product.description.slice(0, 150),
     };
-  } catch {
+  } catch (error) {
+    console.error("Error fetching product metadata:", error);
     return { title: "Product Error" };
   }
 }
 
+// Product detail page component
 export default async function ProductDetailPage({ params }: Props) {
-  const res = await fetch(`https://fakestoreapi.com/products/${params.id}`, {
-    // Cache as SSG + ISR (revalidate every 60 seconds)
+  const { id } = await params;
+  const res = await fetch(`https://fakestoreapi.com/products/${id}`, {
     next: { revalidate: 60 },
   });
 
@@ -36,20 +46,35 @@ export default async function ProductDetailPage({ params }: Props) {
   const product: Product = await res.json();
 
   return (
-    <main className="p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Image
-          src={product.image}
-          alt={product.title}
-          width={400}
-          height={400}
-          className="object-contain h-auto w-auto"
-        />
-        <div>
-          <h1 className="text-2xl font-bold">{product.title}</h1>
-          <p className="text-gray-700 mt-2">${product.price}</p>
-          <p className="mt-4">{product.description}</p>
-          <AddToCartButton product={product} />
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        {/* Product Image */}
+        <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md p-4 flex justify-center">
+          <Image
+            src={product.image}
+            alt={product.title}
+            width={400}
+            height={400}
+            className="object-contain max-h-96"
+            priority
+          />
+        </div>
+
+        {/* Product Details */}
+        <div className="space-y-6 px-2">
+          <h1 className="text-3xl font-extrabold text-gray-900">
+            {product.title}
+          </h1>
+
+          <p className="text-xl font-semibold text-indigo-600">
+            ${product.price}
+          </p>
+
+          <p className="text-gray-700 leading-relaxed">{product.description}</p>
+
+          <div>
+            <AddToCartButton product={product} />
+          </div>
         </div>
       </div>
     </main>

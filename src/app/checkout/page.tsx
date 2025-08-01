@@ -17,8 +17,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Image from "next/image";
-import { ShoppingCart, Truck } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 
+// CartItem type
+export interface CartItem {
+  id: number;
+  title: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+// Order type
+export interface Order {
+  id: string;
+  customer: string;
+  address: string;
+  phone: string;
+  items: CartItem[];
+  totalItems: number;
+  totalAmount: number;
+  date: string;
+}
+
+// Form validation schema
 const schema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
   address: z.string().min(5, "Address must be at least 5 characters"),
@@ -39,11 +61,12 @@ export default function CheckoutPage() {
     (acc, item) => acc + item.price * item.quantity,
     0
   );
+
   const dispatch = useDispatch();
   const router = useRouter();
 
   const onSubmit = (data: FormData) => {
-    const newOrder = {
+    const newOrder: Order = {
       id: Date.now().toString(),
       customer: data.fullName,
       address: data.address,
@@ -53,6 +76,7 @@ export default function CheckoutPage() {
       totalAmount: total,
       date: new Date().toISOString(),
     };
+
     dispatch(addOrder(newOrder));
     dispatch(clearCart());
     toast.success("✅ Order placed successfully!");
@@ -72,7 +96,7 @@ export default function CheckoutPage() {
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Cart */}
+          {/* Cart Section */}
           <div className="bg-white rounded shadow p-4 space-y-4">
             <h2 className="text-xl font-semibold border-b pb-2 text-gray-700">
               Cart
@@ -135,7 +159,7 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          {/* Form */}
+          {/* Form Section */}
           <div className="bg-white rounded shadow p-4 space-y-4">
             <h2 className="text-xl font-semibold border-b pb-2 text-blue-700">
               Shipping Information
@@ -146,7 +170,7 @@ export default function CheckoutPage() {
                 <Input
                   placeholder="Full Name"
                   {...register("fullName")}
-                  className="rounded-md border-gray-300 focus:outline-none focus:ring-0 focus:ring-indigo-300  transition-all"
+                  className="rounded-md border-gray-300 focus:outline-none focus:ring-0 focus:ring-indigo-300 transition-all"
                 />
                 {errors.fullName && (
                   <p className="text-red-500 text-sm mt-1">
@@ -154,11 +178,12 @@ export default function CheckoutPage() {
                   </p>
                 )}
               </div>
+
               <div>
                 <Input
                   placeholder="Shipping Address"
                   {...register("address")}
-                  className="rounded-md border-gray-300 focus:outline-none focus:ring-0 focus:ring-indigo-300  transition-all"
+                  className="rounded-md border-gray-300 focus:outline-none focus:ring-0 focus:ring-indigo-300 transition-all"
                 />
                 {errors.address && (
                   <p className="text-red-500 text-sm mt-1">
@@ -166,11 +191,12 @@ export default function CheckoutPage() {
                   </p>
                 )}
               </div>
+
               <div>
                 <Input
                   placeholder="Phone Number"
                   {...register("phone")}
-                  className="rounded-md border-gray-300 focus:outline-none focus:ring-0 focus:ring-indigo-300  focus:border-[0.1px] transition-all"
+                  className="rounded-md border-gray-300 focus:outline-none focus:ring-0 focus:ring-indigo-300 transition-all"
                 />
                 {errors.phone && (
                   <p className="text-red-500 text-sm mt-1">

@@ -112,6 +112,32 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+
+/* Scrollbar width */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px; /* for horizontal scrollbar */
+}
+
+/* Scrollbar track (background behind the thumb) */
+::-webkit-scrollbar-track {
+  background: #f06c41;
+}
+
+/* Scrollbar thumb (the draggable handle) */
+::-webkit-scrollbar-thumb {
+  background-color: #333; /* Customize as you like */
+  border-radius: 6px;
+  border: 3px solid #f06c41; /* creates padding around thumb */
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #333 #f06c41; /* thumb color + track color */
+}
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

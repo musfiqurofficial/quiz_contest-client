@@ -27,7 +27,6 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     setIsOpen(open);

@@ -1,3 +1,4 @@
+import type { CartItem } from "@/types/product";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Order {
@@ -5,7 +6,7 @@ interface Order {
   customer: string;
   phone: string;
   address: string;
-  items: any[];
+  items: CartItem[]; // ✅ FIXED HERE
   totalItems: number;
   totalAmount: number;
   date: string;

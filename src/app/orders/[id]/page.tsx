@@ -4,8 +4,9 @@ import { useParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import Link from "next/link";
-import type { Product } from "@/types/product";
+import type { CartItem } from "@/types/product";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function OrderDetailsPage() {
   const { id } = useParams();
@@ -68,7 +69,7 @@ export default function OrderDetailsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {order.items.map((item: Product) => (
+                  {order.items.map((item: CartItem) => (
                     <tr key={item.id} className="border-t hover:bg-gray-50">
                       <td className="px-4 py-3">{item.title}</td>
                       <td className="px-4 py-3 text-center">{item.quantity}</td>
@@ -134,11 +135,13 @@ export default function OrderDetailsPage() {
                 </div>
 
                 <div className="text-right text-sm">
-                  <img
+                  <Image
                     src={"/public/Asset/logo.png"}
-                    alt="Logo"
-                    className="w-28 mb-4 ml-auto"
+                    alt="alt"
+                    width={100}
+                    height={100}
                   />
+
                   <p>
                     <strong>Invoice No.:</strong> {order.id}
                   </p>
