@@ -22,7 +22,7 @@ export default function OrderDetailsPage() {
             Order not found
           </h1>
           <Link href="/orders">
-            <span className="text-blue-600 hover:text-blue-800 underline mt-4 inline-block">
+            <span className="text-gray-800 hover:text-blue-800 underline mt-4 inline-block">
               ← Back to Orders
             </span>
           </Link>
@@ -89,7 +89,7 @@ export default function OrderDetailsPage() {
           <div className="flex justify-between items-center mt-4 pt-4 border-t">
             <Link
               href="/orders"
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="text-gray-800 hover:text-blue-800 text-sm font-medium"
             >
               ← Back to Orders
             </Link>

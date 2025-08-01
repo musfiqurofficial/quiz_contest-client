@@ -18,7 +18,7 @@ export default function ProductCard({ product }: { product: Product }) {
             sizes="(max-width: 768px) 100vw, 25vw"
           />
         </div>
-        <h3 className="font-semibold dark:text-[#f25b29] text-blue-600 text-lg mb-1 line-clamp-2">
+        <h3 className="font-semibold dark:text-[#f25b29] text-gray-800 text-lg mb-1 line-clamp-2">
           {product?.title}
         </h3>
         <p className="text-gray-600 dark:text-[#f25b29] font-medium mb-4">

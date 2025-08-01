@@ -113,7 +113,7 @@ export default function ProductListPage() {
   };
 
   const SidebarFilters = () => (
-    <div className="space-y-6 text-sm bg-white p-4  text-blue-600 dark:text-[#f25b29]">
+    <div className="space-y-6 text-sm bg-white p-4  text-gray-800 dark:text-[#f25b29]">
       {/* Search */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold">All Products</h1>

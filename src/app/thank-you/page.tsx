@@ -47,7 +47,7 @@ export default function ThankYouPage() {
 
         <Link
           href="/"
-          className="mt-6 inline-block text-blue-600 hover:underline"
+          className="mt-6 inline-block text-gray-800 hover:underline"
         >
           ← Back to Home
         </Link>

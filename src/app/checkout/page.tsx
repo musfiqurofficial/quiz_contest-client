@@ -196,7 +196,7 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                   ))}
-                  <div className="text-right text-blue-600 dark:text-[#f25b29] text-lg font-semibold pt-3 border-t">
+                  <div className="text-right text-gray-800 dark:text-[#f25b29] text-lg font-semibold pt-3 border-t">
                     Total:{" "}
                     <span className="text-indigo-600">${total.toFixed(2)}</span>
                   </div>

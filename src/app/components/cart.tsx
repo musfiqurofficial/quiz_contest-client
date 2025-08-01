@@ -67,7 +67,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
         }`}
       >
         <div className="flex justify-between items-center border-b p-4">
-          <h2 className="text-xl font-bold text-blue-600 dark:text-[#f25b29]">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-[#f25b29]">
             Your Cart ({cartItems.length})
           </h2>
           <button
@@ -75,7 +75,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
             onClick={onClose}
             aria-label="Close cart"
           >
-            <X className="w-5 h-5 text-blue-600 dark:text-[#f25b29]" />
+            <X className="w-5 h-5 text-gray-800 dark:text-[#f25b29]" />
           </button>
         </div>
 
@@ -83,7 +83,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
           {cartItems.length === 0 ? (
             <div className="text-center text-gray-500 mt-20 space-y-2">
               <ShoppingCart className="w-12 h-12 mx-auto mb-4" />
-              <p className="text-lg font-medium text-blue-600 dark:text-[#f25b29]">
+              <p className="text-lg font-medium text-gray-800 dark:text-[#f25b29]">
                 Your cart is empty
               </p>
               <p className="text-sm text-muted-foreground">
@@ -110,10 +110,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                   className="rounded-md object-cover border"
                 />
                 <div className="flex-1">
-                  <h2 className="text-base text-blue-600 dark:text-[#f25b29] font-semibold line-clamp-1">
+                  <h2 className="text-base text-gray-800 dark:text-[#f25b29] font-semibold line-clamp-1">
                     {item.title}
                   </h2>
-                  <div className="flex items-center mt-2 gap-2 text-blue-600 dark:text-[#f25b29]">
+                  <div className="flex items-center mt-2 gap-2 text-gray-800 dark:text-[#f25b29]">
                     <Button
                       size="sm"
                       onClick={() => dispatch(decrement(item.id))}
@@ -152,7 +152,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
         {cartItems.length > 0 && (
           <div className="border-t p-4 bg-white sticky bottom-0 z-10">
-            <div className="flex justify-end text-blue-600 dark:text-[#f25b29] gap-4 text-lg font-semibold mb-4">
+            <div className="flex justify-end text-gray-800 dark:text-[#f25b29] gap-4 text-lg font-semibold mb-4">
               <span>Total:</span>
               <span>${total.toFixed(2)}</span>
             </div>

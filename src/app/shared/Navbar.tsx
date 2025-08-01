@@ -52,7 +52,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-blue-600 text-lg hover:text-blue-600 font-medium transition-colors"
+                className="text-gray-800 text-lg hover:text-gray-800 font-medium transition-colors"
               >
                 {link.label}
               </Link>
@@ -141,7 +141,7 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="text-blue-600 hover:text-[#f25b29] text-base font-medium transition"
+                    className="text-gray-800 hover:text-[#f25b29] text-base font-medium transition"
                     onClick={() => setMenuOpen(false)}
                   >
                     {link.label}
