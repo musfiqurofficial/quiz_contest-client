@@ -156,8 +156,8 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
               <span>Total:</span>
               <span>${total.toFixed(2)}</span>
             </div>
-            <Link href="/checkout">
-              <Button className="bg-green-600 text-white w-full" size="lg">
+            <Link href="/checkout" className="cursor-pointer">
+              <Button className="bg-green-600 text-white w-full" size="lg"  onClick={onClose} >
                 Proceed to Checkout
               </Button>
             </Link>

@@ -161,7 +161,7 @@ export default function OrderDetailsPage() {
               </div>
 
               {/* Highlight row */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-white text-center mb-10 text-sm font-semibold">
+              <div className="grid grid-cols-2 bg-blue-600 sm:grid-cols-3 gap-2 sm:gap-4 text-white text-center mb-10 text-sm font-semibold">
                 <div className="bg-blue-600 py-2 px-2 rounded">
                   <p>Invoice No.</p>
                   <p className="text-lg font-bold break-all">{order.id}</p>
@@ -172,16 +172,10 @@ export default function OrderDetailsPage() {
                     {new Date(order.date).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="bg-blue-600 py-2 px-2 rounded">
-                  <p>Due date</p>
-                  <p className="text-lg font-bold">
-                    {new Date(order.date).toLocaleDateString()}
-                  </p>
-                </div>
                 <div className="bg-gray-800 py-2 px-2 rounded">
-                  <p>Total due (USD)</p>
+                  <p>Total</p>
                   <p className="text-lg font-bold">
-                    ${order.totalAmount.toFixed(2)}
+                    {order.totalAmount.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -222,12 +216,10 @@ export default function OrderDetailsPage() {
                 </table>
               </div>
 
-              {/* Total */}
               <div className="text-right text-base sm:text-lg font-bold mb-8">
-                Total (USD): ${order.totalAmount.toFixed(2)}
+                Total : ${order.totalAmount.toFixed(2)}
               </div>
 
-              {/* Signature and Footer */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end text-sm mt-12 gap-6">
                 <div>
                   <p>

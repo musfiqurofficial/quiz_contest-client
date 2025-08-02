@@ -5,7 +5,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Home | Tech Element",
     description:
-      "Browse a wide variety of tech products including phones, accessories, and more at Tech Element.",
+      "Browse a wide variety of Cosmetics products including phones, accessories, and more at Tech Element.",
   };
 }
 export default async function Home() {
