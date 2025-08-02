@@ -188,7 +188,7 @@ export default function CheckoutList() {
                             size="sm"
                             variant="destructive"
                             onClick={() => handleRemove(item.id)}
-                            className="w-fit"
+                            className="w-fit border-red-500 border-[0.1px] text-red-500 text-sm font-normal"
                           >
                             Remove
                           </Button>
