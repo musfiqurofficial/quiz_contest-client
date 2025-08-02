@@ -100,4 +100,4 @@ Generates a downloadable PDF invoice using html2pdf.js or jsPDF
 ### 1. Clone the Repository
 
 - git clone https://github.com/kutub98/E-commerce-shop
-- cd ecommerce-seo-app
+- cd E-commerce-shop
