@@ -13,8 +13,6 @@ interface Question {
 }
 
 const questions: Question[] = [
-
-    
   {
     id: "q1",
     type: "mcq",
@@ -52,18 +50,16 @@ function formatTime(seconds: number) {
 }
 
 export default function QuizPage() {
-    const initialQuizTime = questions.reduce(
-      (acc, q) => acc + q.timeLimitSeconds,
-      0
-    );
+  const initialQuizTime = questions.reduce(
+    (acc, q) => acc + q.timeLimitSeconds,
+    0
+  );
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [questionTimeLeft, setQuestionTimeLeft] = useState(
     questions[0].timeLimitSeconds
   );
-  const [quizTimeLeft, setQuizTimeLeft] = useState(
-    questions.reduce((acc, q) => acc + q.timeLimitSeconds, 0)
-  );
+  const [quizTimeLeft, setQuizTimeLeft] = useState(initialQuizTime);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const questionTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -196,12 +192,11 @@ export default function QuizPage() {
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-md shadow-md mt-24">
       <div>
-        <h1 className="text-2xl font-bold mb-4 text-center">স্মার্ট ভিলেজ </h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">স্মার্ট ভিলেজ</h1>
         <h2 className="text-lg text-center text-gray-700 mb-2">
           মোট সময়:{" "}
           <span className="font-semibold">{formatTime(initialQuizTime)}</span>
         </h2>
-        <p className="text-center text-gray-600 mb-6"></p>
       </div>
       <div className="flex justify-between mb-4">
         <div>মোট সময় বাকি: {formatTime(quizTimeLeft)}</div>
@@ -224,7 +219,8 @@ export default function QuizPage() {
                   answers[currentQ.id] === opt
                     ? "bg-[#f25b29] text-white border-[#f25b29]"
                     : "bg-white text-gray-800 border-gray-300"
-                }`}
+                } 
+                transition-all duration-200 ease-in-out`}
             >
               <input
                 type="radio"
@@ -246,7 +242,7 @@ export default function QuizPage() {
           placeholder="আপনার উত্তর এখানে লিখুন..."
           value={answers[currentQ.id] || ""}
           onChange={handleAnswerChange}
-          className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#f25b29]"
+          className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#f25b29] resize-none"
         />
       )}
 
