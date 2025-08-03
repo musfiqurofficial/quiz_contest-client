@@ -49,9 +49,11 @@ export default function Navbar() {
           </nav>
 
           <div className="hidden md:flex gap-8 items-center ">
-            <Button className="ml-4 px-5 py-2 rounded-xl bg-[#f25b29] hover:bg-[#f25b29] text-white shadow">
-              লগইন
-            </Button>
+            <Link href="/auth">
+              <Button className="ml-4 px-5 py-2 rounded-xl bg-[#f25b29] hover:bg-[#f25b29] text-white shadow">
+                লগইন
+              </Button>
+            </Link>
           </div>
 
           <div className="md:hidden flex items-center gap-3">

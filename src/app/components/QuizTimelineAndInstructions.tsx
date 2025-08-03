@@ -3,15 +3,22 @@
 interface SectionProps {
   title: string;
   points: string[];
+  bgColor?: string;
+  textColor?: string;
 }
 
-function InfoBlock({ title, points }: SectionProps) {
+function InfoBlock({
+  title,
+  points,
+  bgColor = "bg-white",
+  textColor = "text-gray-800",
+}: SectionProps) {
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 md:p-8 w-full">
-      <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-4">
-        {title}
-      </h3>
-      <ul className="list-disc list-inside text-gray-700 space-y-3 text-base leading-relaxed">
+    <div className={`rounded-2xl shadow-lg p-6 md:p-8 w-full ${bgColor}`}>
+      <h3 className={`text-2xl font-bold mb-4 ${textColor}`}>{title}</h3>
+      <ul
+        className={`list-disc list-inside space-y-3 text-base leading-relaxed ${textColor}`}
+      >
         {points.map((point, idx) => (
           <li key={idx}>{point}</li>
         ))}
@@ -21,6 +28,8 @@ function InfoBlock({ title, points }: SectionProps) {
 }
 
 export default function QuizTimelineAndInstructions() {
+  const primaryColor = "#f25b29"; // Your primary brand color
+
   const timeline = {
     title: "সময়",
     points: [
@@ -28,6 +37,8 @@ export default function QuizTimelineAndInstructions() {
       "মহড়া কুইজ: ২ ও ৩ নভেম্বর ২০২৪, সন্ধ্যা ৭টা থেকে ৭টা ১০ মিনিট",
       "মূল পর্বের কুইজ: ৫ থেকে ১৪ নভেম্বর ২০২৪, প্রতিদিন সন্ধ্যা ৭টা থেকে ৭টা ১০ মিনিট",
     ],
+    bgColor: "bg-[#f25b29]",
+    textColor: "text-white",
   };
 
   const instructions = {
@@ -40,15 +51,15 @@ export default function QuizTimelineAndInstructions() {
       "মূল কুইজ পর্বে একইভাবে হোমপেজের ‘কুইজ শুরু করুন’ বাটনে ক্লিক করে কুইজে অংশ নিতে হবে।",
       "নিবন্ধনের তথ্য প্রথম আলো সংরক্ষণ করবে।",
     ],
+    bgColor: "bg-white",
+    textColor: "text-[#f25b29]",
   };
 
   return (
-    <section className="bg-[#f9f9f9] py-12 ">
-      <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-orange-400 text-white">
-          <InfoBlock title={timeline.title} points={timeline.points} />
-        </div>
-        <InfoBlock title={instructions.title} points={instructions.points} />
+    <section className="bg-[#f9f9f9] py-16 px-4">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+        <InfoBlock {...timeline} />
+        <InfoBlock {...instructions} />
       </div>
     </section>
   );
