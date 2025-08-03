@@ -8,9 +8,9 @@ import JudgeSection from "../components/JudgeSection";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Home | কুইজ প্রতিযোগীতা",
+    title: "Home | কুইজ প্রতিযোগিতা",
     description:
-      "Browse a wide variety of Cosmetics products including phones, accessories, and more at কুইজ প্রতিযোগীতা.",
+      "Browse a wide variety of Cosmetics products including phones, accessories, and more at কুইজ প্রতিযোগিতা.",
   };
 }
 export default async function Home() {

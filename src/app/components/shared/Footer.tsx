@@ -21,9 +21,8 @@ export default function Footer() {
         {/* Company Info */}
         <div>
           <h4 className="text-xl font-bold mb-4 dark:text-[#f25b29]">
-            কুইজ প্রতিযোগীতা
+            কুইজ প্রতিযোগিতা
           </h4>
-
         </div>
 
         <div>
@@ -82,7 +81,7 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="text-center text-xs text-gray-500 py-6 border-t border-gray-800">
-        © {new Date().getFullYear()} কুইজ প্রতিযোগীতা Inc. All rights reserved.
+        © {new Date().getFullYear()} কুইজ প্রতিযোগিতা Inc. All rights reserved.
       </div>
     </footer>
   );

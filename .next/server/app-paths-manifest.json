@@ -1,10 +1,5 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/sitemap.xml/route": "app/sitemap.xml/route.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/site-setting/page": "app/dashboard/site-setting/page.js",
+  "/(main)/auth/page": "app/(main)/auth/page.js",
   "/(main)/page": "app/(main)/page.js",
-  "/(main)/quiz/page": "app/(main)/quiz/page.js",
-  "/(main)/auth/page": "app/(main)/auth/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js"
 }

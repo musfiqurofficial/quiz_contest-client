@@ -33,7 +33,7 @@ export default function Navbar() {
             href="/"
             className="text-2xl font-bold text-blue-700 hover:text-[#f25b29] transition-colors"
           >
-            কুইজ প্রতিযোগীতা
+            কুইজ প্রতিযোগিতা
           </Link>
 
           <nav className="hidden md:flex gap-8 items-center ">
@@ -92,7 +92,7 @@ export default function Navbar() {
                 className="text-xl font-bold text-blue-700"
                 onClick={() => setMenuOpen(false)}
               >
-                কুইজ প্রতিযোগীতা
+                কুইজ প্রতিযোগিতা
               </Link>
               <button
                 onClick={() => setMenuOpen(false)}

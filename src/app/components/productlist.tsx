@@ -210,10 +210,10 @@ export default function ProductListPage() {
   return (
     <>
       <Head>
-        <title>All Product | কুইজ প্রতিযোগীতা</title>
+        <title>All Product | কুইজ প্রতিযোগিতা</title>
         <meta
           name="description"
-          content="Browse a wide variety of tech products including phones, accessories, and more at কুইজ প্রতিযোগীতা."
+          content="Browse a wide variety of tech products including phones, accessories, and more at কুইজ প্রতিযোগিতা."
         />
       </Head>
       <main className="p-4 md:p-6 max-w-screen-xl mx-auto bg-white pt-20 sm:pt-24">

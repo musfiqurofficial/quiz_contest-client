@@ -4,6 +4,20 @@
 @import "slick-carousel/slick/slick-theme.css";
 @custom-variant dark (&:is(.dark *));
 
+
+@font-face {
+  font-family: "AnekBangla";
+  src: url("/fonts/anek-bangla/AnekBangla-Regular.ttf") format("truetype"),
+       url("/fonts/anek-bangla/AnekBangla-Medium.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Apply the custom font globally */
+body {
+  font-family: "AnekBangla", sans-serif;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

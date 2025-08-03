@@ -6,7 +6,7 @@ interface Question {
   id: string;
   type: "mcq" | "short" | "written";
   questionText: string;
-  options?: string[]; // for MCQ
+  options?: string[]; 
   correctAnswer: string;
   timeLimitSeconds: number;
   marks: number;

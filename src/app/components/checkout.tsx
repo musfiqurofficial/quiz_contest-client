@@ -88,19 +88,19 @@ export default function CheckoutList() {
     dispatch(removeFromCart(id));
   };
   <Head>
-    <title>Checkout | কুইজ প্রতিযোগীতা</title>
+    <title>Checkout | কুইজ প্রতিযোগিতা</title>
     <meta
       name="description"
-      content="Secure checkout page for কুইজ প্রতিযোগীতা. Review your cart and complete your purchase with confidence."
+      content="Secure checkout page for কুইজ প্রতিযোগিতা. Review your cart and complete your purchase with confidence."
     />
   </Head>;
   return (
     <>
       <Head>
-        <title>Checkout | কুইজ প্রতিযোগীতা</title>
+        <title>Checkout | কুইজ প্রতিযোগিতা</title>
         <meta
           name="description"
-          content="Secure checkout for কুইজ প্রতিযোগীতা."
+          content="Secure checkout for কুইজ প্রতিযোগিতা."
         />
         <script
           type="application/ld+json"
@@ -109,7 +109,7 @@ export default function CheckoutList() {
               "@context": "https://schema.org",
               "@type": "Product",
               name: "Checkout",
-              description: "Checkout page for কুইজ প্রতিযোগীতা.",
+              description: "Checkout page for কুইজ প্রতিযোগিতা.",
               url: "https://yourecommercesite.com/checkout",
             }),
           }}
