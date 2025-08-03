@@ -1,26 +1,21 @@
-// app/layout.tsx
 
-import Providers from "@/providers/ReduxProvider";
-import "../style/global.css";
-import Navbar from "./shared/Navbar";
-import Footer from "./shared/Footer";
-import { Toaster } from "sonner";
-
-export default function RootLayout({
-  children,
-}: {
+import "@/styles/globals.css";
+type RootLayoutProps = {
   children: React.ReactNode;
-}) {
+};
+
+export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
   return (
     <html lang="en">
-      <body>
-        <Providers>
-          <Navbar />
-          {children}
-          <Toaster richColors position="top-right" />
-          <Footer />
-        </Providers>
-      </body>
+      <head>
+        {/* <link rel="icon" href="/icons/Study-Room-Fevicon.png" /> */}
+      </head>
+      <>
+        <body className="bg-white">
+          <>{children}</>
+          <div id="portal"></div>
+        </body>
+      </>
     </html>
   );
 }

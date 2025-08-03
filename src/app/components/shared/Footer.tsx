@@ -21,7 +21,7 @@ export default function Footer() {
         {/* Company Info */}
         <div>
           <h4 className="text-xl font-bold mb-4 dark:text-[#f25b29]">
-            Tech Element
+            কুইজ প্রতিযোগীতা
           </h4>
           <p className="text-sm text-gray-800 dark:text-[#f25b29]">
             Empowering global businesses with cutting-edge technology and smart
@@ -113,7 +113,7 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="text-center text-xs text-gray-500 py-6 border-t border-gray-800">
-        © {new Date().getFullYear()} Tech Element Inc. All rights reserved.
+        © {new Date().getFullYear()} কুইজ প্রতিযোগীতা Inc. All rights reserved.
       </div>
     </footer>
   );

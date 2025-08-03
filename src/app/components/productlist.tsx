@@ -13,7 +13,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import Head from "next/head";
 
-
 export default function ProductListPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filtered, setFiltered] = useState<Product[]>([]);
@@ -211,10 +210,10 @@ export default function ProductListPage() {
   return (
     <>
       <Head>
-        <title>All Product | Tech Element</title>
+        <title>All Product | কুইজ প্রতিযোগীতা</title>
         <meta
           name="description"
-          content="Browse a wide variety of tech products including phones, accessories, and more at Tech Element."
+          content="Browse a wide variety of tech products including phones, accessories, and more at কুইজ প্রতিযোগীতা."
         />
       </Head>
       <main className="p-4 md:p-6 max-w-screen-xl mx-auto bg-white pt-20 sm:pt-24">
