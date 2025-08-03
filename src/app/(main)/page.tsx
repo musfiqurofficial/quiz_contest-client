@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Banner from "../components/banner";
 import Gift from "../components/gift";
 import QuizSection from "../components/quizSection";
+import QuizTimelineAndInstructions from "../components/QuizTimelineAndInstructions";
+import FaqSection from "../components/FaqItem";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -16,6 +18,8 @@ export default async function Home() {
       <Banner />
       <Gift />
       <QuizSection />
+      <QuizTimelineAndInstructions />
+      <FaqSection/>
     </>
   );
 }

@@ -17,52 +17,21 @@ export default function Footer() {
         />
       </div>
 
-      <div className="container mx-auto px-4 py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div className="container mx-auto px-4 py-14 flex  sm:justify-between ">
         {/* Company Info */}
         <div>
           <h4 className="text-xl font-bold mb-4 dark:text-[#f25b29]">
             কুইজ প্রতিযোগীতা
           </h4>
-          <p className="text-sm text-gray-800 dark:text-[#f25b29]">
-            Empowering global businesses with cutting-edge technology and smart
-            solutions.
-          </p>
+
         </div>
 
         <div>
-          <h4 className="text-lg font-semibold mb-3 text-gray-800 dark:text-[#f25b29]">
-            Company
-          </h4>
-          <ul className="space-y-2 text-sm text-gray-900">
-            <li>
-              <a
-                href="/about"
-                className="hover:text-blue-800 dark:text-[#f25b29]"
-              >
-                About Us
-              </a>
-            </li>
-            <li>
-              <a
-                href="/careers"
-                className="hover:text-blue-800 dark:text-[#f25b29]"
-              >
-                Careers
-              </a>
-            </li>
-            <li>
-              <a
-                href="/blog"
-                className="hover:text-blue-800 dark:text-[#f25b29]"
-              >
-                Blog
-              </a>
-            </li>
-          </ul>
+          <h1>Quiz Contest</h1>
         </div>
 
         {/* Links - Support */}
-        <div>
+        {/* <div>
           <h4 className="text-lg font-semibold mb-3 text-gray-800">Support</h4>
           <ul className="space-y-2 text-sm text-gray-900">
             <li>
@@ -90,10 +59,10 @@ export default function Footer() {
               </a>
             </li>
           </ul>
-        </div>
+        </div> */}
 
         {/* Contact Info */}
-        <div>
+        {/* <div>
           <h4 className="text-lg font-semibold mb-3 text-gray-800">
             Get in Touch
           </h4>
@@ -108,7 +77,7 @@ export default function Footer() {
             <Building className="w-8 h-8 text-[#f25b29]" /> Level D-15, Lily
             Pond Center, 3 RK Mission Road, Motijheel, Dhaka-1203
           </p>
-        </div>
+        </div> */}
       </div>
 
       {/* Bottom bar */}
