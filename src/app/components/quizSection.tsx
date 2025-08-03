@@ -1,20 +1,38 @@
-import Image from "next/image";
+import RulesSection from "./RulesSection";
 
-const quizInfo = {
-  title: "প্রথম আলো পাঠক কুইজ",
-  description: `প্রথম আলোর ২৬তম প্রতিষ্ঠাবার্ষিকী উপলক্ষে পাঠকদের জন্য অনলাইন কুইজের এই আয়োজন। 
-  কুইজের প্রশ্ন থাকবে কুইজের দিন ও পূর্ববর্তী দিনের প্রথম আলোর ছাপা পত্রিকা ও অনলাইন থেকে।
-  প্রতিদিন কুইজে অংশগ্রহণকারীদের মধ্য থেকে বিজয়ীদের নির্বাচন করা হবে এবং বিজয়ীদের জন্য থাকছে আকর্ষণীয় উপহার।`,
-};
 
-const competitionDetails = {
-  title: "কুইজ প্রতিযোগিতা",
-  description: `কুইজ প্রতিযোগিতা চলবে ১০ দিন এবং প্রথম আলো অনলাইন (www.prothomalo.com/quiz) এ অনুষ্ঠিত হবে। 
-  প্রতিদিন সময়মতো কুইজ সঠিকভাবে সমাধানকারীদের মধ্য থেকে দৈবচয়ন পদ্ধতিতে বিজয়ী ঘোষণা করা হবে।`,
-  icon: "/Asset/prducts/quiz-banner.png", // Replace with actual path
+const quizData = {
+  quizInfo: {
+    title: "প্রথম আলো পাঠক কুইজ",
+    description: `প্রথম আলোর ২৬তম প্রতিষ্ঠাবার্ষিকী উপলক্ষে পাঠকদের জন্য অনলাইন কুইজের এই আয়োজন। 
+কুইজের প্রশ্ন থাকবে কুইজের দিন ও পূর্ববর্তী দিনের প্রথম আলোর ছাপা পত্রিকা ও অনলাইন থেকে।
+প্রতিদিন কুইজে অংশগ্রহণকারীদের মধ্য থেকে বিজয়ীদের নির্বাচন করা হবে এবং বিজয়ীদের জন্য থাকছে আকর্ষণীয় উপহার।`,
+  },
+  competitionDetails: {
+    title: "কুইজ প্রতিযোগিতা",
+    description: `কুইজ প্রতিযোগিতা চলবে ১০ দিন এবং প্রথম আলো অনলাইন (www.prothomalo.com/quiz) এ অনুষ্ঠিত হবে। 
+প্রতিদিন সময়মতো কুইজ সঠিকভাবে সমাধানকারীদের মধ্য থেকে দৈবচয়ন পদ্ধতিতে বিজয়ী ঘোষণা করা হবে।`,
+    icon: "/Asset/prducts/quiz-banner.png",
+  },
+  rules: {
+    title: "নিয়মাবলি",
+    items: [
+      "অংশগ্রহণের জন্য অনলাইনে নির্দিষ্ট ফরমে নিবন্ধন করে প্রতিযোগীকে অংশ নিতে হবে।",
+      "নিবন্ধনকারীর সম্পূর্ণ নাম অবশ্যই বাংলায় জাতীয় পরিচয়পত্র/ জন্মসনদের সঙ্গে মিল থাকতে হবে, অন্যথা বিজয়ী হলেও পুরস্কার বাতিল ঘোষণা করা হবে।",
+      "প্রতিদিন সন্ধ্যা ৭টা থেকে ৭টা ১০ মিনিট পর্যন্ত কুইজে অংশ নিতে হবে।",
+      "প্রশ্ন করা হবে কুইজের দিন ও পূর্ববর্তী দিনের প্রথম আলোর ছাপা পত্রিকা ও অনলাইন থেকে।",
+      "২০টি প্রশ্নের প্রতিটির জন্য ১ নম্বর বরাদ্দ থাকবে।",
+      "প্রতিদিন সবচেয়ে কম সময়ে সবচেয়ে বেশিসংখ্যক প্রশ্নের সঠিক উত্তরদাতা ১৫ জন বিজয়ীর নাম ঘোষণা করা হবে। এই ১৫ জন বিজয়ী পাবেন মোট (২,০০০ × ১৫) = ৩০,০০০ টাকার গিফট চেক। প্রতিদিন ১৫ জন করে ১০ দিনে মোট ১৫০ জন বিজয়ী পাবেন সর্বমোট ৩,০০,০০০ টাকার গিফট চেক।",
+      "নিবন্ধন চলবে: ২৫ অক্টোবর থেকে ১৪ নভেম্বর ২০২৪ পর্যন্ত",
+      "মহড়া কুইজ: ২ ও ৩ নভেম্বর ২০২৪, সন্ধ্যা ৭টা থেকে ৭টা ১০ মিনিট",
+      "মূল পর্বের কুইজ: ৫ থেকে ১৪ নভেম্বর ২০২৪, প্রতিদিন সন্ধ্যা ৭টা থেকে ৭টা ১০ মিনিট",
+    ],
+  },
 };
 
 export default function QuizSection() {
+  const { quizInfo, competitionDetails, rules } = quizData;
+
   return (
     <section className="py-12 bg-white">
       {/* Quiz Intro */}
@@ -27,28 +45,27 @@ export default function QuizSection() {
         </p>
       </div>
 
-      {/* Two Column Section */}
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch">
-        {/* Left side with background image */}
+      {/* Quiz Competition Two Column Section */}
+      <div className="max-w-7xl mx-auto mt-12 flex flex-col md:flex-row items-stretch">
         <div
-          className="w-full md:w-1/2 bg-no-repeat bg-cover bg-center min-h-[300px]"
+          className="w-full md:w-1/2 min-h-[250px] sm:min-h-[300px] md:min-h-[400px] bg-no-repeat bg-cover bg-center"
           style={{
-            backgroundImage: "url('/Asset/prducts/quiz-banner.png')", // ← your image path
+            backgroundImage: `url(${competitionDetails.icon})`,
           }}
-        >
-          {/* Optional overlay or space if needed */}
-        </div>
+        ></div>
 
-        {/* Right side with text */}
-        <div className="w-full md:w-1/2 bg-[#f9f9f9] p-8 md:p-12 flex flex-col justify-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-            কুইজ প্রতিযোগিতা
-          </h2>
-          <p className="text-gray-700 text-lg whitespace-pre-line leading-relaxed">
+        <div className="w-full md:w-1/2 bg-[#f9f9f9] p-6 sm:p-8 md:p-12 flex flex-col justify-center">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+            {competitionDetails.title}
+          </h3>
+          <p className="text-gray-700 text-base sm:text-lg leading-relaxed whitespace-pre-line">
             {competitionDetails.description}
           </p>
         </div>
       </div>
+
+      {/* Rules Section Rendered Here */}
+      <RulesSection title={rules.title} rules={rules.items} />
     </section>
   );
 }
