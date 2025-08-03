@@ -8,7 +8,7 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
   return (
     <html lang="en">
       <head>
-        {/* Google Font (Roboto in this case) */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
