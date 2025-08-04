@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { UploadCloud } from "lucide-react";
+import { toast } from "sonner";
 
 type Props = {
   name: string;
@@ -40,6 +41,7 @@ export const ImageUploader = ({ name, label = "Upload Image" }: Props) => {
       if (data?.success && data.data?.url) {
         const uploadedUrl = data.data.url;
         setValue(name, uploadedUrl, { shouldValidate: true });
+        toast.success("Image uploaded!");
         setPreview(uploadedUrl);
       } else {
         console.error("Upload failed:", data);
@@ -58,11 +60,11 @@ export const ImageUploader = ({ name, label = "Upload Image" }: Props) => {
       control={control}
       name={name}
       render={({ fieldState }) => (
-        <div className="space-y-2">
+        <div className="space-y-2 w-full">
           <label className="block text-sm font-medium">{label}</label>
 
           {preview && (
-            <div className="relative w-48 h-32 rounded border overflow-hidden">
+            <div className="relative w-full h-32 rounded border overflow-hidden">
               <Image
                 src={preview}
                 alt="Preview"

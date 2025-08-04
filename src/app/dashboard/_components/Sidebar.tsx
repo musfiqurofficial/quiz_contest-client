@@ -21,7 +21,7 @@ const menuItems = [
     icon: <MonitorCog />,
     routes: [
       { label: "Banner", href: "/dashboard/appearance/banner" },
-      { label: "Hero Section", href: "/dashboard/appearance/hero" },
+      { label: "Offer", href: "/dashboard/appearance/offer" },
       { label: "Features Sections", href: "/dashboard/appearance/features" },
       { label: "Manage Contact", href: "/dashboard/appearance/contact" },
       { label: "Testimonials", href: "/dashboard/appearance/testimonials" },
@@ -83,7 +83,7 @@ const Sidebar: FC<SidebarProps> = ({
               variant="ghost"
               size="icon"
               onClick={toggleCollapse}
-              className="text-white hover:bg-white/10"
+              className="text-white hover:bg-orange-600/90"
             >
               <Menu />
             </Button>
@@ -91,7 +91,7 @@ const Sidebar: FC<SidebarProps> = ({
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="text-white lg:hidden hover:bg-white/10"
+              className="text-white lg:hidden hover:bg-orange-600/90"
             >
               <X />
             </Button>
@@ -113,7 +113,7 @@ const Sidebar: FC<SidebarProps> = ({
             <Link href={href} key={href}>
               <Button
                 variant="ghost"
-                className="w-full justify-start text-white hover:bg-white/10"
+                className="w-full justify-start hover:text-white text-white !hover:text-white hover:bg-orange-600/90"
               >
                 <span className="mr-2">{icon}</span>
                 {!collapsed && label}
@@ -126,7 +126,7 @@ const Sidebar: FC<SidebarProps> = ({
             <div key={item.label}>
               <Button
                 variant="ghost"
-                className="w-full justify-start text-white hover:bg-white/10"
+                className="w-full justify-start hover:text-white text-white hover:bg-orange-600/90"
                 onClick={() => toggleDropdown(item.label)}
               >
                 <span className="mr-2">{item.icon}</span>
@@ -145,7 +145,7 @@ const Sidebar: FC<SidebarProps> = ({
                     <Link href={route.href} key={route.href}>
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-white hover:bg-white/10 text-sm"
+                        className="w-full justify-start text-white hover:text-white hover:bg-orange-600/90 text-sm"
                       >
                         {route.label}
                       </Button>

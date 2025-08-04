@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import {
@@ -13,38 +11,56 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { updateBanner, type BannerPayload } from "@/lib/api/banner";
-import { Banner } from "@/types/Banner";
 import { toast } from "sonner";
 import { ImageUploader } from "@/app/dashboard/_components/image-upload";
+import type { Offer } from "@/lib/api/Offer";
+import { updateOffer } from "../../../../../lib/api/Offer";
+type OfferFormValues = {
+  amount: number;
+  dailyGift: number;
+  dayLength: number;
+  status: "approved" | "pending" | "delete";
+  image: string;
+};
 
 type UpdateBannerDialogProps = {
-  banner: Banner;
+  banner: Offer;
   onChange: () => Promise<void>;
 };
 
-export default function UpdateBannerDialog({
+export default function UpdateOfferDialog({
   banner,
   onChange,
 }: UpdateBannerDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const methods = useForm({
+  const methods = useForm<OfferFormValues>({
     defaultValues: {
-      title: banner.title || "",
-      description: banner.description || "",
-      buttonText: banner.buttonText || "",
-      status: banner.status || "active",
-      image: banner.image || "",
+      amount: banner.amount || 0,
+      dailyGift: banner.dailyGift || 0,
+      dayLength: banner.dayLength || 0,
+      status: banner.status || "approved",
+      image: banner.img || "",
     },
   });
 
-  const onSubmit = async (data: BannerPayload) => {
+  const onSubmit = async (data: OfferFormValues) => {
     try {
-      await updateBanner(banner._id, data);
-      toast.success("Banner updated successfully!");
-      await onChange();
-      setOpen(false);
+      const payload: Offer = {
+        ...banner,
+        amount: Number(data.amount),
+        dailyGift: Number(data.dailyGift),
+        dayLength: Number(data.dayLength),
+        status: data?.status,
+        img: data.image,
+      };
+
+      const res = await updateOffer(banner._id, payload);
+      if (res.success === true) {
+        await onChange?.();
+        toast.success("Offer updated successfully!");
+        setOpen(false);
+      }
     } catch (error) {
       toast.error("Update failed");
       console.error(error);
@@ -61,7 +77,7 @@ export default function UpdateBannerDialog({
         style={{ width: "90vw", maxWidth: "50rem" }}
       >
         <DialogTitle className="text-xl font-semibold text-gray-800 mb-2">
-          Edit Banner
+          Edit Offer
         </DialogTitle>
         <FormProvider {...methods}>
           <form
@@ -72,32 +88,31 @@ export default function UpdateBannerDialog({
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title
+                  Amount
                 </label>
                 <Input
-                  {...methods.register("title")}
-                  placeholder="Enter banner title"
+                  {...methods.register("amount")}
+                  placeholder="Enter Amount"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
+                  Day Length
                 </label>
-                <Textarea
-                  {...methods.register("description")}
-                  placeholder="Enter banner description"
-                  rows={4}
+                <Input
+                  {...methods.register("dayLength")}
+                  placeholder="Enter Day length"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Button Text
+                  Daily Gift
                 </label>
                 <Input
-                  {...methods.register("buttonText")}
-                  placeholder="Enter button text"
+                  {...methods.register("dailyGift")}
+                  placeholder="Enter Daily Gift"
                 />
               </div>
 

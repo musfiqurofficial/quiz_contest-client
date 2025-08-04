@@ -1,26 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getBanner, deleteBanner } from "@/lib/api/banner";
-import type { Banner } from "@/types/Banner";
+import { deleteBanner } from "@/lib/api/banner";
+
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
-import UpdateBannerDialog from "./_components/update";
-import { toast } from "sonner";
 
-export default function BannerList() {
-  const [banners, setBanners] = useState<Banner[]>([]);
+import { toast } from "sonner";
+import { getOffer, type Offer, deleteOffer } from "../../../../lib/api/Offer";
+import UpdateOfferDialog from "./_components/update";
+import Image from "next/image";
+import CreateOfferDialog from "./_components/create";
+
+export default function OfferList() {
+  const [offer, setOffer] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await getBanner();
-      setBanners(res.data);
+      const res = await getOffer();
+      setOffer(res.data);
     } catch (error) {
-      console.error("Failed to fetch banners", error);
+      console.error("Failed to fetch offer", error);
     } finally {
       setLoading(false);
     }
@@ -30,6 +34,8 @@ export default function BannerList() {
     fetchData();
   }, []);
 
+  console.log(offer, "offer");
+
   const handleDelete = async (id: string) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this banner?"
@@ -37,9 +43,9 @@ export default function BannerList() {
     if (!confirmDelete) return;
 
     try {
-      await deleteBanner(id);
+      await deleteOffer(id);
       toast.success("Banner deleted successfully.");
-      setBanners((prev) => prev.filter((b) => b._id !== id));
+      setOffer((prev) => prev.filter((b) => b._id !== id));
     } catch (error) {
       console.error("Failed to delete banner", error);
       toast.error("Failed to delete banner.");
@@ -49,50 +55,45 @@ export default function BannerList() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Banners</h2>
-        <Button
-          className="bg-orange-600"
-          onClick={() => router.push("/dashboard/appearance/banner/create")}
-        >
-          Create Banner
-        </Button>
+        <h2 className="text-2xl font-bold">Offer</h2>
+        <CreateOfferDialog onChange={fetchData} length={offer.length} />
       </div>
 
       {loading ? (
-        <p className="text-gray-600">Loading banners...</p>
-      ) : banners.length === 0 ? (
+        <p className="text-gray-600">Loading offer...</p>
+      ) : offer.length === 0 ? (
         <div className="text-center p-8 border rounded-md bg-gray-50">
-          <p className="text-gray-500 mb-4 bg-orange-600">No banners found.</p>
+          <p className="text-gray-500 mb-4 bg-orange-600">No offer found.</p>
           <Button
-            onClick={() => router.push("/dashboard/appearance/banner/create")}
+            onClick={() => router.push("/dashboard/appearance/offer/create")}
           >
-            Create a Banner
+            Create a offer
           </Button>
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {banners.map((banner) => (
+          {offer.map((banner) => (
             <div
               key={banner._id}
               className="rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition-all bg-white"
             >
-              <img
-                src={banner.image}
-                alt={banner.title}
+              <Image
+                src={banner.img}
+                alt={"offerImg"}
+                height={300}
+                width={300}
                 className="h-48 w-full object-cover"
               />
               <div className="p-4 space-y-2">
-                <h3 className="text-lg font-semibold">{banner.title}</h3>
-                <p className="text-sm text-gray-600">{banner.description}</p>
-                {banner.buttonText && (
-                  <button className="text-blue-600 underline text-sm">
-                    {banner.buttonText}
-                  </button>
-                )}
-                <p className="text-xs text-gray-400">Status: {banner.status}</p>
+                <h3 className="text-lg font-semibold">{banner?.amount}</h3>
+                <p className="text-sm text-gray-600">{banner?.dailyGift}</p>
+
+                <p className="text-xs text-gray-400">
+                  Status: {banner?.dayLength}
+                </p>
 
                 <div className="flex justify-end gap-2 mt-2">
-                  <UpdateBannerDialog banner={banner} onChange={fetchData} />
+                  <UpdateOfferDialog banner={banner} onChange={fetchData} />
                   <Button
                     variant="destructive"
                     size="sm"

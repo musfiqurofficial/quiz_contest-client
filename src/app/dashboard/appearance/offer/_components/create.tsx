@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import {
@@ -11,42 +9,68 @@ import {
 import { Button } from "@/components/ui/button";
 import { FormProvider, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
-import { updateBanner, type BannerPayload } from "@/lib/api/banner";
-import { Banner } from "@/types/Banner";
 import { toast } from "sonner";
+import { useState } from "react";
 import { ImageUploader } from "@/app/dashboard/_components/image-upload";
+import { createOffer } from "@/lib/api/Offer";
+import type { Offer } from "@/lib/api/Offer";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-type UpdateBannerDialogProps = {
-  banner: Banner;
+const offerFormSchema = z.object({
+  amount: z.number().min(1, "Amount is required"),
+  dailyGift: z.number().min(1, "Daily gift is required"),
+  dayLength: z.number().min(1, "Day length is required"),
+  status: z.enum(["approved", "pending", "delete"]),
+  image: z.string().url("Must be a valid image URL"),
+});
+
+type OfferFormValues = z.infer<typeof offerFormSchema>;
+
+type CreateOfferDialogProps = {
+  length: number;
   onChange: () => Promise<void>;
 };
 
-export default function UpdateBannerDialog({
-  banner,
+export default function CreateOfferDialog({
+  length,
   onChange,
-}: UpdateBannerDialogProps) {
+}: CreateOfferDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const methods = useForm({
+  const methods = useForm<OfferFormValues>({
+    resolver: zodResolver(offerFormSchema),
     defaultValues: {
-      title: banner.title || "",
-      description: banner.description || "",
-      buttonText: banner.buttonText || "",
-      status: banner.status || "active",
-      image: banner.image || "",
+      amount: 0,
+      dailyGift: 0,
+      dayLength: 0,
+      status: "approved",
+      image: "",
     },
   });
 
-  const onSubmit = async (data: BannerPayload) => {
+  const onSubmit = async (data: OfferFormValues) => {
     try {
-      await updateBanner(banner._id, data);
-      toast.success("Banner updated successfully!");
-      await onChange();
-      setOpen(false);
+      const payload: Offer = {
+        _id: "", // backend should ignore or generate this
+        img: data.image,
+        amount: Number(data.amount),
+        dailyGift: Number(data.dailyGift),
+        dayLength: Number(data.dayLength),
+        status: data.status,
+        __v: 0,
+      };
+
+      const res = await createOffer(payload);
+
+      if (res.success) {
+        await onChange?.();
+        toast.success("Offer created successfully!");
+        setOpen(false);
+        methods.reset();
+      }
     } catch (error) {
-      toast.error("Update failed");
+      toast.error("Creation failed");
       console.error(error);
     }
   };
@@ -54,14 +78,21 @@ export default function UpdateBannerDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Edit</Button>
+        <Button
+          disabled={length === 1}
+          variant="outline"
+          className={length === 1 ? " cursor-none" : "text-white bg-orange-600"}
+          title={length === 1 ? "Can't add" : undefined}
+        >
+          Create Offer
+        </Button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-5xl mx-auto "
+        className="max-w-5xl mx-auto"
         style={{ width: "90vw", maxWidth: "50rem" }}
       >
         <DialogTitle className="text-xl font-semibold text-gray-800 mb-2">
-          Edit Banner
+          Create Offer
         </DialogTitle>
         <FormProvider {...methods}>
           <form
@@ -72,32 +103,31 @@ export default function UpdateBannerDialog({
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title
+                  Amount
                 </label>
                 <Input
-                  {...methods.register("title")}
-                  placeholder="Enter banner title"
+                  {...methods.register("amount", { valueAsNumber: true })}
+                  placeholder="Enter Amount"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
+                  Day Length
                 </label>
-                <Textarea
-                  {...methods.register("description")}
-                  placeholder="Enter banner description"
-                  rows={4}
+                <Input
+                  {...methods.register("dayLength", { valueAsNumber: true })}
+                  placeholder="Enter Day Length"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Button Text
+                  Daily Gift
                 </label>
                 <Input
-                  {...methods.register("buttonText")}
-                  placeholder="Enter button text"
+                  {...methods.register("dailyGift", { valueAsNumber: true })}
+                  placeholder="Enter Daily Gift"
                 />
               </div>
 
@@ -111,7 +141,7 @@ export default function UpdateBannerDialog({
                 >
                   <option value="approved">Approved</option>
                   <option value="pending">Pending</option>
-                  <option value="deleted">Deleted</option>
+                  <option value="delete">Deleted</option>
                 </select>
               </div>
             </div>
@@ -121,10 +151,10 @@ export default function UpdateBannerDialog({
               <ImageUploader name="image" />
             </div>
 
-            {/* Submit Button Full Width */}
-            <div className="md:col-span-2 flex justify-end ">
+            {/* Submit Button */}
+            <div className="md:col-span-2 flex justify-end">
               <Button type="submit" className="w-full md:w-auto bg-orange-600">
-                Update Banner
+                Create Offer
               </Button>
             </div>
           </form>
