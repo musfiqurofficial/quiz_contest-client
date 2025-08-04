@@ -1,11 +1,43 @@
-
-
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ChartCandlestick, Home, Menu, Settings, Users, X } from "lucide-react";
+import {
+  ChartCandlestick,
+  Home,
+  Menu,
+  MonitorCog,
+  Settings,
+  User2,
+  Users,
+  X,
+} from "lucide-react";
 import Link from "next/link";
-import { FC } from "react";
+import { FC, useState } from "react";
+
+// Nested menu configuration
+const menuItems = [
+  {
+    label: "Appearance",
+    icon: <MonitorCog />,
+    routes: [
+      { label: "Banner", href: "/dashboard/appearance/banner" },
+      { label: "Hero Section", href: "/dashboard/appearance/hero" },
+      { label: "Features Sections", href: "/dashboard/appearance/features" },
+      { label: "Manage Contact", href: "/dashboard/appearance/contact" },
+      { label: "Testimonials", href: "/dashboard/appearance/testimonials" },
+      { label: "Statistics", href: "/dashboard/appearance/statistics" },
+    ],
+  },
+  {
+    label: "Users",
+    icon: <User2 />,
+    routes: [
+      { label: "Users", href: "/dashboard/users" },
+      { label: "Payroll List", href: "/dashboard/payroll-list" },
+      { label: "Withdraw List", href: "/dashboard/withdraw-request-list" },
+    ],
+  },
+];
 
 interface SidebarProps {
   isOpen: boolean;
@@ -20,6 +52,12 @@ const Sidebar: FC<SidebarProps> = ({
   collapsed,
   toggleCollapse,
 }) => {
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const toggleDropdown = (label: string) => {
+    setOpenDropdown(openDropdown === label ? null : label);
+  };
+
   return (
     <>
       {isOpen && (
@@ -31,14 +69,14 @@ const Sidebar: FC<SidebarProps> = ({
 
       <aside
         className={`
-          fixed top-0 left-0 z-50 h-screen bg-gray-800 text-white 
+          fixed top-0 !overflow-y-scroll  scrollbar-hide  left-0 z-50  h-screen bg-gray-800 text-white
           transition-all duration-300 ease-in-out
           ${collapsed ? "w-14" : "w-64"}
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0
         `}
       >
-        <div className="flex items-center justify-between p-3 border-b border-white/20">
+        <div className="flex sticky top-0 w-full bg-gray-800 items-center justify-between p-3 border-b border-white/20">
           {!collapsed && <h2 className="text-lg font-bold">Admin Panel</h2>}
           <div className="flex gap-2">
             <Button
@@ -60,7 +98,8 @@ const Sidebar: FC<SidebarProps> = ({
           </div>
         </div>
 
-        <nav className="mt-4 space-y-1">
+        <nav className="mt-4 space-y-1 ">
+          {/* Main routes */}
           {[
             { href: "/dashboard", icon: <Home />, label: "Dashboard" },
             {
@@ -80,6 +119,41 @@ const Sidebar: FC<SidebarProps> = ({
                 {!collapsed && label}
               </Button>
             </Link>
+          ))}
+
+          {/* Nested dropdown menus */}
+          {menuItems.map((item) => (
+            <div key={item.label}>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-white hover:bg-white/10"
+                onClick={() => toggleDropdown(item.label)}
+              >
+                <span className="mr-2">{item.icon}</span>
+                {!collapsed && (
+                  <>
+                    {item.label}
+                    <span className="ml-auto">
+                      {openDropdown === item.label ? "▲" : "▼"}
+                    </span>
+                  </>
+                )}
+              </Button>
+              {!collapsed && openDropdown === item.label && (
+                <div className="ml-6 space-y-1">
+                  {item.routes.map((route) => (
+                    <Link href={route.href} key={route.href}>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-white hover:bg-white/10 text-sm"
+                      >
+                        {route.label}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </nav>
       </aside>

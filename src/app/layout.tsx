@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import { Toaster } from "sonner";
 
 type RootLayoutProps = {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
         />
       </head>
       <body className="bg-white font-roboto">
+        <Toaster />
         {children}
         <div id="portal"></div>
       </body>

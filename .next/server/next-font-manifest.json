@@ -1,11 +1,5 @@
 {
-  "app": {
-    "[project]/src/app/(main)/auth/page": [],
-    "[project]/src/app/(main)/page": [],
-    "[project]/src/app/_not-found/page": [],
-    "[project]/src/app/dashboard/page": [],
-    "[project]/src/app/dashboard/site-setting/page": []
-  },
+  "app": {},
   "appUsingSizeAdjust": false,
   "pages": {},
   "pagesUsingSizeAdjust": false
