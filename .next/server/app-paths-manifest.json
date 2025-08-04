@@ -1,5 +1,14 @@
 {
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/dashboard/appearance/offer/page": "app/dashboard/appearance/offer/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/dashboard/appearance/banner/create/page": "app/dashboard/appearance/banner/create/page.js",
+  "/dashboard/site-setting/page": "app/dashboard/site-setting/page.js",
+  "/dashboard/appearance/banner/[id]/page": "app/dashboard/appearance/banner/[id]/page.js",
+  "/dashboard/appearance/banner/page": "app/dashboard/appearance/banner/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/(main)/auth/page": "app/(main)/auth/page.js",
+  "/(main)/quiz/page": "app/(main)/quiz/page.js",
+  "/(main)/page": "app/(main)/page.js"
 }
