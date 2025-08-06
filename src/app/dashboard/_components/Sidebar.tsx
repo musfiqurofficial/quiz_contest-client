@@ -23,7 +23,7 @@ const menuItems = [
       { label: "Banner", href: "/dashboard/appearance/banner" },
       { label: "Offer", href: "/dashboard/appearance/offer" },
       { label: "Quiz Data", href: "/dashboard/appearance/quizData" },
-      
+      { label: "Judge Panel", href: "/dashboard/appearance/judge-panel" },
     ],
   },
   {
