@@ -22,10 +22,8 @@ const menuItems = [
     routes: [
       { label: "Banner", href: "/dashboard/appearance/banner" },
       { label: "Offer", href: "/dashboard/appearance/offer" },
-      { label: "Features Sections", href: "/dashboard/appearance/features" },
-      { label: "Manage Contact", href: "/dashboard/appearance/contact" },
-      { label: "Testimonials", href: "/dashboard/appearance/testimonials" },
-      { label: "Statistics", href: "/dashboard/appearance/statistics" },
+      { label: "Quiz Data", href: "/dashboard/appearance/quizData" },
+      
     ],
   },
   {

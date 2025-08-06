@@ -52,7 +52,7 @@ export default function CreateOfferDialog({
   const onSubmit = async (data: OfferFormValues) => {
     try {
       const payload: Offer = {
-        _id: "", // backend should ignore or generate this
+        _id: "", 
         img: data.image,
         amount: Number(data.amount),
         dailyGift: Number(data.dailyGift),

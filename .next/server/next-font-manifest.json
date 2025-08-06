@@ -1,1 +1,10 @@
-{"pages":{},"app":{},"appUsingSizeAdjust":false,"pagesUsingSizeAdjust":false}
+{
+  "app": {
+    "[project]/src/app/_not-found/page": [],
+    "[project]/src/app/dashboard/appearance/offer/page": [],
+    "[project]/src/app/dashboard/appearance/quizData/page": []
+  },
+  "appUsingSizeAdjust": false,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}
