@@ -1,15 +1,1 @@
-{
-  "app": {
-    "[project]/src/app/(main)/page": [],
-    "[project]/src/app/_not-found/page": [],
-    "[project]/src/app/dashboard/appearance/banner/page": [],
-    "[project]/src/app/dashboard/appearance/faq/page": [],
-    "[project]/src/app/dashboard/appearance/judge-panel/page": [],
-    "[project]/src/app/dashboard/appearance/offer/page": [],
-    "[project]/src/app/dashboard/appearance/quizData/page": [],
-    "[project]/src/app/dashboard/appearance/time-instruction/page": []
-  },
-  "appUsingSizeAdjust": false,
-  "pages": {},
-  "pagesUsingSizeAdjust": false
-}
+{"pages":{},"app":{},"appUsingSizeAdjust":false,"pagesUsingSizeAdjust":false}
