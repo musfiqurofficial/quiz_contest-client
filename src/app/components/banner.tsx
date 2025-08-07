@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -70,6 +68,18 @@ export default function Banner() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [instanceRef]);
+
+  useEffect(() => {
+    if (!loaded || !instanceRef.current) return;
+
+    timerRef.current = setInterval(() => {
+      instanceRef.current?.next();
+    }, 5000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [loaded]);
 
   if (banners.length === 0) return null; // You can replace with loader if needed
 

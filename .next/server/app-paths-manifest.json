@@ -1,18 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/sitemap.xml/route": "app/sitemap.xml/route.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/dashboard/appearance/banner/[id]/page": "app/dashboard/appearance/banner/[id]/page.js",
-  "/dashboard/appearance/banner/create/page": "app/dashboard/appearance/banner/create/page.js",
-  "/dashboard/appearance/banner/page": "app/dashboard/appearance/banner/page.js",
-  "/dashboard/appearance/faq/page": "app/dashboard/appearance/faq/page.js",
-  "/dashboard/appearance/judge-panel/page": "app/dashboard/appearance/judge-panel/page.js",
-  "/dashboard/appearance/offer/page": "app/dashboard/appearance/offer/page.js",
-  "/dashboard/site-setting/page": "app/dashboard/site-setting/page.js",
-  "/dashboard/appearance/quizData/page": "app/dashboard/appearance/quizData/page.js",
-  "/dashboard/appearance/time-instruction/page": "app/dashboard/appearance/time-instruction/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/(main)/auth/page": "app/(main)/auth/page.js",
   "/(main)/page": "app/(main)/page.js",
-  "/(main)/quiz/page": "app/(main)/quiz/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js"
 }
