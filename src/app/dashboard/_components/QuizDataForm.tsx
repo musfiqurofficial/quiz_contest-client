@@ -73,7 +73,7 @@ export default function QuizForm() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch(`${api}/quizData`);
+        const res = await fetch(`${api}/quiz-data`);
         const json = await res.json();
         if (res.ok && Array.isArray(json.data) && json.data.length > 0) {
           const obj = json.data[0];
@@ -149,10 +149,9 @@ export default function QuizForm() {
   const onDelete = async () => {
     if (!dataId) return;
     try {
-      const res = await fetch(
-        `${api}/quizData/${dataId}`,
-        { method: "DELETE" }
-      );
+      const res = await fetch(`${api}/quizData/${dataId}`, {
+        method: "DELETE",
+      });
       const json = await res.json();
       if (res.ok) {
         toast.success("Deleted successfully");
