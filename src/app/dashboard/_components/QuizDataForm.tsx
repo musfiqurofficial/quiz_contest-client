@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -20,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import CustomEditor from "./Editor";
 import { ImageUploader } from "./image-upload";
 import { Plus, X } from "lucide-react";
+import { api } from "@/data/api";
 
 // Validation Schema
 const formSchema = z.object({
@@ -74,7 +73,7 @@ export default function QuizForm() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch("http://localhost:5000/api/v1/quizData");
+        const res = await fetch(`${api}/quizData`);
         const json = await res.json();
         if (res.ok && Array.isArray(json.data) && json.data.length > 0) {
           const obj = json.data[0];
@@ -107,7 +106,7 @@ export default function QuizForm() {
 
   const onCreate = async (data: IQuizData) => {
     try {
-      const res = await fetch("http://localhost:5000/api/v1/quizData", {
+      const res = await fetch(`${api}/quizData`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -129,14 +128,11 @@ export default function QuizForm() {
   const onUpdate = async (data: IQuizData) => {
     if (!dataId) return;
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/v1/quizData/${dataId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
+      const res = await fetch(`${api}/quizData/${dataId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
       const json = await res.json();
       if (res.ok) {
         toast.success("Updated successfully");
@@ -154,7 +150,7 @@ export default function QuizForm() {
     if (!dataId) return;
     try {
       const res = await fetch(
-        `http://localhost:5000/api/v1/quizData/${dataId}`,
+        `${api}/quizData/${dataId}`,
         { method: "DELETE" }
       );
       const json = await res.json();

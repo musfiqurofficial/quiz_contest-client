@@ -1,34 +1,26 @@
+
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-import { motion, AnimatePresence } from "framer-motion";
 import { useKeenSlider } from "keen-slider/react";
 import { CircleChevronLeft, CircleChevronRight } from "lucide-react";
 import "keen-slider/keen-slider.min.css";
 
-const banners = [
-  {
-    id: 1,
-    title: "স্মার্ট ভিলেজ পাঠক কুইজ",
-    description:
-      "স্মার্ট ভিলেজর ২৬তম প্রতিষ্ঠাবার্ষিকী উপলক্ষে পাঠকদের জন্য অনলাইন কুইজের আয়োজন। কুইজের প্রশ্ন থাকবে কুইজের দিন ও পূর্ববর্তী দিনের স্মার্ট ভিলেজর ছাপা পত্রিকা ও অনলাইন থেকে। বিজয়ীদের জন্য রয়েছে আকর্ষণীয় গিফট চেক!",
-    image: "/Asset/prducts/banner-1-1.png", // Replace with actual image
-    buttonText: "কুইজে শুরু করতে ক্লিক করুন",
-  },
-  {
-    id: 2,
-    title: "পড়তে হবে, জিততে হলে",
-    description:
-      "কুইজের যেকোনো বিষয়ে স্মার্ট ভিলেজর দৃষ্টিভঙ্গি জানতে পড়তে হবে প্রতিদিন।",
-    image: "/Asset/prducts/banner-1-2.png", // Replace with actual image
-    buttonText: "শুরু করুন",
-  },
-];
+type BannerItem = {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  buttonText: string;
+  status: string;
+};
 
 export default function Banner() {
+  const [banners, setBanners] = useState<BannerItem[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -44,6 +36,29 @@ export default function Banner() {
     },
   });
 
+  // Fetch banner data
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await fetch(
+          "https://backend-weld-two-15.vercel.app/api/v1/banner"
+        );
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          const approvedBanners = json.data.filter(
+            (item: BannerItem) => item.status === "approved"
+          );
+          setBanners(approvedBanners);
+        }
+      } catch (error) {
+        console.error("Failed to fetch banners:", error);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
+  // Auto slide every 5 seconds
   useEffect(() => {
     if (!instanceRef.current) return;
 
@@ -56,54 +71,42 @@ export default function Banner() {
     };
   }, [instanceRef]);
 
+  if (banners.length === 0) return null; // You can replace with loader if needed
+
   return (
     <main className="relative bg-white pt-10 md:pt-0">
       <div
         ref={sliderRef}
         className="keen-slider w-full h-auto md:h-[600px] relative"
       >
-        {banners.map((banner, index) => (
-          <div className="keen-slider__slide" key={banner.id}>
-            <AnimatePresence mode="wait">
-              {index === currentSlide && (
-                <motion.div
-                  key={banner.id}
-                  initial={{ opacity: 0, x: 100 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                  transition={{
-                    duration: 0.8,
-                    ease: [0.25, 0.1, 0.25, 1],
-                  }}
-                  className="w-full h-full flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-20 py-10 gap-8"
-                >
-                  {/* Text Content */}
-                  <div className="md:w-1/2 text-center md:text-left space-y-4 z-10">
-                    <h1 className="text-2xl md:text-4xl font-bold text-primary">
-                      {banner.title}
-                    </h1>
-                    <p className="text-md md:text-lg text-gray-700 leading-relaxed">
-                      {banner.description}
-                    </p>
-                    <Button className="px-6 py-2 text-lg bg-[#f25b29] text-white hover:bg-[#e5531f] transition">
-                      {banner.buttonText}
-                    </Button>
-                  </div>
+        {banners.map((banner) => (
+          <div className="keen-slider__slide" key={banner._id}>
+            <div className="w-full h-full flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-20 py-10 gap-8">
+              {/* Text Content */}
+              <div className="md:w-1/2 text-center md:text-left space-y-4 z-10">
+                <h1 className="text-2xl md:text-4xl font-bold text-primary">
+                  {banner.title}
+                </h1>
+                <p className="text-md md:text-lg text-gray-700 leading-relaxed">
+                  {banner.description}
+                </p>
+                <Button className="px-6 py-2 text-lg bg-[#f25b29] text-white hover:bg-[#e5531f] transition">
+                  {banner.buttonText}
+                </Button>
+              </div>
 
-                  {/* Image */}
-                  <div className="md:w-1/2 flex justify-center">
-                    <Image
-                      src={banner.image}
-                      alt={banner.title}
-                      width={500}
-                      height={400}
-                      className="rounded-lg object-contain max-h-[350px] md:max-h-[450px]"
-                      priority
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+              {/* Image */}
+              <div className="md:w-1/2 flex justify-center">
+                <Image
+                  src={banner.image}
+                  alt={banner.title}
+                  width={500}
+                  height={400}
+                  className="rounded-lg object-contain max-h-[350px] md:max-h-[450px]"
+                  priority
+                />
+              </div>
+            </div>
           </div>
         ))}
       </div>

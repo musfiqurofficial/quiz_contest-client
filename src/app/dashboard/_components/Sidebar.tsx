@@ -24,6 +24,10 @@ const menuItems = [
       { label: "Offer", href: "/dashboard/appearance/offer" },
       { label: "Quiz Data", href: "/dashboard/appearance/quizData" },
       { label: "Judge Panel", href: "/dashboard/appearance/judge-panel" },
+      {
+        label: "Time Instruction",
+        href: "/dashboard/appearance/time-instruction",
+      },
       { label: "FaQ", href: "/dashboard/appearance/faq" },
     ],
   },
