@@ -1,3 +1,88 @@
+// // "use client";
+
+// // import Image from "next/image";
+// // import { motion } from "framer-motion";
+
+// // interface Judge {
+// //   name: string;
+// //   title: string;
+// //   image: string;
+// // }
+
+// // const judges: Judge[] = [
+// //   {
+// //     name: "মো. সাইফুল ইসলাম",
+// //     title: "সিনিয়র সাংবাদিক, স্মার্ট ভিলেজ",
+// //     image: "/Asset/Judge/saiful.jpg",
+// //   },
+// //   {
+// //     name: "সাবরিনা আহমেদ",
+// //     title: "ডেপুটি এডিটর, স্মার্ট ভিলেজ",
+// //     image: "/Asset/Judge/saiful.jpg",
+// //   },
+// //   {
+// //     name: "রাফিদ হাসান",
+// //     title: "প্রোগ্রাম কো-অর্ডিনেটর, স্মার্ট ভিলেজ",
+// //     image: "/Asset/Judge/saiful.jpg",
+// //   },
+// // ];
+
+// // export default function JudgeSection() {
+// //   return (
+// //     <section className="relative bg-gradient-to-br from-orange-50 via-white to-orange-100 py-20 px-4">
+// //       <div className="max-w-6xl mx-auto text-center">
+// //         <motion.h2
+// //           initial={{ opacity: 0, y: -20 }}
+// //           animate={{ opacity: 1, y: 0 }}
+// //           transition={{ duration: 0.6 }}
+// //           className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4"
+// //         >
+// //           বিচারক প্যানেল
+// //         </motion.h2>
+
+// //         <motion.p
+// //           initial={{ opacity: 0 }}
+// //           animate={{ opacity: 1 }}
+// //           transition={{ delay: 0.2, duration: 0.6 }}
+// //           className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto mb-12"
+// //         >
+// //           এই কুইজ প্রতিযোগিতার বিচারক হিসেবে আছেন অভিজ্ঞ সাংবাদিক এবং সংগঠকগণ,
+// //           যাঁরা নিরপেক্ষ ও স্বচ্ছ প্রক্রিয়ায় বিজয়ী নির্বাচন করবেন।
+// //         </motion.p>
+
+// //         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+// //           {judges.map((judge, index) => (
+// //             <motion.div
+// //               key={index}
+// //               initial={{ opacity: 0, y: 30 }}
+// //               whileInView={{ opacity: 1, y: 0 }}
+// //               transition={{ delay: index * 0.1, duration: 0.5 }}
+// //               viewport={{ once: true }}
+// //               className="group bg-white rounded-2xl shadow-md hover:shadow-xl transform transition-all duration-300 hover:-translate-y-2 p-6 border border-orange-100"
+// //             >
+// //               <div className="relative w-28 h-28 mx-auto mb-4">
+// //                 <Image
+// //                   src={judge.image}
+// //                   alt={judge.name}
+// //                   fill
+// //                   className="object-cover rounded-full border-4 border-white shadow-md group-hover:scale-105 transition-transform duration-300"
+// //                 />
+// //               </div>
+// //               <h3 className="text-xl font-semibold text-gray-800 group-hover:text-orange-500 transition">
+// //                 {judge.name}
+// //               </h3>
+// //               <p className="text-sm text-gray-500 mt-1">{judge.title}</p>
+// //             </motion.div>
+// //           ))}
+// //         </div>
+// //       </div>
+
+// //       {/* Decorative line */}
+// //       <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 to-orange-600 rounded-t-lg" />
+// //     </section>
+// //   );
+// // }
+
 // "use client";
 
 // import Image from "next/image";
@@ -9,23 +94,34 @@
 //   image: string;
 // }
 
-// const judges: Judge[] = [
-//   {
-//     name: "মো. সাইফুল ইসলাম",
-//     title: "সিনিয়র সাংবাদিক, স্মার্ট ভিলেজ",
-//     image: "/Asset/Judge/saiful.jpg",
-//   },
-//   {
-//     name: "সাবরিনা আহমেদ",
-//     title: "ডেপুটি এডিটর, স্মার্ট ভিলেজ",
-//     image: "/Asset/Judge/saiful.jpg",
-//   },
-//   {
-//     name: "রাফিদ হাসান",
-//     title: "প্রোগ্রাম কো-অর্ডিনেটর, স্মার্ট ভিলেজ",
-//     image: "/Asset/Judge/saiful.jpg",
-//   },
-// ];
+// export interface JudgeData {
+//   panel: string;
+//   description: string;
+//   members: Judge[];
+// }
+
+// const judgesData: JudgeData = {
+//   panel: "বিচারক প্যানেল",
+//   description: `এই কুইজ প্রতিযোগিতার বিচারক হিসেবে আছেন অভিজ্ঞ সাংবাদিক এবং সংগঠকগণ,
+// যাঁরা নিরপেক্ষ ও স্বচ্ছ প্রক্রিয়ায় বিজয়ী নির্বাচন করবেন।`,
+//   members: [
+//     {
+//       name: "মো. সাইফুল ইসলাম",
+//       title: "সিনিয়র সাংবাদিক, স্মার্ট ভিলেজ",
+//       image: "/Asset/Judge/saiful.jpg",
+//     },
+//     {
+//       name: "সাবরিনা আহমেদ",
+//       title: "ডেপুটি এডিটর, স্মার্ট ভিলেজ",
+//       image: "/Asset/Judge/sabrina.jpg",
+//     },
+//     {
+//       name: "রাফিদ হাসান",
+//       title: "প্রোগ্রাম কো-অর্ডিনেটর, স্মার্ট ভিলেজ",
+//       image: "/Asset/Judge/rafid.jpg",
+//     },
+//   ],
+// };
 
 // export default function JudgeSection() {
 //   return (
@@ -37,7 +133,7 @@
 //           transition={{ duration: 0.6 }}
 //           className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4"
 //         >
-//           বিচারক প্যানেল
+//           {judgesData.panel}
 //         </motion.h2>
 
 //         <motion.p
@@ -46,12 +142,11 @@
 //           transition={{ delay: 0.2, duration: 0.6 }}
 //           className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto mb-12"
 //         >
-//           এই কুইজ প্রতিযোগিতার বিচারক হিসেবে আছেন অভিজ্ঞ সাংবাদিক এবং সংগঠকগণ,
-//           যাঁরা নিরপেক্ষ ও স্বচ্ছ প্রক্রিয়ায় বিজয়ী নির্বাচন করবেন।
+//           {judgesData.description}
 //         </motion.p>
 
 //         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
-//           {judges.map((judge, index) => (
+//           {judgesData.members.map((judge, index) => (
 //             <motion.div
 //               key={index}
 //               initial={{ opacity: 0, y: 30 }}
@@ -83,47 +178,67 @@
 //   );
 // }
 
+
+
+
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
 interface Judge {
   name: string;
-  title: string;
+  designation: string; // API uses "designation" not "title"
   image: string;
 }
 
-export interface JudgeData {
+interface JudgePanel {
   panel: string;
   description: string;
   members: Judge[];
 }
 
-const judgesData: JudgeData = {
-  panel: "বিচারক প্যানেল",
-  description: `এই কুইজ প্রতিযোগিতার বিচারক হিসেবে আছেন অভিজ্ঞ সাংবাদিক এবং সংগঠকগণ,
-যাঁরা নিরপেক্ষ ও স্বচ্ছ প্রক্রিয়ায় বিজয়ী নির্বাচন করবেন।`,
-  members: [
-    {
-      name: "মো. সাইফুল ইসলাম",
-      title: "সিনিয়র সাংবাদিক, স্মার্ট ভিলেজ",
-      image: "/Asset/Judge/saiful.jpg",
-    },
-    {
-      name: "সাবরিনা আহমেদ",
-      title: "ডেপুটি এডিটর, স্মার্ট ভিলেজ",
-      image: "/Asset/Judge/sabrina.jpg",
-    },
-    {
-      name: "রাফিদ হাসান",
-      title: "প্রোগ্রাম কো-অর্ডিনেটর, স্মার্ট ভিলেজ",
-      image: "/Asset/Judge/rafid.jpg",
-    },
-  ],
-};
-
 export default function JudgeSection() {
+  const [data, setData] = useState<JudgePanel | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchJudges = async () => {
+      try {
+        const res = await fetch(
+          "https://backend-weld-two-15.vercel.app/api/v1/judge"
+        );
+        const json = await res.json();
+        if (json.success && json.data.length > 0) {
+          setData(json.data[0]); // Show first judge panel (you can loop if multiple)
+        }
+      } catch (error) {
+        console.error("Failed to fetch judges:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJudges();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-20 text-center text-gray-500">
+        Loading judge panel...
+      </section>
+    );
+  }
+
+  if (!data) {
+    return (
+      <section className="py-20 text-center text-red-500">
+        No judge data found.
+      </section>
+    );
+  }
+
   return (
     <section className="relative bg-gradient-to-br from-orange-50 via-white to-orange-100 py-20 px-4">
       <div className="max-w-6xl mx-auto text-center">
@@ -133,7 +248,7 @@ export default function JudgeSection() {
           transition={{ duration: 0.6 }}
           className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4"
         >
-          {judgesData.panel}
+          {data.panel}
         </motion.h2>
 
         <motion.p
@@ -142,11 +257,11 @@ export default function JudgeSection() {
           transition={{ delay: 0.2, duration: 0.6 }}
           className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto mb-12"
         >
-          {judgesData.description}
+          {data.description}
         </motion.p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
-          {judgesData.members.map((judge, index) => (
+          {data.members.map((judge, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 30 }}
@@ -166,7 +281,7 @@ export default function JudgeSection() {
               <h3 className="text-xl font-semibold text-gray-800 group-hover:text-orange-500 transition">
                 {judge.name}
               </h3>
-              <p className="text-sm text-gray-500 mt-1">{judge.title}</p>
+              <p className="text-sm text-gray-500 mt-1">{judge.designation}</p>
             </motion.div>
           ))}
         </div>
