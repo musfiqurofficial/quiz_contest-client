@@ -5,6 +5,7 @@ import QuizSection from "../components/quizSection";
 import QuizTimelineAndInstructions from "../components/QuizTimelineAndInstructions";
 import FaqSection from "../components/FaqItem";
 import JudgeSection from "../components/JudgeSection";
+import EventSection from "../components/EventSection";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -20,6 +21,7 @@ export default async function Home() {
       <Gift />
       <QuizSection />
       <JudgeSection />
+      <EventSection />
       <QuizTimelineAndInstructions />
       <FaqSection />
     </>

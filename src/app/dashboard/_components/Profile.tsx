@@ -11,30 +11,59 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, Settings, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser, selectCurrentUser } from "@/redux/features/auth/authSlice";
+import { AppDispatch } from "@/store/store";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function ProfileDropdown() {
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+  const user = useSelector(selectCurrentUser);
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+      toast.success('লগআউট সফল হয়েছে');
+      router.push('/auth');
+    } catch (error: any) {
+      toast.error(error || 'লগআউট করতে সমস্যা হয়েছে');
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="rounded-full p-0 w-9 h-9">
           <Avatar className="w-9 h-9">
             <AvatarImage src="/avatar.jpg" alt="User" />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarFallback>
+              {user?.fullNameEnglish?.charAt(0) || user?.fullNameBangla?.charAt(0) || 'U'}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48" align="end">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel>
+          <div className="flex flex-col">
+            <span className="font-semibold">{user?.fullNameEnglish}</span>
+            <span className="text-xs text-gray-500">{user?.contact}</span>
+          </div>
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User className="w-4 h-4 mr-2" /> Profile
+        <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+          <User className="w-4 h-4 mr-2" /> প্রোফাইল
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Settings className="w-4 h-4 mr-2" /> Settings
+        <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+          <Settings className="w-4 h-4 mr-2" /> সেটিংস
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-red-500">
-          <LogOut className="w-4 h-4 mr-2" /> Logout
+        <DropdownMenuItem 
+          className="text-red-500 focus:text-red-600"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-4 h-4 mr-2" /> লগআউট
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
