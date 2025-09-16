@@ -1,10 +1,13 @@
 {
   "/(all-dashboard)/admin/dashboard/page": "app/(all-dashboard)/admin/dashboard/page.js",
   "/(all-dashboard)/admin/quizzes/page": "app/(all-dashboard)/admin/quizzes/page.js",
+  "/(all-dashboard)/student/dashboard/page": "app/(all-dashboard)/student/dashboard/page.js",
+  "/(all-dashboard)/student/profile/page": "app/(all-dashboard)/student/profile/page.js",
   "/(all-dashboard)/student/quiz/page": "app/(all-dashboard)/student/quiz/page.js",
+  "/(main)/[eventId]/page": "app/(main)/[eventId]/page.js",
   "/(main)/page": "app/(main)/page.js",
-  "/_not-found/page": "app/_not-found/page.js",
   "/admin/login/page": "app/admin/login/page.js",
   "/auth/page": "app/auth/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js"
 }

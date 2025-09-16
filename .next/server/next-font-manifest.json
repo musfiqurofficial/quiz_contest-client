@@ -2,11 +2,14 @@
   "app": {
     "[project]/src/app/(all-dashboard)/admin/dashboard/page": [],
     "[project]/src/app/(all-dashboard)/admin/quizzes/page": [],
+    "[project]/src/app/(all-dashboard)/student/dashboard/page": [],
+    "[project]/src/app/(all-dashboard)/student/profile/page": [],
     "[project]/src/app/(all-dashboard)/student/quiz/page": [],
+    "[project]/src/app/(main)/[eventId]/page": [],
     "[project]/src/app/(main)/page": [],
-    "[project]/src/app/_not-found/page": [],
     "[project]/src/app/admin/login/page": [],
-    "[project]/src/app/auth/page": []
+    "[project]/src/app/auth/page": [],
+    "[project]/src/app/dashboard/page": []
   },
   "appUsingSizeAdjust": false,
   "pages": {},
