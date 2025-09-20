@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import * as React from "react";
@@ -73,7 +71,7 @@ export default function WrittenQuizForm() {
     try {
       console.log("Written Quiz Data:", data);
       toast.success("Written quiz saved successfully!", { duration: 3000 });
-    } catch (error) {
+    } catch {
       toast.error("Failed to save quiz. Please try again.");
     }
   };

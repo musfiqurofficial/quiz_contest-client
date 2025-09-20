@@ -43,7 +43,6 @@ export default function JudgeForm() {
     handleSubmit,
     register,
     reset,
-    watch,
     control,
     formState: { isSubmitting },
   } = methods;

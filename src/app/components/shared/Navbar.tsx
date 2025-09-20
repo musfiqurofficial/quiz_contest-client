@@ -1,7 +1,17 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Menu, X, Home, BookOpen, Trophy, HelpCircle, User, LogOut, Settings } from "lucide-react";
+import {
+  Menu,
+  X,
+  Home,
+  BookOpen,
+  Trophy,
+  HelpCircle,
+  User,
+  LogOut,
+  Settings,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { logoutUser, initializeAuth } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
@@ -9,6 +19,7 @@ import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 import { store } from "@/store/store";
+import { RootState, AppDispatch } from "@/store/store";
 
 const navLinks = [
   { label: "হোম", href: "/", icon: Home },
@@ -22,10 +33,10 @@ export default function Navbar() {
   const [isProfileOpen, setProfileOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  
-  const { isAuthenticated } = useSelector((state) => state.auth);
+
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const user = useSelector(selectCurrentUser);
 
   // পেজ লোডের সময় অথেনটিকেশন চেক করা
@@ -48,13 +59,16 @@ export default function Navbar() {
       }
     };
     const handleClickOutside = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target as Node)
+      ) {
         setProfileOpen(false);
       }
     };
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("mousedown", handleClickOutside);
-    
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleClickOutside);
@@ -64,11 +78,13 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap();
-      toast.success('লগআউট সফল হয়েছে');
+      toast.success("লগআউট সফল হয়েছে");
       setProfileOpen(false);
-      router.push('/');
-    } catch (error: any) {
-      toast.error(error || 'লগআউট করতে সমস্যা হয়েছে');
+      router.push("/");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "লগআউট করতে সমস্যা হয়েছে";
+      toast.error(errorMessage);
     }
   };
 
@@ -82,7 +98,7 @@ export default function Navbar() {
           >
             কুইজ প্রতিযোগিতা
           </Link>
-          
+
           <nav className="hidden md:flex gap-6 items-center">
             {navLinks.map((link) => {
               const Icon = link.icon;
@@ -98,7 +114,7 @@ export default function Navbar() {
               );
             })}
           </nav>
-          
+
           <div className="hidden md:flex items-center gap-4">
             {isAuthenticated ? (
               <div className="relative" ref={profileRef}>
@@ -108,18 +124,24 @@ export default function Navbar() {
                   onClick={() => setProfileOpen(!isProfileOpen)}
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center text-white font-medium text-sm">
-                    {user?.fullNameEnglish?.charAt(0) || user?.fullNameBangla?.charAt(0) || 'U'}
+                    {user?.fullNameEnglish?.charAt(0) ||
+                      user?.fullNameBangla?.charAt(0) ||
+                      "U"}
                   </div>
-                  <span className="text-gray-700">{user?.fullNameBangla || user?.fullNameEnglish || 'User'}</span>
+                  <span className="text-gray-700">
+                    {user?.fullNameBangla || user?.fullNameEnglish || "User"}
+                  </span>
                 </Button>
-                
+
                 {isProfileOpen && (
                   <div className="absolute right-0 top-12 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
                     <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">{user?.fullNameEnglish}</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {user?.fullNameEnglish}
+                      </p>
                       <p className="text-xs text-gray-500">{user?.contact}</p>
                     </div>
-                    
+
                     <Link
                       href="/dashboard"
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
@@ -128,7 +150,7 @@ export default function Navbar() {
                       <User className="w-4 h-4" />
                       ড্যাশবোর্ড
                     </Link>
-                    
+
                     <Link
                       href="/profile"
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
@@ -137,7 +159,7 @@ export default function Navbar() {
                       <Settings className="w-4 h-4" />
                       প্রোফাইল
                     </Link>
-                    
+
                     <button
                       onClick={handleLogout}
                       className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700"
@@ -156,11 +178,13 @@ export default function Navbar() {
               </Link>
             )}
           </div>
-          
+
           <div className="md:hidden flex items-center gap-3">
             {isAuthenticated && (
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center text-white font-medium text-sm mr-2">
-                {user?.fullNameEnglish?.charAt(0) || user?.fullNameBangla?.charAt(0) || 'U'}
+                {user?.fullNameEnglish?.charAt(0) ||
+                  user?.fullNameBangla?.charAt(0) ||
+                  "U"}
               </div>
             )}
             <Button
@@ -174,7 +198,7 @@ export default function Navbar() {
             </Button>
           </div>
         </div>
-        
+
         <div
           className={`fixed inset-0 z-[1054] bg-black/30 backdrop-blur-sm h-screen transition-opacity duration-300 ${
             isMenuOpen
@@ -208,14 +232,16 @@ export default function Navbar() {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            
+
             {isAuthenticated && (
               <div className="px-4 py-3 bg-indigo-50 rounded-lg mb-4">
-                <p className="font-medium text-gray-900">{user?.fullNameEnglish}</p>
+                <p className="font-medium text-gray-900">
+                  {user?.fullNameEnglish}
+                </p>
                 <p className="text-sm text-gray-600">{user?.contact}</p>
               </div>
             )}
-            
+
             <nav className="flex flex-col gap-2">
               {navLinks.map((link) => {
                 const Icon = link.icon;
@@ -232,7 +258,7 @@ export default function Navbar() {
                 );
               })}
             </nav>
-            
+
             <div className="mt-auto pt-4 border-t border-gray-200">
               {isAuthenticated ? (
                 <div className="space-y-2">
@@ -263,7 +289,7 @@ export default function Navbar() {
           </aside>
         </div>
       </header>
-      
+
       <div className="h-16"></div>
     </>
   );

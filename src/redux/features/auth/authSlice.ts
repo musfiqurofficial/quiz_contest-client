@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 // Define types
 export interface User {
-  id: string;
+  _id: string;
   fullNameBangla: string;
   fullNameEnglish: string;
   contact: string;
@@ -15,11 +15,26 @@ export interface User {
   role: "student" | "admin";
   age?: number;
   grade?: string;
+  institutionName?: string;
   address?: string;
+  profileImage?: string;
   bloodGroup?: string;
   parentContact?: string;
+  specialNeeds?: string;
+  hasSmartphone?: boolean;
   interests?: string[];
   futureGoals?: string;
+  fatherName?: string;
+  motherName?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  union?: string;
+  postOffice?: string;
+  upazila?: string;
+  district?: string;
+  division?: string;
+  internetUsage?: "always" | "sometimes" | "never";
+  preferredSubjects?: string[];
 }
 
 export interface RegisterPayload {
@@ -89,7 +104,7 @@ authApi.interceptors.response.use(
 // Async thunks
 export const initializeAuth = createAsyncThunk(
   "auth/initialize",
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
       if (token) {
@@ -233,7 +248,7 @@ export const fetchUserProfile = createAsyncThunk(
 
 export const updateUserProfile = createAsyncThunk(
   "auth/updateProfile",
-  async (profileData: Partial<User>, { rejectWithValue }) => {
+  async (profileData: FormData, { rejectWithValue }) => {
     try {
       const response = await authApi.put("/auth/profile", profileData);
       return response.data.data;
@@ -300,7 +315,7 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     // Initialize Auth
     builder
-    .addCase(initializeAuth.pending, (state) => {
+      .addCase(initializeAuth.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
@@ -309,7 +324,7 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
-        state.isAuthInitialized = true; 
+        state.isAuthInitialized = true;
         state.error = null;
       })
       .addCase(initializeAuth.rejected, (state, action) => {
@@ -318,8 +333,8 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
-        state.isAuthInitialized = true; 
-      })
+        state.isAuthInitialized = true;
+      });
 
     // Login
     builder
@@ -332,6 +347,7 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
+        state.isAuthInitialized = true;
         state.error = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -347,9 +363,10 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.user; 
+        state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
+        state.isAuthInitialized = true;
         state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -363,7 +380,7 @@ const authSlice = createSlice({
         state.userCheckLoading = true;
         state.userCheckError = null;
       })
-      .addCase(checkUserExists.fulfilled, (state, action) => {
+      .addCase(checkUserExists.fulfilled, (state) => {
         state.userCheckLoading = false;
         state.userCheckError = null;
       })
@@ -400,6 +417,8 @@ const authSlice = createSlice({
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload;
+        state.isAuthenticated = true;
+        state.isAuthInitialized = true;
         state.error = null;
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
@@ -420,9 +439,10 @@ const authSlice = createSlice({
       .addCase(updateUserProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-      })
-builder
+      });
+
     // Change password
+    builder
       .addCase(changePassword.pending, (state) => {
         state.isLoading = true;
       })

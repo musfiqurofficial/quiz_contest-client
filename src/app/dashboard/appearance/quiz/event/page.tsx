@@ -112,35 +112,29 @@ export default function EventForm() {
     try {
       console.log("Event Data:", data);
       toast.success("✅ Event saved successfully!", { duration: 3000 });
-    } catch (error) {
+    } catch {
       toast.error("❌ Failed to save event. Please try again.");
     }
   };
 
   // Calculate end time dynamically
-  React.useEffect(() => {
-    const start = watch("start_time");
-    const totalHours = watch("time_for.hours") || 0;
-    const totalMinutes = watch("time_for.minutes") || 0;
-    const totalSeconds = watch("time_for.seconds") || 0;
+  const startTime = watch("start_time");
+  const timeForHours = watch("time_for.hours") || 0;
+  const timeForMinutes = watch("time_for.minutes") || 0;
+  const timeForSeconds = watch("time_for.seconds") || 0;
 
-    if (start) {
-      const startDate = new Date(start);
+  React.useEffect(() => {
+    if (startTime) {
+      const startDate = new Date(startTime);
       const totalMs =
-        totalHours * 3600000 + totalMinutes * 60000 + totalSeconds * 1000;
+        timeForHours * 3600000 + timeForMinutes * 60000 + timeForSeconds * 1000;
       const endDate = new Date(startDate.getTime() + totalMs);
       const now = normalizeDateToMinutes(new Date());
       if (endDate.getTime() > now.getTime()) {
         setValue("end_time", endDate.toISOString());
       }
     }
-  }, [
-    watch("start_time"),
-    watch("time_for.hours"),
-    watch("time_for.minutes"),
-    watch("time_for.seconds"),
-    setValue,
-  ]);
+  }, [startTime, timeForHours, timeForMinutes, timeForSeconds, setValue]);
 
   const toLocalInputValue = (date: string) =>
     date ? new Date(date).toISOString().slice(0, 16) : "";

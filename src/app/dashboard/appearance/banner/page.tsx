@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import UpdateBannerDialog from "./_components/update";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function BannerList() {
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -76,9 +77,11 @@ export default function BannerList() {
               key={banner._id}
               className="rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition-all bg-white"
             >
-              <img
+              <Image
                 src={banner.image}
                 alt={banner.title}
+                width={400}
+                height={192}
                 className="h-48 w-full object-cover"
               />
               <div className="p-4 space-y-2">

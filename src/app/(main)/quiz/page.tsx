@@ -6,7 +6,7 @@ interface Question {
   id: string;
   type: "mcq" | "short" | "written";
   questionText: string;
-  options?: string[]; 
+  options?: string[];
   correctAnswer: string;
   timeLimitSeconds: number;
   marks: number;
@@ -100,7 +100,7 @@ export default function QuizPage() {
       if (questionTimerRef.current) clearInterval(questionTimerRef.current);
       if (quizTimerRef.current) clearInterval(quizTimerRef.current);
     };
-  }, [currentQuestionIdx, isSubmitted]);
+  }, [currentQuestionIdx, isSubmitted, nextQuestion]);
 
   function nextQuestion() {
     if (currentQuestionIdx < questions.length - 1) {

@@ -1,1 +1,220 @@
-{"version":3,"caseSensitive":false,"basePath":"","rewrites":{"beforeFiles":[],"afterFiles":[],"fallback":[]},"redirects":[{"source":"/:path+/","destination":"/:path+","permanent":true,"internal":true,"regex":"^(?:\\/((?:[^\\/]+?)(?:\\/(?:[^\\/]+?))*))\\/$"}],"headers":[]}
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/dashboard/appearance/banner/[id]",
+      "regex": "^/dashboard/appearance/banner/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/dashboard/appearance/banner/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/[eventId]",
+      "regex": "^/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPeventId": "nxtPeventId"
+      },
+      "namedRegex": "^/(?<nxtPeventId>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/admin/dashboard",
+      "regex": "^/admin/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/dashboard(?:/)?$"
+    },
+    {
+      "page": "/admin/login",
+      "regex": "^/admin/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/login(?:/)?$"
+    },
+    {
+      "page": "/admin/quizzes",
+      "regex": "^/admin/quizzes(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/quizzes(?:/)?$"
+    },
+    {
+      "page": "/auth",
+      "regex": "^/auth(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth(?:/)?$"
+    },
+    {
+      "page": "/dashboard",
+      "regex": "^/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/banner",
+      "regex": "^/dashboard/appearance/banner(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/banner(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/banner/create",
+      "regex": "^/dashboard/appearance/banner/create(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/banner/create(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/faq",
+      "regex": "^/dashboard/appearance/faq(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/faq(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/judge-panel",
+      "regex": "^/dashboard/appearance/judge\\-panel(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/judge\\-panel(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/offer",
+      "regex": "^/dashboard/appearance/offer(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/offer(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/quiz",
+      "regex": "^/dashboard/appearance/quiz(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/quiz(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/quiz/event",
+      "regex": "^/dashboard/appearance/quiz/event(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/quiz/event(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/quiz/mcq",
+      "regex": "^/dashboard/appearance/quiz/mcq(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/quiz/mcq(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/quiz/short",
+      "regex": "^/dashboard/appearance/quiz/short(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/quiz/short(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/quiz/written",
+      "regex": "^/dashboard/appearance/quiz/written(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/quiz/written(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/quiz-data",
+      "regex": "^/dashboard/appearance/quiz\\-data(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/quiz\\-data(?:/)?$"
+    },
+    {
+      "page": "/dashboard/appearance/time-Instruction",
+      "regex": "^/dashboard/appearance/time\\-Instruction(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/appearance/time\\-Instruction(?:/)?$"
+    },
+    {
+      "page": "/dashboard/site-setting",
+      "regex": "^/dashboard/site\\-setting(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/site\\-setting(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/quiz",
+      "regex": "^/quiz(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/quiz(?:/)?$"
+    },
+    {
+      "page": "/sitemap.xml",
+      "regex": "^/sitemap\\.xml(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/sitemap\\.xml(?:/)?$"
+    },
+    {
+      "page": "/student/dashboard",
+      "regex": "^/student/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/student/dashboard(?:/)?$"
+    },
+    {
+      "page": "/student/profile",
+      "regex": "^/student/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/student/profile(?:/)?$"
+    },
+    {
+      "page": "/student/quiz",
+      "regex": "^/student/quiz(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/student/quiz(?:/)?$"
+    },
+    {
+      "page": "/unauthorized",
+      "regex": "^/unauthorized(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/unauthorized(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "RSC",
+    "varyHeader": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch",
+    "prefetchHeader": "Next-Router-Prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "Next-Router-Segment-Prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

@@ -49,7 +49,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  
+
   const { user, isAuthenticated, isLoading } = useSelector(
     (state: RootState) => state.auth
   );
@@ -58,11 +58,11 @@ export default function DashboardLayout({
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
   // Initialize auth on component mount
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function DashboardLayout({
         if (token) {
           await dispatch(initializeAuth()).unwrap();
         }
-      } catch (error) {
+      } catch {
         console.log("Auth initialization failed");
       } finally {
         setIsCheckingAuth(false);
@@ -120,7 +120,7 @@ export default function DashboardLayout({
   if (!isAuthenticated || !user) {
     return null;
   }
-  const userRole = user.role?.toLowerCase() || 'student';
+  const userRole = user.role?.toLowerCase() || "student";
   const items = sidebarItems[userRole as keyof typeof sidebarItems] || [];
   return (
     <div className="flex h-screen bg-gray-50">
@@ -147,9 +147,9 @@ export default function DashboardLayout({
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-600 to-indigo-700 text-white"
             >
-              <SidebarContent 
-                user={user} 
-                items={items} 
+              <SidebarContent
+                user={user}
+                items={items}
                 pathname={pathname}
                 onClose={() => setSidebarOpen(false)}
                 onLogout={handleLogout}
@@ -160,9 +160,9 @@ export default function DashboardLayout({
       ) : (
         <aside className="hidden lg:flex lg:flex-shrink-0">
           <div className="w-64 bg-gradient-to-b from-blue-600 to-indigo-700 text-white">
-            <SidebarContent 
-              user={user} 
-              items={items} 
+            <SidebarContent
+              user={user}
+              items={items}
               pathname={pathname}
               onLogout={handleLogout}
             />
@@ -188,11 +188,7 @@ export default function DashboardLayout({
             </div>
             <div className="flex items-center space-x-4">
               {/* Use Link with Button for client-side navigation */}
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-              >
+              <Button variant="outline" size="sm" asChild>
                 <Link href="/" className="flex items-center space-x-2">
                   <Home className="w-4 h-4" />
                   <span>হোমপেজ</span>
@@ -203,18 +199,30 @@ export default function DashboardLayout({
         </header>
         {/* Page content */}
         <main className="flex-1 overflow-auto">
-          <div className="p-6">
-            {children}
-          </div>
+          <div className="p-6">{children}</div>
         </main>
       </div>
     </div>
   );
 }
 // Separate sidebar content component
-function SidebarContent({ user, items, pathname, onClose, onLogout }: {
-  user: any;
-  items: any[];
+function SidebarContent({
+  user,
+  items,
+  pathname,
+  onClose,
+  onLogout,
+}: {
+  user: {
+    fullNameEnglish: string;
+    fullNameBangla?: string;
+    role: string;
+  } | null;
+  items: Array<{
+    href: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }>;
   pathname: string;
   onClose?: () => void;
   onLogout: () => void;
@@ -242,16 +250,16 @@ function SidebarContent({ user, items, pathname, onClose, onLogout }: {
       <div className="p-4 border-b border-blue-500">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-600 font-semibold">
-            {user.fullNameEnglish?.charAt(0) ||
-              user.fullNameBangla?.charAt(0) ||
+            {user?.fullNameEnglish?.charAt(0) ||
+              user?.fullNameBangla?.charAt(0) ||
               "U"}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">
-              {user.fullNameEnglish || user.fullNameBangla}
+              {user?.fullNameEnglish || user?.fullNameBangla}
             </p>
             <p className="text-xs text-blue-200 truncate">
-              {user.role === "admin" ? "এডমিন" : "শিক্ষার্থী"}
+              {user?.role === "admin" ? "এডমিন" : "শিক্ষার্থী"}
             </p>
           </div>
         </div>

@@ -79,7 +79,7 @@ export default function Banner() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [loaded]);
+  }, [loaded, instanceRef]);
 
   if (banners.length === 0) return null; // You can replace with loader if needed
 

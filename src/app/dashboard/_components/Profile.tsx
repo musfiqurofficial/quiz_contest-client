@@ -25,10 +25,12 @@ export default function ProfileDropdown() {
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap();
-      toast.success('লগআউট সফল হয়েছে');
-      router.push('/auth');
-    } catch (error: any) {
-      toast.error(error || 'লগআউট করতে সমস্যা হয়েছে');
+      toast.success("লগআউট সফল হয়েছে");
+      router.push("/auth");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "লগআউট করতে সমস্যা হয়েছে";
+      toast.error(errorMessage);
     }
   };
 
@@ -39,7 +41,9 @@ export default function ProfileDropdown() {
           <Avatar className="w-9 h-9">
             <AvatarImage src="/avatar.jpg" alt="User" />
             <AvatarFallback>
-              {user?.fullNameEnglish?.charAt(0) || user?.fullNameBangla?.charAt(0) || 'U'}
+              {user?.fullNameEnglish?.charAt(0) ||
+                user?.fullNameBangla?.charAt(0) ||
+                "U"}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -52,14 +56,14 @@ export default function ProfileDropdown() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+        <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
           <User className="w-4 h-4 mr-2" /> প্রোফাইল
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+        <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
           <Settings className="w-4 h-4 mr-2" /> সেটিংস
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
+        <DropdownMenuItem
           className="text-red-500 focus:text-red-600"
           onClick={handleLogout}
         >

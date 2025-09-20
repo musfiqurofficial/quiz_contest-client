@@ -27,7 +27,6 @@ import {
   Mail,
   Phone,
   Lock,
-  BookOpen,
   MapPin,
   Calendar,
   ChevronLeft,
@@ -39,7 +38,6 @@ import {
   loginUser,
   registerUser,
   checkUserExists,
-  fetchUserProfile,
   logoutUser,
 } from "@/redux/features/auth/authSlice";
 import { RootState, AppDispatch } from "@/store/store";
@@ -48,14 +46,8 @@ import { toast } from "sonner";
 export default function AuthPage() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const {
-    isLoading,
-    error,
-    isAuthenticated,
-    user,
-    userCheckLoading,
-    userCheckError,
-  } = useSelector((state: RootState) => state.auth);
+  const { isLoading, error, isAuthenticated, user, userCheckLoading } =
+    useSelector((state: RootState) => state.auth);
 
   const [step, setStep] = useState(1);
   const [contactType, setContactType] = useState<"phone" | "email">("phone");
@@ -97,70 +89,58 @@ export default function AuthPage() {
       ).unwrap();
       setIsExistingUser(result.exists);
       setStep(2);
-    } catch (err: any) {
-      toast.error(err || "ব্যবহারকারী খুঁজে পেতে সমস্যা হয়েছে");
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "ব্যবহারকারী খুঁজে পেতে সমস্যা হয়েছে";
+      toast.error(errorMessage);
     }
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    if (step === 1) {
-      await checkUserExistence();
-    } else if (step === 2 && isExistingUser) {
-      const result = await dispatch(loginUser({ contact, password })).unwrap();
-      
-      // Check if user is a student
-      if (result.user.role !== "student") {
-        toast.error("শুধুমাত্র শিক্ষার্থী অ্যাকাউন্ট দিয়ে লগইন করা যাবে");
-        await dispatch(logoutUser());
-        return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (step === 1) {
+        await checkUserExistence();
+      } else if (step === 2 && isExistingUser) {
+        const result = await dispatch(
+          loginUser({ contact, password })
+        ).unwrap();
+
+        // Check if user is a student
+        if (result.user.role !== "student") {
+          toast.error("শুধুমাত্র শিক্ষার্থী অ্যাকাউন্ট দিয়ে লগইন করা যাবে");
+          await dispatch(logoutUser());
+          return;
+        }
+
+        toast.success("লগইন সফল হয়েছে!");
+        router.push("/student/dashboard");
+      } else if (step === 2 && !isExistingUser) {
+        const result = await dispatch(
+          registerUser({
+            ...formData,
+            age: Number(formData.age),
+            contact,
+            contactType,
+            password,
+          })
+        ).unwrap();
+        toast.success("নিবন্ধন সফল হয়েছে!");
+        router.push("/student/dashboard");
       }
-      
-      toast.success("লগইন সফল হয়েছে!");
-      await dispatch(fetchUserProfile()).unwrap();
-      router.push("/student/dashboard");
-    } else if (step === 2 && !isExistingUser) {
-      const result = await dispatch(
-        registerUser({
-          ...formData,
-          age: Number(formData.age),
-          contact,
-          contactType,
-          password,
-        })
-      ).unwrap();
-      toast.success("নিবন্ধন সফল হয়েছে!");
-      await dispatch(fetchUserProfile()).unwrap();
-      router.push("/student/dashboard");
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "একটি ত্রুটি ঘটেছে";
+      toast.error(errorMessage);
     }
-  } catch (err: any) {
-    toast.error(err || "একটি ত্রুটি ঘটেছে");
-  }
-};
+  };
 
   const handleBack = () => {
     if (step === 2) {
       setStep(1);
     }
-  };
-
-  const resetForm = () => {
-    setStep(1);
-    setContact("");
-    setPassword("");
-    setIsExistingUser(null);
-    setFormData({
-      fullNameBangla: "",
-      fullNameEnglish: "",
-      age: "",
-      grade: "",
-      address: "",
-      bloodGroup: "",
-      parentContact: "",
-      interests: [],
-      futureGoals: "",
-    });
   };
 
   const toggleInterest = (interest: string) => {
@@ -232,9 +212,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     className="space-y-6"
                   >
                     <div>
-                      <Label
-                        className="text-gray-700 mb-3 block font-medium"
-                      >
+                      <Label className="text-gray-700 mb-3 block font-medium">
                         যোগাযোগের মাধ্যম নির্বাচন করুন
                       </Label>
                       <Tabs
@@ -562,10 +540,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label
-                        htmlFor="parentContact"
-                        className="text-gray-700"
-                      >
+                      <Label htmlFor="parentContact" className="text-gray-700">
                         অভিভাবকের মোবাইল নম্বর
                       </Label>
                       <div className="relative">

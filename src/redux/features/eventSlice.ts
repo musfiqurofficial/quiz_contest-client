@@ -1,10 +1,8 @@
-
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
 import { api } from "@/data/api";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-
-export interface IEvent {
+export interface Event {
   _id: string;
   title: string;
   description?: string;
@@ -12,267 +10,308 @@ export interface IEvent {
   endDate: string;
   createdBy: string;
   quizzes: string[];
-  participants: string[]; 
-  createdAt: string;
-  updatedAt: string;
   isActive: boolean;
-  status: 'upcoming' | 'ongoing' | 'completed';
+  status: "upcoming" | "ongoing" | "completed";
+  participants: string[] | Participant[];
+  [key: string]: unknown;
 }
 
-export interface EventState {
-  events: IEvent[];
-  activeEvents: IEvent[]; 
-  registeredEvents: IEvent[]; 
-  eventQuizzes: any[]; 
-  eventResults: any[]; 
+export interface Participant {
+  _id: string;
+  fullNameEnglish: string;
+  fullNameBangla: string;
+  contact: string;
+  role: string;
+}
+
+interface EventState {
+  events: Event[];
+  selectedEvent: Event | null;
   loading: boolean;
   error: string | null;
 }
 
-
-export const fetchEvents = createAsyncThunk<IEvent[]>(
-  "events/fetchAll",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await axios.get(`${api}/events`);
-      return res.data.data as IEvent[];
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
-export const fetchActiveEvents = createAsyncThunk<IEvent[]>(
-  "events/fetchActive",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await axios.get(`${api}/events/active`);
-      return res.data.data as IEvent[];
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
-export const registerForEvent = createAsyncThunk<string, string>(
-  "events/register",
-  async (eventId, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(`${api}/events/${eventId}/register`);
-      return res.data.message;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
-export const fetchRegisteredEvents = createAsyncThunk<IEvent[]>(
-  "events/fetchRegistered",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await axios.get(`${api}/events/registered`);
-      return res.data.data as IEvent[];
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
-export const fetchEventQuizzes = createAsyncThunk<any[], string>(
-  "events/fetchQuizzes",
-  async (eventId, { rejectWithValue }) => {
-    try {
-      const res = await axios.get(`${api}/events/${eventId}/quizzes`);
-      return res.data.data;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
-export const fetchEventResults = createAsyncThunk<any[], string>(
-  "events/fetchResults",
-  async (eventId, { rejectWithValue }) => {
-    try {
-      const res = await axios.get(`${api}/events/${eventId}/results`);
-      return res.data.data;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const createEvent = createAsyncThunk<IEvent, Partial<IEvent>>(
-  "events/create",
-  async (eventData, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(`${api}/events`, eventData);
-      return res.data.data as IEvent;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const updateEvent = createAsyncThunk<IEvent, { id: string; data: Partial<IEvent> }>(
-  "events/update",
-  async ({ id, data }, { rejectWithValue }) => {
-    try {
-      const res = await axios.put(`${api}/events/${id}`, data);
-      return res.data.data as IEvent;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const deleteEvent = createAsyncThunk<string, string>(
-  "events/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await axios.delete(`${api}/events/${id}`);
-      return id;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
 const initialState: EventState = {
   events: [],
-  activeEvents: [],
-  registeredEvents: [],
-  eventQuizzes: [],
-  eventResults: [],
+  selectedEvent: null,
   loading: false,
   error: null,
 };
+
+// Create Event Thunk
+export const createEvent = createAsyncThunk(
+  "events/createEvent",
+  async (eventData: Partial<Event>, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${api}/events`, eventData);
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to create event"
+          : "Failed to create event";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Get All Events Thunk
+export const getEvents = createAsyncThunk(
+  "events/getEvents",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${api}/events`);
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to fetch events"
+          : "Failed to fetch events";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Get Event By ID Thunk
+export const getEventById = createAsyncThunk(
+  "events/getEventById",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${api}/events/${id}`);
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to fetch event"
+          : "Failed to fetch event";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Update Event Thunk
+export const updateEvent = createAsyncThunk(
+  "events/updateEvent",
+  async (
+    { id, data }: { id: string; data: Partial<Event> },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axios.patch(`${api}/events/${id}`, data);
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to update event"
+          : "Failed to update event";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Add Participant to Event Thunk
+export const addParticipant = createAsyncThunk(
+  "events/addParticipant",
+  async (
+    { eventId, studentId }: { eventId: string; studentId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axios.post(`${api}/events/add-participant`, {
+        eventId,
+        studentId,
+      });
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to add participant"
+          : "Failed to add participant";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Get Event with Participants Thunk
+export const getEventWithParticipants = createAsyncThunk(
+  "events/getEventWithParticipants",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${api}/events/${id}/participants`);
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to fetch event with participants"
+          : "Failed to fetch event with participants";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Delete Event Thunk
+export const deleteEvent = createAsyncThunk(
+  "events/deleteEvent",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await axios.delete(`${api}/events/${id}`);
+      return id;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to delete event"
+          : "Failed to delete event";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
 
 const eventSlice = createSlice({
   name: "events",
   initialState,
   reducers: {
-    clearEventQuizzes: (state) => {
-      state.eventQuizzes = [];
-    },
-    clearEventResults: (state) => {
-      state.eventResults = [];
+    clearSelectedEvent: (state) => {
+      state.selectedEvent = null;
     },
   },
   extraReducers: (builder) => {
+    // Create Event
     builder
-      
-      .addCase(fetchEvents.pending, (state) => {
+      .addCase(createEvent.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
-      .addCase(fetchEvents.fulfilled, (state, action: PayloadAction<IEvent[]>) => {
+      .addCase(createEvent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.events.push(action.payload);
+      })
+      .addCase(createEvent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Get All Events
+    builder
+      .addCase(getEvents.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getEvents.fulfilled, (state, action) => {
         state.loading = false;
         state.events = action.payload;
       })
-      .addCase(fetchEvents.rejected, (state, action) => {
+      .addCase(getEvents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-      
-      
-      .addCase(fetchActiveEvents.pending, (state) => {
+      });
+
+    // Get Event By ID
+    builder
+      .addCase(getEventById.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
-      .addCase(fetchActiveEvents.fulfilled, (state, action: PayloadAction<IEvent[]>) => {
+      .addCase(getEventById.fulfilled, (state, action) => {
         state.loading = false;
-        state.activeEvents = action.payload;
+        state.selectedEvent = action.payload;
       })
-      .addCase(fetchActiveEvents.rejected, (state, action) => {
+      .addCase(getEventById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-      
-      
-      .addCase(registerForEvent.pending, (state) => {
+      });
+
+    // Update Event
+    builder
+      .addCase(updateEvent.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
-      .addCase(registerForEvent.fulfilled, (state, action: PayloadAction<string>) => {
+      .addCase(updateEvent.fulfilled, (state, action) => {
         state.loading = false;
-        
-      })
-      .addCase(registerForEvent.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      
-      .addCase(fetchRegisteredEvents.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchRegisteredEvents.fulfilled, (state, action: PayloadAction<IEvent[]>) => {
-        state.loading = false;
-        state.registeredEvents = action.payload;
-      })
-      .addCase(fetchRegisteredEvents.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      
-      .addCase(fetchEventQuizzes.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchEventQuizzes.fulfilled, (state, action: PayloadAction<any[]>) => {
-        state.loading = false;
-        state.eventQuizzes = action.payload;
-      })
-      .addCase(fetchEventQuizzes.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      
-      .addCase(fetchEventResults.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchEventResults.fulfilled, (state, action: PayloadAction<any[]>) => {
-        state.loading = false;
-        state.eventResults = action.payload;
-      })
-      .addCase(fetchEventResults.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      
-      .addCase(createEvent.fulfilled, (state, action: PayloadAction<IEvent>) => {
-        state.events.push(action.payload);
-      })
-      
-      
-      .addCase(updateEvent.fulfilled, (state, action: PayloadAction<IEvent>) => {
-        const index = state.events.findIndex(event => event._id === action.payload._id);
+        const index = state.events.findIndex(
+          (event) => event._id === action.payload._id
+        );
         if (index !== -1) {
           state.events[index] = action.payload;
         }
+        if (state.selectedEvent?._id === action.payload._id) {
+          state.selectedEvent = action.payload;
+        }
       })
-      
-      
-      .addCase(deleteEvent.fulfilled, (state, action: PayloadAction<string>) => {
-        state.events = state.events.filter(event => event._id !== action.payload);
+      .addCase(updateEvent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Add Participant
+    builder
+      .addCase(addParticipant.pending, (state) => {
+        // Don't set loading to true for addParticipant to avoid UI blocking
+        state.error = null;
+      })
+      .addCase(addParticipant.fulfilled, (state, action) => {
+        // Don't set loading to false since we didn't set it to true
+        // Update the event in the events array
+        const index = state.events.findIndex(
+          (event) => event._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.events[index] = action.payload;
+        }
+        // Update selected event if it's the same
+        if (state.selectedEvent?._id === action.payload._id) {
+          state.selectedEvent = action.payload;
+        }
+      })
+      .addCase(addParticipant.rejected, (state, action) => {
+        // Don't set loading to false since we didn't set it to true
+        // Don't set error for addParticipant to avoid blocking event loading
+        console.log("Add participant failed:", action.payload);
+      });
+
+    // Get Event with Participants
+    builder
+      .addCase(getEventWithParticipants.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getEventWithParticipants.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedEvent = action.payload;
+      })
+      .addCase(getEventWithParticipants.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Delete Event
+    builder
+      .addCase(deleteEvent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteEvent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.events = state.events.filter(
+          (event) => event._id !== action.payload
+        );
+        if (state.selectedEvent?._id === action.payload) {
+          state.selectedEvent = null;
+        }
+      })
+      .addCase(deleteEvent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { clearEventQuizzes, clearEventResults } = eventSlice.actions;
+export const { clearSelectedEvent } = eventSlice.actions;
 export default eventSlice.reducer;

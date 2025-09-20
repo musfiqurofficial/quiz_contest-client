@@ -1,39 +1,71 @@
-import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Clock, Edit, Trash2, Plus, FileText } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
-import { Loader2 } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { IEvent, IQuiz, IQuestion } from '@/redux/features/quizSlice';
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Clock, Edit, Trash2, Plus, FileText } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Event } from "@/redux/features/eventSlice";
+import { Quiz } from "@/redux/features/quizSlice";
+import { IQuestion } from "@/redux/features/questionSlice";
 
 interface QuizzesTabProps {
-  events: IEvent[];
-  quizzes: IQuiz[];
+  events: Event[];
+  quizzes: Quiz[];
   questions: IQuestion[];
   quizzesLoading: boolean;
-  newQuiz: Partial<IQuiz>;
-  setNewQuiz: React.Dispatch<React.SetStateAction<Partial<IQuiz>>>;
+  newQuiz: Partial<Quiz>;
+  setNewQuiz: React.Dispatch<React.SetStateAction<Partial<Quiz>>>;
   handleCreateQuiz: () => void;
-  setEditItem: React.Dispatch<React.SetStateAction<{type: string, data: any} | null>>;
-  setDeleteDialog: React.Dispatch<React.SetStateAction<{type: string, id: string} | null>>;
+  setEditItem: React.Dispatch<
+    React.SetStateAction<{ type: string; data: Record<string, unknown> } | null>
+  >;
+  setDeleteDialog: React.Dispatch<
+    React.SetStateAction<{ type: string; id: string } | null>
+  >;
 }
 
-const QuizzesTab: React.FC<QuizzesTabProps> = ({ 
-  events, 
-  quizzes, 
-  questions, 
-  quizzesLoading, 
-  newQuiz, 
-  setNewQuiz, 
+const QuizzesTab: React.FC<QuizzesTabProps> = ({
+  events,
+  quizzes,
+  questions,
+  quizzesLoading,
+  newQuiz,
+  setNewQuiz,
   handleCreateQuiz,
   setEditItem,
-  setDeleteDialog 
+  setDeleteDialog,
 }) => {
   return (
     <Card>
@@ -60,8 +92,10 @@ const QuizzesTab: React.FC<QuizzesTabProps> = ({
                 <Label htmlFor="quizTitle">Quiz Title *</Label>
                 <Input
                   id="quizTitle"
-                  value={newQuiz.title || ''}
-                  onChange={(e) => setNewQuiz({ ...newQuiz, title: e.target.value })}
+                  value={newQuiz.title || ""}
+                  onChange={(e) =>
+                    setNewQuiz({ ...newQuiz, title: e.target.value })
+                  }
                   placeholder="Enter quiz title"
                   required
                 />
@@ -69,18 +103,24 @@ const QuizzesTab: React.FC<QuizzesTabProps> = ({
               <div className="grid gap-2">
                 <Label htmlFor="quizEvent">Event *</Label>
                 <Select
-                  value={newQuiz.eventId || ''}
-                  onValueChange={(value) => setNewQuiz({ ...newQuiz, eventId: value })}
+                  value={
+                    typeof newQuiz.eventId === "string" ? newQuiz.eventId : ""
+                  }
+                  onValueChange={(value) =>
+                    setNewQuiz({ ...newQuiz, eventId: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select an event" />
                   </SelectTrigger>
                   <SelectContent>
-                    {events.filter(e => e.isActive !== false).map((event) => (
-                      <SelectItem key={event._id} value={event._id}>
-                        {event.title}
-                      </SelectItem>
-                    ))}
+                    {events
+                      .filter((e) => e.isActive !== false)
+                      .map((event) => (
+                        <SelectItem key={event._id} value={event._id}>
+                          {event.title}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -92,7 +132,12 @@ const QuizzesTab: React.FC<QuizzesTabProps> = ({
                     type="number"
                     min="1"
                     value={newQuiz.duration || 0}
-                    onChange={(e) => setNewQuiz({ ...newQuiz, duration: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setNewQuiz({
+                        ...newQuiz,
+                        duration: Number(e.target.value),
+                      })
+                    }
                     placeholder="Duration"
                     required
                   />
@@ -104,7 +149,12 @@ const QuizzesTab: React.FC<QuizzesTabProps> = ({
                     type="number"
                     min="0"
                     value={newQuiz.passingMarks || 0}
-                    onChange={(e) => setNewQuiz({ ...newQuiz, passingMarks: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setNewQuiz({
+                        ...newQuiz,
+                        passingMarks: Number(e.target.value),
+                      })
+                    }
                     placeholder="Passing marks"
                   />
                 </div>
@@ -113,8 +163,10 @@ const QuizzesTab: React.FC<QuizzesTabProps> = ({
                 <Label htmlFor="quizInstructions">Instructions</Label>
                 <Textarea
                   id="quizInstructions"
-                  value={newQuiz.instructions || ''}
-                  onChange={(e) => setNewQuiz({ ...newQuiz, instructions: e.target.value })}
+                  value={newQuiz.instructions || ""}
+                  onChange={(e) =>
+                    setNewQuiz({ ...newQuiz, instructions: e.target.value })
+                  }
                   placeholder="Quiz instructions"
                   rows={3}
                 />
@@ -124,7 +176,9 @@ const QuizzesTab: React.FC<QuizzesTabProps> = ({
                   type="checkbox"
                   id="quizActive"
                   checked={newQuiz.isActive !== false}
-                  onChange={(e) => setNewQuiz({ ...newQuiz, isActive: e.target.checked })}
+                  onChange={(e) =>
+                    setNewQuiz({ ...newQuiz, isActive: e.target.checked })
+                  }
                   className="rounded"
                 />
                 <Label htmlFor="quizActive" className="text-sm">
@@ -132,7 +186,9 @@ const QuizzesTab: React.FC<QuizzesTabProps> = ({
                 </Label>
               </div>
               <Button onClick={handleCreateQuiz} disabled={quizzesLoading}>
-                {quizzesLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {quizzesLoading && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Create Quiz
               </Button>
             </div>
@@ -147,8 +203,12 @@ const QuizzesTab: React.FC<QuizzesTabProps> = ({
         ) : quizzes.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No quizzes found</h3>
-            <p className="text-gray-500">Create your first quiz to get started.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No quizzes found
+            </h3>
+            <p className="text-gray-500">
+              Create your first quiz to get started.
+            </p>
             {events.length === 0 && (
               <p className="text-sm text-amber-600 mt-2">
                 You need to create an event first before creating quizzes.
@@ -170,22 +230,26 @@ const QuizzesTab: React.FC<QuizzesTabProps> = ({
               </TableHeader>
               <TableBody>
                 {quizzes.map((quiz) => {
-                  const event = events.find(e => e._id === quiz.eventId);
-                  const quizQuestions = questions.filter(q => q.quizId === quiz._id);
-                  
+                  const quizQuestions = questions.filter(
+                    (q) => q.quizId === quiz._id
+                  );
+
                   return (
                     <TableRow key={quiz._id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-2">
                           <span>{quiz.title}</span>
                           {!quiz.isActive && (
-                            <Badge variant="outline" className="text-xs">Inactive</Badge>
+                            <Badge variant="outline" className="text-xs">
+                              Inactive
+                            </Badge>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        {event ? (
-                          <Badge variant="outline">{event.title}</Badge>
+                        {typeof quiz.eventId === "object" &&
+                        quiz.eventId !== null ? (
+                          <Badge variant="outline">{quiz.eventId.title}</Badge>
                         ) : (
                           <Badge variant="secondary">Unknown Event</Badge>
                         )}
@@ -200,21 +264,27 @@ const QuizzesTab: React.FC<QuizzesTabProps> = ({
                         <Badge variant="secondary">{quiz.totalMarks}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary">{quizQuestions.length}</Badge>
+                        <Badge variant="secondary">
+                          {quizQuestions.length}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end space-x-1">
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="icon"
-                            onClick={() => setEditItem({type: 'quiz', data: quiz})}
+                            onClick={() =>
+                              setEditItem({ type: "quiz", data: quiz })
+                            }
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="icon"
-                            onClick={() => setDeleteDialog({type: 'quiz', id: quiz._id})}
+                            onClick={() =>
+                              setDeleteDialog({ type: "quiz", id: quiz._id })
+                            }
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

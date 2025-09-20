@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { FormProvider, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ImageUploader } from "@/app/dashboard/_components/image-upload";

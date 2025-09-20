@@ -2,6 +2,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -45,7 +46,7 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       // For admin login, we'll use email as username
       const result = await dispatch(
@@ -63,8 +64,10 @@ export default function AdminLoginPage() {
 
       toast.success("অ্যাডমিন লগইন সফল হয়েছে!");
       router.push("/admin/dashboard");
-    } catch (err: any) {
-      toast.error(err || "লগইন ব্যর্থ হয়েছে");
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "লগইন ব্যর্থ হয়েছে";
+      toast.error(errorMessage);
     }
   };
 
@@ -117,7 +120,7 @@ export default function AdminLoginPage() {
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-gray-300">
                   পাসওয়ার্ড
@@ -141,19 +144,17 @@ export default function AdminLoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-300"
                   >
-                    {showPassword ? (
-                      <EyeOff size={18} />
-                    ) : (
-                      <Eye size={18} />
-                    )}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
-              
+
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-lg py-3 h-12 rounded-xl shadow-md"
-                disabled={!credentials.username || !credentials.password || isLoading}
+                disabled={
+                  !credentials.username || !credentials.password || isLoading
+                }
               >
                 {isLoading ? (
                   <>
@@ -165,18 +166,18 @@ export default function AdminLoginPage() {
                 )}
               </Button>
             </form>
-            
+
             <div className="mt-6 text-center">
-              <a
+              <Link
                 href="/auth"
                 className="text-sm text-red-400 hover:text-red-300 hover:underline"
               >
                 শিক্ষার্থী লগইন পেজে ফিরে যান
-              </a>
+              </Link>
             </div>
           </CardContent>
         </Card>
-        
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -185,7 +186,8 @@ export default function AdminLoginPage() {
         >
           <p className="font-medium">নিরাপত্তা সতর্কতা</p>
           <p className="mt-1">
-            এই পেজটি শুধুমাত্র অ্যাডমিনিস্ট্রেটরদের জন্য। অননুমোদিত প্রবেশ নিষিদ্ধ।
+            এই পেজটি শুধুমাত্র অ্যাডমিনিস্ট্রেটরদের জন্য। অননুমোদিত প্রবেশ
+            নিষিদ্ধ।
           </p>
         </motion.div>
       </motion.div>

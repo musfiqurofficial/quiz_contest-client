@@ -1,39 +1,36 @@
 // D:\PersonalClientWork\quiz-contest\quiz-contest-fr\src\app\dashboard\appearance\quiz-data\page.tsx
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/redux/store';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
 import {
-  fetchEvents,
+  getEvents,
   createEvent,
-  IEvent,
-} from '@/redux/features/eventSlice';
+  Event as IEvent,
+} from "@/redux/features/eventSlice";
 import {
-  fetchQuizzes,
+  getQuizzes,
   createQuiz,
-  IQuiz,
-} from '@/redux/features/quizSlice';
+  Quiz as IQuiz,
+} from "@/redux/features/quizSlice";
 import {
   fetchQuestions,
   createQuestion,
   IQuestion,
-} from '@/redux/features/questionSlice';
-import {
-  fetchParticipations,
-  IParticipation,
-} from '@/redux/features/participationSlice';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/redux/features/questionSlice";
+import { fetchParticipations } from "@/redux/features/participationSlice";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -41,7 +38,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -49,45 +46,53 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Plus, Eye, Trash2, Edit } from 'lucide-react';
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, Plus, Eye, Trash2, Edit } from "lucide-react";
 
 const AdminDashboard = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { events, loading: eventsLoading } = useSelector((state: RootState) => state.events);
-  const { quizzes, loading: quizzesLoading } = useSelector((state: RootState) => state.quizzes);
-  const { questions, loading: questionsLoading } = useSelector((state: RootState) => state.questions);
-  const { participations, loading: participationsLoading } = useSelector((state: RootState) => state.participations);
+  const { events, loading: eventsLoading } = useSelector(
+    (state: RootState) => state.events
+  );
+  const { quizzes, loading: quizzesLoading } = useSelector(
+    (state: RootState) => state.quizzes
+  );
+  const { questions, loading: questionsLoading } = useSelector(
+    (state: RootState) => state.questions
+  );
+  const { participations, loading: participationsLoading } = useSelector(
+    (state: RootState) => state.participations
+  );
 
   const [newEvent, setNewEvent] = useState<Partial<IEvent>>({
-    title: '',
-    description: '',
-    startDate: '',
-    endDate: '',
+    title: "",
+    description: "",
+    startDate: "",
+    endDate: "",
   });
   const [newQuiz, setNewQuiz] = useState<Partial<IQuiz>>({
-    title: '',
-    eventId: '',
+    title: "",
+    eventId: "",
     duration: 0,
     totalMarks: 0,
   });
   const [newQuestion, setNewQuestion] = useState<Partial<IQuestion>>({
-    quizId: '',
-    text: '',
-    options: ['', '', '', ''],
-    correctAnswer: '',
+    quizId: "",
+    text: "",
+    options: ["", "", "", ""],
+    correctAnswer: "",
     marks: 1,
   });
-  const [activeTab, setActiveTab] = useState('events');
+  const [activeTab, setActiveTab] = useState("events");
 
   useEffect(() => {
     loadAllData();
@@ -96,59 +101,65 @@ const AdminDashboard = () => {
   const loadAllData = async () => {
     try {
       await Promise.all([
-        dispatch(fetchEvents()),
-        dispatch(fetchQuizzes()),
+        dispatch(getEvents()),
+        dispatch(getQuizzes()),
         dispatch(fetchQuestions()),
         dispatch(fetchParticipations()),
       ]);
     } catch (error) {
-      toast.error('Failed to load data');
+      toast.error("Failed to load data");
     }
   };
 
   const handleCreateEvent = async () => {
     try {
       await dispatch(createEvent(newEvent)).unwrap();
-      toast.success('Event created successfully');
+      toast.success("Event created successfully");
       setNewEvent({
-        title: '',
-        description: '',
-        startDate: '',
-        endDate: '',
+        title: "",
+        description: "",
+        startDate: "",
+        endDate: "",
       });
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to create event');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create event";
+      toast.error(errorMessage);
     }
   };
 
   const handleCreateQuiz = async () => {
     try {
       await dispatch(createQuiz(newQuiz)).unwrap();
-      toast.success('Quiz created successfully');
+      toast.success("Quiz created successfully");
       setNewQuiz({
-        title: '',
-        eventId: '',
+        title: "",
+        eventId: "",
         duration: 0,
         totalMarks: 0,
       });
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to create quiz');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create quiz";
+      toast.error(errorMessage);
     }
   };
 
   const handleCreateQuestion = async () => {
     try {
       await dispatch(createQuestion(newQuestion)).unwrap();
-      toast.success('Question created successfully');
+      toast.success("Question created successfully");
       setNewQuestion({
-        quizId: '',
-        text: '',
-        options: ['', '', '', ''],
-        correctAnswer: '',
+        quizId: "",
+        text: "",
+        options: ["", "", "", ""],
+        correctAnswer: "",
         marks: 1,
       });
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to create question');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create question";
+      toast.error(errorMessage);
     }
   };
 
@@ -161,7 +172,7 @@ const AdminDashboard = () => {
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Quiz Management Dashboard</h1>
-      
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-4 mb-4">
           <TabsTrigger value="events">Events</TabsTrigger>
@@ -197,7 +208,9 @@ const AdminDashboard = () => {
                       <Input
                         id="title"
                         value={newEvent.title}
-                        onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                        onChange={(e) =>
+                          setNewEvent({ ...newEvent, title: e.target.value })
+                        }
                         placeholder="Event title"
                       />
                     </div>
@@ -206,7 +219,12 @@ const AdminDashboard = () => {
                       <Textarea
                         id="description"
                         value={newEvent.description}
-                        onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                        onChange={(e) =>
+                          setNewEvent({
+                            ...newEvent,
+                            description: e.target.value,
+                          })
+                        }
                         placeholder="Event description"
                       />
                     </div>
@@ -216,7 +234,12 @@ const AdminDashboard = () => {
                         id="startDate"
                         type="datetime-local"
                         value={newEvent.startDate}
-                        onChange={(e) => setNewEvent({ ...newEvent, startDate: e.target.value })}
+                        onChange={(e) =>
+                          setNewEvent({
+                            ...newEvent,
+                            startDate: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div className="grid gap-2">
@@ -225,11 +248,18 @@ const AdminDashboard = () => {
                         id="endDate"
                         type="datetime-local"
                         value={newEvent.endDate}
-                        onChange={(e) => setNewEvent({ ...newEvent, endDate: e.target.value })}
+                        onChange={(e) =>
+                          setNewEvent({ ...newEvent, endDate: e.target.value })
+                        }
                       />
                     </div>
-                    <Button onClick={handleCreateEvent} disabled={eventsLoading}>
-                      {eventsLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Button
+                      onClick={handleCreateEvent}
+                      disabled={eventsLoading}
+                    >
+                      {eventsLoading && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
                       Create Event
                     </Button>
                   </div>
@@ -254,9 +284,15 @@ const AdminDashboard = () => {
                   <TableBody>
                     {events.map((event) => (
                       <TableRow key={event._id}>
-                        <TableCell className="font-medium">{event.title}</TableCell>
-                        <TableCell>{new Date(event.startDate).toLocaleString()}</TableCell>
-                        <TableCell>{new Date(event.endDate).toLocaleString()}</TableCell>
+                        <TableCell className="font-medium">
+                          {event.title}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(event.startDate).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(event.endDate).toLocaleString()}
+                        </TableCell>
                         <TableCell>
                           <Button variant="ghost" size="icon">
                             <Eye className="h-4 w-4" />
@@ -304,15 +340,23 @@ const AdminDashboard = () => {
                       <Input
                         id="quizTitle"
                         value={newQuiz.title}
-                        onChange={(e) => setNewQuiz({ ...newQuiz, title: e.target.value })}
+                        onChange={(e) =>
+                          setNewQuiz({ ...newQuiz, title: e.target.value })
+                        }
                         placeholder="Quiz title"
                       />
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="event">Event</Label>
                       <Select
-                        value={newQuiz.eventId}
-                        onValueChange={(value) => setNewQuiz({ ...newQuiz, eventId: value })}
+                        value={
+                          typeof newQuiz.eventId === "string"
+                            ? newQuiz.eventId
+                            : ""
+                        }
+                        onValueChange={(value) =>
+                          setNewQuiz({ ...newQuiz, eventId: value })
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select an event" />
@@ -332,7 +376,12 @@ const AdminDashboard = () => {
                         id="duration"
                         type="number"
                         value={newQuiz.duration}
-                        onChange={(e) => setNewQuiz({ ...newQuiz, duration: Number(e.target.value) })}
+                        onChange={(e) =>
+                          setNewQuiz({
+                            ...newQuiz,
+                            duration: Number(e.target.value),
+                          })
+                        }
                         placeholder="Quiz duration in minutes"
                       />
                     </div>
@@ -342,12 +391,22 @@ const AdminDashboard = () => {
                         id="totalMarks"
                         type="number"
                         value={newQuiz.totalMarks}
-                        onChange={(e) => setNewQuiz({ ...newQuiz, totalMarks: Number(e.target.value) })}
+                        onChange={(e) =>
+                          setNewQuiz({
+                            ...newQuiz,
+                            totalMarks: Number(e.target.value),
+                          })
+                        }
                         placeholder="Total marks"
                       />
                     </div>
-                    <Button onClick={handleCreateQuiz} disabled={quizzesLoading}>
-                      {quizzesLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Button
+                      onClick={handleCreateQuiz}
+                      disabled={quizzesLoading}
+                    >
+                      {quizzesLoading && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
                       Create Quiz
                     </Button>
                   </div>
@@ -372,11 +431,15 @@ const AdminDashboard = () => {
                   </TableHeader>
                   <TableBody>
                     {quizzes.map((quiz) => {
-                      const event = events.find(e => e._id === quiz.eventId);
+                      const event = events.find((e) => e._id === quiz.eventId);
                       return (
                         <TableRow key={quiz._id}>
-                          <TableCell className="font-medium">{quiz.title}</TableCell>
-                          <TableCell>{event?.title || 'Unknown Event'}</TableCell>
+                          <TableCell className="font-medium">
+                            {quiz.title}
+                          </TableCell>
+                          <TableCell>
+                            {event?.title || "Unknown Event"}
+                          </TableCell>
                           <TableCell>{quiz.duration} minutes</TableCell>
                           <TableCell>{quiz.totalMarks}</TableCell>
                           <TableCell>
@@ -425,8 +488,14 @@ const AdminDashboard = () => {
                     <div className="grid gap-2">
                       <Label htmlFor="quiz">Quiz</Label>
                       <Select
-                        value={newQuestion.quizId}
-                        onValueChange={(value) => setNewQuestion({ ...newQuestion, quizId: value })}
+                        value={
+                          typeof newQuestion.quizId === "string"
+                            ? newQuestion.quizId
+                            : ""
+                        }
+                        onValueChange={(value) =>
+                          setNewQuestion({ ...newQuestion, quizId: value })
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select a quiz" />
@@ -445,24 +514,43 @@ const AdminDashboard = () => {
                       <Textarea
                         id="questionText"
                         value={newQuestion.text}
-                        onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })}
+                        onChange={(e) =>
+                          setNewQuestion({
+                            ...newQuestion,
+                            text: e.target.value,
+                          })
+                        }
                         placeholder="Enter your question"
                       />
                     </div>
                     <div className="grid gap-2">
                       <Label>Options</Label>
                       {[0, 1, 2, 3].map((index) => (
-                        <div key={index} className="flex items-center space-x-2">
+                        <div
+                          key={index}
+                          className="flex items-center space-x-2"
+                        >
                           <Input
                             placeholder={`Option ${index + 1}`}
-                            value={newQuestion.options?.[index] || ''}
-                            onChange={(e) => handleOptionChange(index, e.target.value)}
+                            value={newQuestion.options?.[index] || ""}
+                            onChange={(e) =>
+                              handleOptionChange(index, e.target.value)
+                            }
                           />
                           <input
                             type="radio"
                             name="correctAnswer"
-                            checked={newQuestion.correctAnswer === newQuestion.options?.[index]}
-                            onChange={() => setNewQuestion({ ...newQuestion, correctAnswer: newQuestion.options?.[index] || '' })}
+                            checked={
+                              newQuestion.correctAnswer ===
+                              newQuestion.options?.[index]
+                            }
+                            onChange={() =>
+                              setNewQuestion({
+                                ...newQuestion,
+                                correctAnswer:
+                                  newQuestion.options?.[index] || "",
+                              })
+                            }
                           />
                           <Label>Correct</Label>
                         </div>
@@ -474,12 +562,22 @@ const AdminDashboard = () => {
                         id="marks"
                         type="number"
                         value={newQuestion.marks}
-                        onChange={(e) => setNewQuestion({ ...newQuestion, marks: Number(e.target.value) })}
+                        onChange={(e) =>
+                          setNewQuestion({
+                            ...newQuestion,
+                            marks: Number(e.target.value),
+                          })
+                        }
                         placeholder="Marks for this question"
                       />
                     </div>
-                    <Button onClick={handleCreateQuestion} disabled={questionsLoading}>
-                      {questionsLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Button
+                      onClick={handleCreateQuestion}
+                      disabled={questionsLoading}
+                    >
+                      {questionsLoading && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
                       Create Question
                     </Button>
                   </div>
@@ -504,11 +602,15 @@ const AdminDashboard = () => {
                   </TableHeader>
                   <TableBody>
                     {questions.map((question) => {
-                      const quiz = quizzes.find(q => q._id === question.quizId);
+                      const quiz = quizzes.find(
+                        (q) => q._id === question.quizId
+                      );
                       return (
                         <TableRow key={question._id}>
-                          <TableCell className="font-medium max-w-md truncate">{question.text}</TableCell>
-                          <TableCell>{quiz?.title || 'Unknown Quiz'}</TableCell>
+                          <TableCell className="font-medium max-w-md truncate">
+                            {question.text}
+                          </TableCell>
+                          <TableCell>{quiz?.title || "Unknown Quiz"}</TableCell>
                           <TableCell>{question.correctAnswer}</TableCell>
                           <TableCell>{question.marks}</TableCell>
                           <TableCell>
@@ -557,13 +659,22 @@ const AdminDashboard = () => {
                   </TableHeader>
                   <TableBody>
                     {participations.map((participation) => {
-                      const quiz = quizzes.find(q => q._id === participation.quizId);
+                      const quiz = quizzes.find(
+                        (q) => q._id === participation.quizId
+                      );
                       return (
                         <TableRow key={participation._id}>
-                          <TableCell className="font-medium">{participation.studentId}</TableCell>
-                          <TableCell>{quiz?.title || 'Unknown Quiz'}</TableCell>
+                          <TableCell className="font-medium">
+                            {typeof participation.studentId === "string"
+                              ? participation.studentId
+                              : participation.studentId?.fullNameEnglish ||
+                                "Unknown Student"}
+                          </TableCell>
+                          <TableCell>{quiz?.title || "Unknown Quiz"}</TableCell>
                           <TableCell>{participation.totalScore}</TableCell>
-                          <TableCell>{new Date(participation.createdAt).toLocaleString()}</TableCell>
+                          <TableCell>
+                            {new Date(participation.createdAt).toLocaleString()}
+                          </TableCell>
                           <TableCell>
                             <Button variant="ghost" size="icon">
                               <Eye className="h-4 w-4" />

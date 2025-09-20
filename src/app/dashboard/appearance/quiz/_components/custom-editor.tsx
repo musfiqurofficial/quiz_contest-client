@@ -212,7 +212,7 @@ const CustomEditor = ({
       quill.on("text-change", updateHeight);
       updateHeight(); // Initial height adjustment
     }
-  }, [quill, value, onChange]);
+  }, [quill, value, onChange, quillRef]);
 
   if (!isClient) {
     return null;

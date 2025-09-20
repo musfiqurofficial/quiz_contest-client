@@ -1,6 +1,4 @@
 import { api } from "@/data/api";
-import type { Banner } from "@/types/Banner";
-// types/banner.ts
 import { z } from "zod";
 
 export const bannerSchema = z.object({

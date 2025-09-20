@@ -1,252 +1,266 @@
-
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
 import { api } from "@/data/api";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-
-export interface IQuiz {
+export interface Quiz {
   _id: string;
   title: string;
-  eventId: string;
-  event?: {
-    _id: string;
-    title: string;
-  };
   duration: number;
   totalMarks: number;
   questions: string[];
-  createdAt: string;
-  updatedAt: string;
   isActive: boolean;
   passingMarks: number;
   instructions?: string;
+  eventId:
+    | string
+    | {
+        _id: string;
+        title: string;
+        [key: string]: unknown;
+      };
+  [key: string]: unknown;
 }
 
-export interface QuizState {
-  quizzes: IQuiz[];
-  quizForParticipation: any; 
-  quizResult: any; 
-  studentParticipations: any[]; 
+interface QuizState {
+  quizzes: Quiz[];
+  selectedQuiz: Quiz | null;
   loading: boolean;
   error: string | null;
 }
 
-
-export const fetchQuizzes = createAsyncThunk<IQuiz[]>(
-  "quizzes/fetchAll",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await axios.get(`${api}/quizzes`);
-      return res.data.data as IQuiz[];
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
-export const fetchQuizForParticipation = createAsyncThunk<any, string>(
-  "quizzes/fetchForParticipation",
-  async (quizId, { rejectWithValue }) => {
-    try {
-      const res = await axios.get(`${api}/quizzes/${quizId}/participate`);
-      return res.data.data;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
-export const submitQuizAnswers = createAsyncThunk<any, { quizId: string; answers: any[] }>(
-  "quizzes/submit",
-  async ({ quizId, answers }, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(`${api}/quizzes/${quizId}/submit`, { answers });
-      return res.data.data;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
-export const fetchQuizResult = createAsyncThunk<any, string>(
-  "quizzes/fetchResult",
-  async (participationId, { rejectWithValue }) => {
-    try {
-      const res = await axios.get(`${api}/quizzes/result/${participationId}`);
-      return res.data.data;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
-export const fetchStudentParticipations = createAsyncThunk<any[]>(
-  "quizzes/fetchStudentParticipations",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await axios.get(`${api}/quizzes/participations/mine`);
-      return res.data.data;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const createQuiz = createAsyncThunk<IQuiz, Partial<IQuiz>>(
-  "quizzes/create",
-  async (quizData, { rejectWithValue }) => {
-    try {
-      const res = await axios.post(`${api}/quizzes`, quizData);
-      return res.data.data as IQuiz;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const updateQuiz = createAsyncThunk<IQuiz, { id: string; data: Partial<IQuiz> }>(
-  "quizzes/update",
-  async ({ id, data }, { rejectWithValue }) => {
-    try {
-      const res = await axios.put(`${api}/quizzes/${id}`, data);
-      return res.data.data as IQuiz;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const deleteQuiz = createAsyncThunk<string, string>(
-  "quizzes/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await axios.delete(`${api}/quizzes/${id}`);
-      return id;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-
 const initialState: QuizState = {
   quizzes: [],
-  quizForParticipation: null,
-  quizResult: null,
-  studentParticipations: [],
+  selectedQuiz: null,
   loading: false,
   error: null,
 };
+
+// Create Quiz Thunk
+export const createQuiz = createAsyncThunk(
+  "quizzes/createQuiz",
+  async (quizData: Partial<Quiz>, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${api}/quizzes`, quizData);
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to create quiz"
+          : "Failed to create quiz";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Get All Quizzes Thunk
+export const getQuizzes = createAsyncThunk(
+  "quizzes/getQuizzes",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${api}/quizzes?populate=eventId`);
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to fetch quizzes"
+          : "Failed to fetch quizzes";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Get Quiz By ID Thunk
+export const getQuizById = createAsyncThunk(
+  "quizzes/getQuizById",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${api}/quizzes/${id}?populate=eventId`);
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to fetch quiz"
+          : "Failed to fetch quiz";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Get Quizzes By Event ID Thunk
+export const getQuizzesByEventId = createAsyncThunk(
+  "quizzes/getQuizzesByEventId",
+  async (eventId: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${api}/quizzes/event/${eventId}?populate=eventId`
+      );
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to fetch quizzes for this event"
+          : "Failed to fetch quizzes for this event";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Update Quiz Thunk
+export const updateQuiz = createAsyncThunk(
+  "quizzes/updateQuiz",
+  async (
+    { id, data }: { id: string; data: Partial<Quiz> },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axios.patch(`${api}/quizzes/${id}`, data);
+      return response.data.data;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to update quiz"
+          : "Failed to update quiz";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Delete Quiz Thunk
+export const deleteQuiz = createAsyncThunk(
+  "quizzes/deleteQuiz",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await axios.delete(`${api}/quizzes/${id}`);
+      return id;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: { message?: string } } }).response
+              ?.data?.message || "Failed to delete quiz"
+          : "Failed to delete quiz";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
 
 const quizSlice = createSlice({
   name: "quizzes",
   initialState,
   reducers: {
-    clearQuizForParticipation: (state) => {
-      state.quizForParticipation = null;
-    },
-    clearQuizResult: (state) => {
-      state.quizResult = null;
+    clearSelectedQuiz: (state) => {
+      state.selectedQuiz = null;
     },
   },
   extraReducers: (builder) => {
+    // Create Quiz
     builder
-      
-      .addCase(fetchQuizzes.pending, (state) => {
+      .addCase(createQuiz.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
-      .addCase(fetchQuizzes.fulfilled, (state, action: PayloadAction<IQuiz[]>) => {
+      .addCase(createQuiz.fulfilled, (state, action) => {
+        state.loading = false;
+        state.quizzes.push(action.payload);
+      })
+      .addCase(createQuiz.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Get Quizzes By Event ID
+    builder
+      .addCase(getQuizzesByEventId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getQuizzesByEventId.fulfilled, (state, action) => {
         state.loading = false;
         state.quizzes = action.payload;
       })
-      .addCase(fetchQuizzes.rejected, (state, action) => {
+      .addCase(getQuizzesByEventId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-      
-      
-      .addCase(fetchQuizForParticipation.pending, (state) => {
+      });
+
+    // Get All Quizzes
+    builder
+      .addCase(getQuizzes.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
-      .addCase(fetchQuizForParticipation.fulfilled, (state, action: PayloadAction<any>) => {
+      .addCase(getQuizzes.fulfilled, (state, action) => {
         state.loading = false;
-        state.quizForParticipation = action.payload;
+        state.quizzes = action.payload;
       })
-      .addCase(fetchQuizForParticipation.rejected, (state, action) => {
+      .addCase(getQuizzes.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-      
-      
-      .addCase(submitQuizAnswers.pending, (state) => {
+      });
+
+    // Get Quiz By ID
+    builder
+      .addCase(getQuizById.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
-      .addCase(submitQuizAnswers.fulfilled, (state, action: PayloadAction<any>) => {
+      .addCase(getQuizById.fulfilled, (state, action) => {
         state.loading = false;
-        
+        state.selectedQuiz = action.payload;
       })
-      .addCase(submitQuizAnswers.rejected, (state, action) => {
+      .addCase(getQuizById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-      
-      
-      .addCase(fetchQuizResult.pending, (state) => {
+      });
+
+    // Update Quiz
+    builder
+      .addCase(updateQuiz.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
-      .addCase(fetchQuizResult.fulfilled, (state, action: PayloadAction<any>) => {
+      .addCase(updateQuiz.fulfilled, (state, action) => {
         state.loading = false;
-        state.quizResult = action.payload;
-      })
-      .addCase(fetchQuizResult.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      
-      .addCase(fetchStudentParticipations.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchStudentParticipations.fulfilled, (state, action: PayloadAction<any[]>) => {
-        state.loading = false;
-        state.studentParticipations = action.payload;
-      })
-      .addCase(fetchStudentParticipations.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      
-      .addCase(createQuiz.fulfilled, (state, action: PayloadAction<IQuiz>) => {
-        state.quizzes.push(action.payload);
-      })
-      
-      
-      .addCase(updateQuiz.fulfilled, (state, action: PayloadAction<IQuiz>) => {
-        const index = state.quizzes.findIndex(quiz => quiz._id === action.payload._id);
+        const index = state.quizzes.findIndex(
+          (quiz) => quiz._id === action.payload._id
+        );
         if (index !== -1) {
           state.quizzes[index] = action.payload;
         }
+        if (state.selectedQuiz?._id === action.payload._id) {
+          state.selectedQuiz = action.payload;
+        }
       })
-      
-      
-      .addCase(deleteQuiz.fulfilled, (state, action: PayloadAction<string>) => {
-        state.quizzes = state.quizzes.filter(quiz => quiz._id !== action.payload);
+      .addCase(updateQuiz.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Delete Quiz
+    builder
+      .addCase(deleteQuiz.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteQuiz.fulfilled, (state, action) => {
+        state.loading = false;
+        state.quizzes = state.quizzes.filter(
+          (quiz) => quiz._id !== action.payload
+        );
+        if (state.selectedQuiz?._id === action.payload) {
+          state.selectedQuiz = null;
+        }
+      })
+      .addCase(deleteQuiz.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { clearQuizForParticipation, clearQuizResult } = quizSlice.actions;
+export const { clearSelectedQuiz } = quizSlice.actions;
 export default quizSlice.reducer;
