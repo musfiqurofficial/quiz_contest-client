@@ -20,6 +20,7 @@ import {
   createQuestion,
   updateQuestion,
   deleteQuestion,
+  bulkDeleteQuestions,
   importQuestions,
   IQuestion,
 } from "@/redux/features/questionSlice";
@@ -279,6 +280,17 @@ const AdminQuizManagement = () => {
     }
   };
 
+  const handleBulkDeleteQuestions = async (questionIds: string[]) => {
+    try {
+      await dispatch(bulkDeleteQuestions(questionIds)).unwrap();
+      toast.success(`${questionIds.length} questions deleted successfully`);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to delete questions";
+      toast.error(errorMessage);
+    }
+  };
+
   const handleOptionChange = (index: number, value: string) => {
     // Create a new array to avoid mutating state directly
     const currentOptions = [...(newQuestion.options || [])];
@@ -324,11 +336,79 @@ const AdminQuizManagement = () => {
   const handleImportQuestions = async (questions: Partial<IQuestion>[]) => {
     try {
       setIsImporting(true);
+      console.log("Importing questions:", questions);
+
+      // Validate questions before sending
+      const validationErrors: string[] = [];
+      questions.forEach((q, index) => {
+        if (!q.quizId)
+          validationErrors.push(`Question ${index + 1}: Missing quizId`);
+        if (!q.text)
+          validationErrors.push(`Question ${index + 1}: Missing text`);
+        if (!q.questionType)
+          validationErrors.push(`Question ${index + 1}: Missing questionType`);
+        if (!q.marks || q.marks < 1)
+          validationErrors.push(`Question ${index + 1}: Invalid marks`);
+        if (!q.difficulty)
+          validationErrors.push(`Question ${index + 1}: Missing difficulty`);
+
+        if (q.questionType === "MCQ") {
+          if (!q.options || q.options.length < 2) {
+            validationErrors.push(
+              `Question ${index + 1}: MCQ needs at least 2 options`
+            );
+          }
+          if (!q.correctAnswer) {
+            validationErrors.push(
+              `Question ${index + 1}: MCQ needs correct answer`
+            );
+          }
+          if (
+            q.options &&
+            q.correctAnswer &&
+            !q.options.includes(q.correctAnswer)
+          ) {
+            validationErrors.push(
+              `Question ${index + 1}: Correct answer must be one of the options`
+            );
+          }
+        }
+      });
+
+      if (validationErrors.length > 0) {
+        toast.error(`Validation errors: ${validationErrors.join(", ")}`);
+        return;
+      }
+
       await dispatch(importQuestions(questions)).unwrap();
       toast.success(`${questions.length} questions imported successfully`);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to import questions";
+    } catch (error: unknown) {
+      console.error("Import error:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+
+      let errorMessage = "Failed to import questions";
+
+      // Handle different error formats
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: { data?: { message?: string } };
+        };
+        if (axiosError.response?.data?.message) {
+          errorMessage = axiosError.response.data.message;
+        }
+      } else if (error && typeof error === "object" && "message" in error) {
+        errorMessage = (error as { message: string }).message;
+      } else if (error && typeof error === "object" && "error" in error) {
+        const errorObj = error as { error?: { message?: string } };
+        if (errorObj.error?.message) {
+          errorMessage = errorObj.error.message;
+        }
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      }
+
+      // Show detailed error in console for debugging
+      console.error("Final error message:", errorMessage);
       toast.error(errorMessage);
     } finally {
       setIsImporting(false);
@@ -467,6 +547,7 @@ const AdminQuizManagement = () => {
             handleOptionChange={handleOptionChange}
             setEditItem={setEditItem}
             setDeleteDialog={setDeleteDialog}
+            handleBulkDeleteQuestions={handleBulkDeleteQuestions}
             handleImportQuestions={handleImportQuestions}
             isImporting={isImporting}
           />
@@ -485,10 +566,9 @@ const AdminQuizManagement = () => {
             setSearchTerm={setSearchTerm}
             statusFilter={statusFilter}
             setStatusFilter={setStatusFilter}
-            onViewDetails={handleViewParticipationDetails}
             onExportResults={handleExportResults}
-            onUpdateParticipation={handleUpdateParticipation}
             onDeleteParticipation={handleDeleteParticipation}
+            onRefreshData={loadAllData}
           />
         </TabsContent>
 

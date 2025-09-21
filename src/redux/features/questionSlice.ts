@@ -93,6 +93,19 @@ export const deleteQuestion = createAsyncThunk<string, string>(
   }
 );
 
+// Bulk delete questions
+export const bulkDeleteQuestions = createAsyncThunk<string[], string[]>(
+  "questions/bulkDelete",
+  async (ids) => {
+    const response = await axios.delete(`${api}/questions/bulk`, {
+      data: { questionIds: ids },
+    });
+
+    // Return the deleted IDs from the response
+    return response.data.data?.deletedIds || ids;
+  }
+);
+
 // Upload images for questions
 export const uploadQuestionImages = createAsyncThunk<IQuestionFile[], FileList>(
   "questions/uploadImages",
@@ -223,6 +236,22 @@ const questionSlice = createSlice({
       .addCase(deleteQuestion.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Error deleting question";
+      })
+      .addCase(bulkDeleteQuestions.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(
+        bulkDeleteQuestions.fulfilled,
+        (state, action: PayloadAction<string[]>) => {
+          state.loading = false;
+          state.questions = state.questions.filter(
+            (q) => !action.payload.includes(q._id)
+          );
+        }
+      )
+      .addCase(bulkDeleteQuestions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Error deleting questions";
       })
       .addCase(fetchQuestionsByQuizId.pending, (state) => {
         state.loading = true;

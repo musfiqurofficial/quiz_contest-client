@@ -32,34 +32,14 @@ export class GeminiOCRService {
           const arrayBuffer = e.target?.result as ArrayBuffer;
 
           if (file.type.startsWith("image/")) {
-            // For images, convert to base64 in chunks to prevent stack overflow
+            // For images, use a more reliable base64 encoding
             const uint8Array = new Uint8Array(arrayBuffer);
-            const chunkSize = 1024; // Process in 1KB chunks to be extra safe
-            let base64 = "";
-
-            for (let i = 0; i < uint8Array.length; i += chunkSize) {
-              const chunk = uint8Array.slice(i, i + chunkSize);
-              // Convert chunk to string safely
-              const chunkString = Array.from(chunk, (byte) =>
-                String.fromCharCode(byte)
-              ).join("");
-              base64 += btoa(chunkString);
-            }
+            const base64 = this.arrayBufferToBase64(uint8Array);
             resolve(base64);
           } else if (file.type === "application/pdf") {
-            // For PDFs, convert to base64 in chunks to prevent stack overflow
+            // For PDFs, use a more reliable base64 encoding
             const uint8Array = new Uint8Array(arrayBuffer);
-            const chunkSize = 1024; // Process in 1KB chunks to be extra safe
-            let base64 = "";
-
-            for (let i = 0; i < uint8Array.length; i += chunkSize) {
-              const chunk = uint8Array.slice(i, i + chunkSize);
-              // Convert chunk to string safely
-              const chunkString = Array.from(chunk, (byte) =>
-                String.fromCharCode(byte)
-              ).join("");
-              base64 += btoa(chunkString);
-            }
+            const base64 = this.arrayBufferToBase64(uint8Array);
             resolve(base64);
           } else {
             // For text files
@@ -103,6 +83,33 @@ export class GeminiOCRService {
     });
   }
 
+  private static arrayBufferToBase64(buffer: Uint8Array): string {
+    // More reliable base64 encoding method
+    let binary = "";
+    const len = buffer.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(buffer[i]);
+    }
+    return btoa(binary);
+  }
+
+  private static isValidBase64(str: string): boolean {
+    try {
+      // Check if string is valid base64
+      const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+      if (!base64Regex.test(str)) {
+        return false;
+      }
+
+      // Try to decode and re-encode to verify
+      const decoded = atob(str);
+      const reEncoded = btoa(decoded);
+      return reEncoded === str;
+    } catch {
+      return false;
+    }
+  }
+
   private static async extractTextFromPDFAsText(file: File): Promise<string> {
     // Use pdfjs-dist for browser-compatible PDF text extraction
     return new Promise((resolve, reject) => {
@@ -113,28 +120,86 @@ export class GeminiOCRService {
           const arrayBuffer = e.target?.result as ArrayBuffer;
           const uint8Array = new Uint8Array(arrayBuffer);
 
-          // Load PDF document
-          const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
-          let fullText = "";
+          console.log("Loading PDF document with pdfjs-dist...");
 
-          // Extract text from all pages
+          // Load PDF document with better error handling
+          const loadingTask = pdfjsLib.getDocument({
+            data: uint8Array,
+            verbosity: 0, // Reduce console output
+            disableAutoFetch: false,
+            disableStream: false,
+          });
+
+          const pdf = await loadingTask.promise;
+          console.log(`PDF loaded successfully. Pages: ${pdf.numPages}`);
+
+          let fullText = "";
+          let pagesProcessed = 0;
+
+          // Extract text from all pages with progress tracking
           for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            const page = await pdf.getPage(pageNum);
-            const textContent = await page.getTextContent();
-            const pageText = textContent.items
-              .map((item) => ("str" in item ? item.str : ""))
-              .join(" ");
-            fullText += pageText + "\n";
+            try {
+              console.log(`Processing page ${pageNum}/${pdf.numPages}...`);
+              const page = await pdf.getPage(pageNum);
+              const textContent = await page.getTextContent();
+
+              const pageText = textContent.items
+                .map((item) => {
+                  if ("str" in item) {
+                    return item.str;
+                  }
+                  return "";
+                })
+                .join(" ")
+                .trim();
+
+              if (pageText) {
+                fullText += `Page ${pageNum}:\n${pageText}\n\n`;
+                pagesProcessed++;
+              }
+            } catch (pageError) {
+              console.warn(`Error processing page ${pageNum}:`, pageError);
+              // Continue with other pages even if one fails
+            }
           }
 
+          console.log(`Successfully processed ${pagesProcessed} pages`);
+
           if (!fullText || fullText.trim().length === 0) {
-            reject(new Error("No text content found in PDF"));
+            reject(
+              new Error(
+                "No text content found in PDF. The PDF might be image-based or corrupted."
+              )
+            );
           } else {
+            console.log(`Extracted text length: ${fullText.length} characters`);
             resolve(fullText.trim());
           }
         } catch (error) {
           console.error("PDF parsing error:", error);
-          reject(new Error("Failed to extract text from PDF using pdfjs-dist"));
+          if (error instanceof Error) {
+            if (error.message.includes("Invalid PDF")) {
+              reject(
+                new Error(
+                  "Invalid PDF file. Please check if the file is corrupted."
+                )
+              );
+            } else if (error.message.includes("Password")) {
+              reject(
+                new Error(
+                  "PDF is password protected. Please provide an unprotected PDF."
+                )
+              );
+            } else {
+              reject(
+                new Error(`Failed to extract text from PDF: ${error.message}`)
+              );
+            }
+          } else {
+            reject(
+              new Error("Failed to extract text from PDF using pdfjs-dist")
+            );
+          }
         }
       };
 
@@ -152,7 +217,13 @@ export class GeminiOCRService {
         try {
           const arrayBuffer = e.target?.result as ArrayBuffer;
           const text = new TextDecoder().decode(arrayBuffer);
-          resolve(text);
+
+          // Check if the text contains readable content (not just binary data)
+          if (text.length < 100 || !/[a-zA-Z]{3,}/.test(text)) {
+            reject(new Error("PDF appears to be image-based or binary-only"));
+          } else {
+            resolve(text);
+          }
         } catch {
           reject(
             new Error("Failed to extract text from PDF using direct method")
@@ -165,9 +236,57 @@ export class GeminiOCRService {
     });
   }
 
+  private static async validatePDFFile(
+    file: File
+  ): Promise<{ isValid: boolean; error?: string }> {
+    return new Promise((resolve) => {
+      // Check file size
+      if (file.size > 50 * 1024 * 1024) {
+        // 50MB
+        resolve({ isValid: false, error: "PDF file is too large (max 50MB)" });
+        return;
+      }
+
+      // Check file type
+      if (file.type !== "application/pdf") {
+        resolve({ isValid: false, error: "File is not a PDF" });
+        return;
+      }
+
+      // Try to read the first few bytes to check if it's a valid PDF
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const arrayBuffer = e.target?.result as ArrayBuffer;
+          const uint8Array = new Uint8Array(arrayBuffer.slice(0, 8));
+          const header = Array.from(uint8Array)
+            .map((byte) => String.fromCharCode(byte))
+            .join("");
+
+          if (!header.startsWith("%PDF-")) {
+            resolve({
+              isValid: false,
+              error: "File does not appear to be a valid PDF",
+            });
+            return;
+          }
+
+          resolve({ isValid: true });
+        } catch {
+          resolve({ isValid: false, error: "Unable to validate PDF file" });
+        }
+      };
+
+      reader.onerror = () =>
+        resolve({ isValid: false, error: "Unable to read PDF file" });
+      reader.readAsArrayBuffer(file.slice(0, 1024)); // Read only first 1KB
+    });
+  }
+
   private static async processLargeContent(
     content: string,
-    fileType: string
+    fileType: string,
+    isTextContent: boolean = false
   ): Promise<string> {
     // If content is too large, split it into chunks and process separately
     const maxChunkSize = 10000; // 10KB chunks for text processing
@@ -175,7 +294,7 @@ export class GeminiOCRService {
 
     if (chunks.length === 1) {
       // Content is small enough, process normally
-      return this.callGeminiAPI(content, fileType);
+      return this.callGeminiAPI(content, fileType, isTextContent);
     }
 
     console.log(`Processing large content in ${chunks.length} chunks`);
@@ -188,7 +307,7 @@ export class GeminiOCRService {
       console.log(`Processing chunk ${i + 1}/${chunks.length}`);
 
       try {
-        const response = await this.callGeminiAPI(chunk, fileType);
+        const response = await this.callGeminiAPI(chunk, fileType, true);
         const questions = this.parseGeminiResponse(response);
         allQuestions.push(...questions);
       } catch (error) {
@@ -258,7 +377,8 @@ export class GeminiOCRService {
 
   private static async callGeminiAPI(
     content: string,
-    fileType: string
+    fileType: string,
+    isTextContent: boolean = false
   ): Promise<string> {
     const isImage = fileType.startsWith("image/");
     const isPDF = fileType === "application/pdf";
@@ -356,11 +476,36 @@ export class GeminiOCRService {
       );
     }
 
+    // Check if content is too small or empty
+    if (content.length < 50) {
+      throw new Error(
+        "Content too short. The file might be empty or contain no readable text."
+      );
+    }
+
+    // Additional validation for base64 content
+    if (isImage || isPDF) {
+      // Validate base64 content
+      if (!this.isValidBase64(content)) {
+        throw new Error("Invalid file content. The file may be corrupted.");
+      }
+
+      // Check if base64 content is reasonable size
+      const expectedSize = Math.ceil(content.length * 0.75); // Base64 is ~33% larger than binary
+      if (expectedSize > 20 * 1024 * 1024) {
+        // 20MB binary limit
+        throw new Error(
+          "File too large for processing. Please use a smaller file."
+        );
+      }
+    }
+
     const requestBody = {
       contents: [
         {
           parts: [
-            ...(isImage || isPDF
+            // Only include inline_data for images or PDFs when content is base64
+            ...(isImage || (isPDF && !isTextContent)
               ? [
                   {
                     inline_data: {
@@ -373,7 +518,9 @@ export class GeminiOCRService {
             {
               text:
                 prompt +
-                (isImage || isPDF ? "" : `\n\nText to analyze:\n${content}`),
+                (isImage || (isPDF && !isTextContent)
+                  ? ""
+                  : `\n\nText to analyze:\n${content}`),
             },
           ],
         },
@@ -390,6 +537,9 @@ export class GeminiOCRService {
     const requestSize = JSON.stringify(requestBody).length;
     console.log(`Request size: ${(requestSize / 1024 / 1024).toFixed(2)}MB`);
     console.log(`Content size: ${(content.length / 1024 / 1024).toFixed(2)}MB`);
+    console.log(`File type: ${fileType}`);
+    console.log(`Is text content: ${isTextContent}`);
+    console.log(`Content preview: ${content.substring(0, 100)}...`);
 
     try {
       // Add timeout to prevent hanging requests
@@ -412,13 +562,42 @@ export class GeminiOCRService {
         console.error("API Error Response:", errorText);
         console.error("Request size:", requestSize);
         console.error("Content size:", content.length);
+        console.error("File type:", fileType);
 
         let errorMessage = `API request failed: ${response.status} ${response.statusText}`;
 
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.error) {
-            errorMessage += ` - ${errorData.error.message || errorData.error}`;
+            const geminiError = errorData.error.message || errorData.error;
+            console.error("Gemini API Error:", geminiError);
+
+            // Provide more specific error messages based on Gemini API errors
+            if (
+              geminiError.includes("SAFETY") ||
+              geminiError.includes("safety")
+            ) {
+              errorMessage =
+                "Content blocked by safety filters. Please try with different content.";
+            } else if (
+              geminiError.includes("INVALID_ARGUMENT") ||
+              geminiError.includes("invalid")
+            ) {
+              errorMessage =
+                "Invalid file format or corrupted file. Please try with a different file.";
+            } else if (
+              geminiError.includes("SIZE") ||
+              geminiError.includes("size")
+            ) {
+              errorMessage = "File too large. Please use a smaller file.";
+            } else if (
+              geminiError.includes("QUOTA") ||
+              geminiError.includes("quota")
+            ) {
+              errorMessage = "API quota exceeded. Please try again later.";
+            } else {
+              errorMessage += ` - ${geminiError}`;
+            }
           }
         } catch {
           // If we can't parse the error, use the raw text
@@ -535,15 +714,26 @@ export class GeminiOCRService {
           }
         }
 
+        // Ensure correctAnswer is valid for MCQ questions
+        let correctAnswer = q.correctAnswer || "";
+        if (q.type === "MCQ" && options.length > 0) {
+          if (!correctAnswer || !options.includes(correctAnswer)) {
+            // If correctAnswer is not provided or not in options, use the first option
+            correctAnswer = options[0];
+          }
+        }
+
         questions.push({
           text: q.text.trim(),
           type: q.type,
           options: options,
-          correctAnswer: q.correctAnswer || "",
+          correctAnswer: correctAnswer,
           marks: marks,
           difficulty: q.difficulty,
-          wordLimit: parseInt(q.wordLimit) || 50,
-          timeLimit: parseInt(q.timeLimit) || 30,
+          wordLimit:
+            parseInt(q.wordLimit) || (q.type === "Written" ? 50 : undefined),
+          timeLimit:
+            parseInt(q.timeLimit) || (q.type === "Written" ? 30 : undefined),
         });
       }
 
@@ -626,34 +816,81 @@ export class GeminiOCRService {
       // Extract content from file
       console.log("Extracting content from file...");
       let content: string;
+      let processingType = file.type; // Track the processing type
 
       if (file.type === "application/pdf") {
-        // For PDFs, use pdfjs-dist for better text extraction
+        // For PDFs, validate first then try multiple extraction methods
+        console.log("Processing PDF file...");
+
+        // Validate PDF file first
+        const validation = await this.validatePDFFile(file);
+        if (!validation.isValid) {
+          result.errors.push(`PDF validation failed: ${validation.error}`);
+          return result;
+        }
+
+        // Method 1: Try pdfjs-dist text extraction (most reliable for text-based PDFs)
         try {
+          console.log("Attempting PDF text extraction with pdfjs-dist...");
           content = await this.extractTextFromPDFAsText(file);
           console.log(
-            `PDF text extracted, length: ${content.length} characters`
+            `PDF text extracted successfully, length: ${content.length} characters`
           );
-        } catch {
-          console.log("PDF text extraction failed, trying base64 method...");
+
+          // If text extraction worked, use it for API call
+          if (content && content.length > 50) {
+            // Use text content for API call instead of base64
+            console.log("Using extracted text for API call");
+            // Mark this as text content for the API call
+            processingType = "text/plain"; // Change processing type to text for API processing
+          } else {
+            throw new Error("Extracted text too short, trying base64 method");
+          }
+        } catch (pdfjsError) {
+          console.warn("PDF text extraction failed:", pdfjsError);
+
+          // Method 2: Try base64 method for image-based PDFs
           try {
+            console.log("Attempting PDF base64 extraction...");
             content = await this.extractTextFromFile(file);
             console.log(
               `PDF base64 extracted, length: ${content.length} characters`
             );
-          } catch {
-            console.log(
-              "Base64 extraction also failed, trying direct text extraction..."
-            );
+          } catch (base64Error) {
+            console.warn("PDF base64 extraction failed:", base64Error);
+
+            // Method 3: Try direct text extraction (fallback)
             try {
+              console.log("Attempting PDF direct text extraction...");
               content = await this.extractTextFromPDFDirect(file);
               console.log(
                 `PDF direct text extracted, length: ${content.length} characters`
               );
-            } catch {
-              result.errors.push(
-                `Failed to extract content from PDF. Please try with a different file or convert to text format.`
-              );
+            } catch (directError) {
+              console.error("All PDF extraction methods failed:", directError);
+
+              // Provide specific error messages based on the failure
+              let errorMessage = "Failed to extract content from PDF. ";
+              if (pdfjsError instanceof Error) {
+                if (pdfjsError.message.includes("password protected")) {
+                  errorMessage +=
+                    "The PDF is password protected. Please provide an unprotected PDF.";
+                } else if (pdfjsError.message.includes("Invalid PDF")) {
+                  errorMessage +=
+                    "The PDF file appears to be corrupted or invalid.";
+                } else if (pdfjsError.message.includes("image-based")) {
+                  errorMessage +=
+                    "The PDF contains only images. Please use an OCR tool to convert images to text first.";
+                } else {
+                  errorMessage +=
+                    "Please try with a different PDF file or convert to text format.";
+                }
+              } else {
+                errorMessage +=
+                  "Please try with a different PDF file or convert to text format.";
+              }
+
+              result.errors.push(errorMessage);
               return result;
             }
           }
@@ -682,7 +919,13 @@ export class GeminiOCRService {
       let geminiResponse: string;
 
       try {
-        geminiResponse = await this.processLargeContent(content, file.type);
+        // Determine if content is text or base64
+        const isTextContent = processingType === "text/plain";
+        geminiResponse = await this.processLargeContent(
+          content,
+          processingType,
+          isTextContent
+        );
       } catch (apiError) {
         console.error("Content processing failed:", apiError);
         throw apiError;

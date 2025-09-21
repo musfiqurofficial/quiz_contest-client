@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +9,9 @@ import {
   Upload,
   X,
   Image as ImageIcon,
+  CheckSquare,
+  Square,
+  Loader2,
 } from "lucide-react";
 import {
   Card,
@@ -36,7 +39,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -62,6 +64,7 @@ interface QuestionsTabProps {
   setDeleteDialog: React.Dispatch<
     React.SetStateAction<{ type: string; id: string } | null>
   >;
+  handleBulkDeleteQuestions?: (questionIds: string[]) => void;
   handleImageUpload?: (files: FileList) => void;
   uploadedImages?: IQuestionFile[];
   removeUploadedImage?: (index: number) => void;
@@ -79,6 +82,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({
   handleOptionChange,
   setEditItem,
   setDeleteDialog,
+  handleBulkDeleteQuestions,
   handleImageUpload,
   uploadedImages = [],
   removeUploadedImage,
@@ -86,6 +90,10 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({
   isImporting = false,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(
+    new Set()
+  );
+  const [bulkDeleteMode, setBulkDeleteMode] = useState(false);
 
   // Helper functions
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,6 +109,41 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({
     if (removeUploadedImage) {
       removeUploadedImage(index);
     }
+  };
+
+  // Bulk delete functions
+  const handleSelectQuestion = (questionId: string) => {
+    setSelectedQuestions((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
+      } else {
+        newSet.add(questionId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedQuestions.size === questions.length) {
+      setSelectedQuestions(new Set());
+    } else {
+      setSelectedQuestions(new Set(questions.map((q) => q._id)));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedQuestions.size === 0 || !handleBulkDeleteQuestions) return;
+
+    const questionIds = Array.from(selectedQuestions);
+    handleBulkDeleteQuestions(questionIds);
+    setSelectedQuestions(new Set());
+    setBulkDeleteMode(false);
+  };
+
+  const handleCancelBulkDelete = () => {
+    setBulkDeleteMode(false);
+    setSelectedQuestions(new Set());
   };
 
   const getQuestionTypeBadge = (type: string) => {
@@ -486,85 +529,196 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({
             )}
           </div>
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Question</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Quiz</TableHead>
-                  <TableHead>Difficulty</TableHead>
-                  <TableHead>Marks</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {questions.map((question) => {
-                  return (
-                    <TableRow key={question._id}>
-                      <TableCell className="font-medium max-w-md truncate">
-                        <div className="space-y-1">
-                          <div>{question.text}</div>
-                          {question.uploadedImages &&
-                            question.uploadedImages.length > 0 && (
-                              <div className="flex items-center space-x-1 text-xs text-gray-500">
-                                <ImageIcon className="h-3 w-3" />
-                                <span>
-                                  {question.uploadedImages.length} image(s)
-                                </span>
-                              </div>
-                            )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getQuestionTypeBadge(question.questionType)}
-                      </TableCell>
-                      <TableCell>
-                        {typeof question.quizId === "object" &&
-                        question.quizId !== null ? (
-                          <Badge variant="outline">
-                            {question.quizId.title}
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">Unknown Quiz</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {getDifficultyBadge(question.difficulty)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{question.marks}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() =>
-                              setEditItem({ type: "question", data: question })
-                            }
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() =>
-                              setDeleteDialog({
-                                type: "question",
-                                id: question._id,
-                              })
-                            }
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+          <div className="space-y-4">
+            {/* Bulk Delete Controls */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="flex items-center space-x-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Questions Management
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={handleSelectAll}
+                    variant="outline"
+                    size="sm"
+                    disabled={questions.length === 0}
+                  >
+                    {selectedQuestions.size === questions.length ? (
+                      <>
+                        <Square className="h-4 w-4 mr-2" />
+                        Deselect All
+                      </>
+                    ) : (
+                      <>
+                        <CheckSquare className="h-4 w-4 mr-2" />
+                        Select All
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={() => setBulkDeleteMode(true)}
+                    disabled={selectedQuestions.size === 0}
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Selected ({selectedQuestions.size})
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Bulk Delete Confirmation */}
+            {bulkDeleteMode && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium text-red-800">
+                      Delete {selectedQuestions.size} Selected Questions?
+                    </h4>
+                    <p className="text-sm text-red-600 mt-1">
+                      This action cannot be undone. The selected questions will
+                      be permanently deleted.
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      onClick={handleBulkDelete}
+                      variant="destructive"
+                      size="sm"
+                      disabled={questionsLoading}
+                    >
+                      {questionsLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete {selectedQuestions.size} Questions
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      onClick={handleCancelBulkDelete}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <input
+                        type="checkbox"
+                        checked={
+                          selectedQuestions.size === questions.length &&
+                          questions.length > 0
+                        }
+                        onChange={handleSelectAll}
+                        className="rounded"
+                      />
+                    </TableHead>
+                    <TableHead>Question</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Quiz</TableHead>
+                    <TableHead>Difficulty</TableHead>
+                    <TableHead>Marks</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {questions.map((question) => {
+                    const isSelected = selectedQuestions.has(question._id);
+                    return (
+                      <TableRow
+                        key={question._id}
+                        className={isSelected ? "bg-blue-50" : ""}
+                      >
+                        <TableCell>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleSelectQuestion(question._id)}
+                            className="rounded"
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium max-w-md truncate">
+                          <div className="space-y-1">
+                            <div>{question.text}</div>
+                            {question.uploadedImages &&
+                              question.uploadedImages.length > 0 && (
+                                <div className="flex items-center space-x-1 text-xs text-gray-500">
+                                  <ImageIcon className="h-3 w-3" />
+                                  <span>
+                                    {question.uploadedImages.length} image(s)
+                                  </span>
+                                </div>
+                              )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {getQuestionTypeBadge(question.questionType)}
+                        </TableCell>
+                        <TableCell>
+                          {typeof question.quizId === "object" &&
+                          question.quizId !== null ? (
+                            <Badge variant="outline">
+                              {question.quizId.title}
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">Unknown Quiz</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {getDifficultyBadge(question.difficulty)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{question.marks}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() =>
+                                setEditItem({
+                                  type: "question",
+                                  data: question,
+                                })
+                              }
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() =>
+                                setDeleteDialog({
+                                  type: "question",
+                                  id: question._id,
+                                })
+                              }
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         )}
       </CardContent>

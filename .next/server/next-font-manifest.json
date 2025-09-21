@@ -1,1 +1,13 @@
-{"pages":{},"app":{},"appUsingSizeAdjust":false,"pagesUsingSizeAdjust":false}
+{
+  "app": {
+    "[project]/src/app/(all-dashboard)/admin/quizzes/page": [],
+    "[project]/src/app/(all-dashboard)/student/dashboard/page": [],
+    "[project]/src/app/(all-dashboard)/student/events/[eventId]/page": [],
+    "[project]/src/app/(main)/[eventId]/page": [],
+    "[project]/src/app/(main)/page": [],
+    "[project]/src/app/_not-found/page": []
+  },
+  "appUsingSizeAdjust": false,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}

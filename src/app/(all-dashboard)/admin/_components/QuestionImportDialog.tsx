@@ -56,10 +56,15 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
     ExtractedQuestion[]
   >([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
   const [editingQuestion, setEditingQuestion] = useState<number | null>(null);
   const [editedQuestion, setEditedQuestion] =
     useState<ExtractedQuestion | null>(null);
+  const [showRangeSelector, setShowRangeSelector] = useState(false);
+  const [rangeStart, setRangeStart] = useState(1);
+  const [rangeEnd, setRangeEnd] = useState(1);
+  const [useRangeSelection, setUseRangeSelection] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,6 +74,7 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
       const fileArray = Array.from(files);
       setSelectedFiles(fileArray);
       setErrors([]);
+      setProcessingStatus("");
     }
   };
 
@@ -84,6 +90,7 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
 
     setIsProcessing(true);
     setErrors([]);
+    setProcessingStatus("Starting file processing...");
 
     try {
       console.log("Starting file processing...", selectedFiles.length, "files");
@@ -99,6 +106,10 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
           file.name
         );
 
+        setProcessingStatus(
+          `Processing file ${i + 1}/${selectedFiles.length}: ${file.name}`
+        );
+
         try {
           const result = await GeminiOCRService.processFile(file);
 
@@ -107,6 +118,11 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
             console.log(
               `Extracted ${result.questions.length} questions from ${file.name}`
             );
+            setProcessingStatus(
+              `Successfully extracted ${result.questions.length} questions from ${file.name}`
+            );
+          } else {
+            setProcessingStatus(`No questions found in ${file.name}`);
           }
 
           if (result.errors.length > 0) {
@@ -116,11 +132,10 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
           }
         } catch (fileError) {
           console.error(`Error processing file ${file.name}:`, fileError);
-          allErrors.push(
-            `${file.name}: ${
-              fileError instanceof Error ? fileError.message : "Unknown error"
-            }`
-          );
+          const errorMessage =
+            fileError instanceof Error ? fileError.message : "Unknown error";
+          allErrors.push(`${file.name}: ${errorMessage}`);
+          setProcessingStatus(`Error processing ${file.name}: ${errorMessage}`);
         }
 
         // Add a small delay between files to prevent rate limiting
@@ -144,6 +159,15 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
         console.log(
           `Successfully extracted ${filteredQuestions.length} questions`
         );
+        setProcessingStatus(
+          `Successfully extracted ${filteredQuestions.length} questions from ${selectedFiles.length} file(s)`
+        );
+
+        // Show range selector if questions were extracted
+        if (filteredQuestions.length > 0) {
+          setRangeEnd(filteredQuestions.length);
+          setShowRangeSelector(true);
+        }
       } else {
         // Check if any files were processed successfully but no questions found
         const hasNoQuestionsError = allErrors.some((error) =>
@@ -153,12 +177,14 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
         if (hasNoQuestionsError) {
           setExtractedQuestions([]);
           setErrors(allErrors);
+          setProcessingStatus("No questions found in uploaded files");
         } else {
           setErrors(
             allErrors.length > 0
               ? allErrors
               : ["No questions could be extracted from the files"]
           );
+          setProcessingStatus("Error processing files - see details below");
         }
       }
     } catch (error) {
@@ -198,20 +224,59 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
   const handleImportQuestions = () => {
     if (extractedQuestions.length === 0) return;
 
-    const questionsToImport: Partial<IQuestion>[] = extractedQuestions.map(
-      (q) => ({
-        quizId: selectedQuiz,
-        text: q.text,
-        questionType: q.type,
-        options: q.options || [],
-        correctAnswer: q.correctAnswer || "",
-        marks: q.marks,
-        difficulty: q.difficulty,
-        wordLimit: q.wordLimit,
-        timeLimit: q.timeLimit,
-      })
+    // Get questions based on range selection
+    let questionsToProcess = extractedQuestions;
+    if (useRangeSelection && showRangeSelector) {
+      const start = Math.max(1, rangeStart) - 1; // Convert to 0-based index
+      const end = Math.min(extractedQuestions.length, rangeEnd);
+      questionsToProcess = extractedQuestions.slice(start, end);
+    }
+
+    const questionsToImport: Partial<IQuestion>[] = questionsToProcess.map(
+      (q) => {
+        const baseQuestion = {
+          quizId: selectedQuiz,
+          text: q.text,
+          questionType: q.type,
+          marks: q.marks,
+          difficulty: q.difficulty,
+          explanation: "", // Add explanation field
+        };
+
+        // Add type-specific fields
+        if (q.type === "MCQ") {
+          const options = q.options || [];
+          const correctAnswer =
+            q.correctAnswer || (options.length > 0 ? options[0] : "");
+
+          return {
+            ...baseQuestion,
+            options: options,
+            correctAnswer: correctAnswer,
+          };
+        } else if (q.type === "Short") {
+          return {
+            ...baseQuestion,
+            correctAnswer: q.correctAnswer || "Expected answer not provided",
+            uploadedImages: [], // Add empty images array
+            participantImages: [], // Add empty participant images array
+          };
+        } else if (q.type === "Written") {
+          return {
+            ...baseQuestion,
+            correctAnswer: q.correctAnswer || "Expected answer not provided",
+            wordLimit: Math.max(q.wordLimit || 50, 10), // Ensure minimum 10 words
+            timeLimit: Math.max(q.timeLimit || 30, 1), // Ensure minimum 1 minute
+            uploadedImages: [], // Add empty images array
+            participantImages: [], // Add empty participant images array
+          };
+        }
+
+        return baseQuestion;
+      }
     );
 
+    console.log("Questions to import:", questionsToImport);
     onImportQuestions(questionsToImport);
     setIsOpen(false);
     resetForm();
@@ -225,6 +290,12 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
     setErrors([]);
     setEditingQuestion(null);
     setEditedQuestion(null);
+    setProcessingStatus("");
+    setIsProcessing(false);
+    setShowRangeSelector(false);
+    setRangeStart(1);
+    setRangeEnd(1);
+    setUseRangeSelection(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -427,6 +498,17 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
                 </>
               )}
             </Button>
+
+            {isProcessing && processingStatus && (
+              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <div className="flex items-center">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin text-blue-600" />
+                  <span className="text-sm text-blue-800">
+                    {processingStatus}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Errors */}
@@ -465,6 +547,98 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
               </div>
             )}
 
+          {/* Range Selection */}
+          {showRangeSelector && extractedQuestions.length > 0 && (
+            <div className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-blue-800">
+                  Select Question Range
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="useRange"
+                    checked={useRangeSelection}
+                    onChange={(e) => setUseRangeSelection(e.target.checked)}
+                    className="rounded"
+                  />
+                  <label
+                    htmlFor="useRange"
+                    className="text-sm font-medium text-blue-700"
+                  >
+                    Use Range Selection
+                  </label>
+                </div>
+              </div>
+
+              {useRangeSelection && (
+                <div className="space-y-3">
+                  <div className="text-sm text-blue-700">
+                    Total Questions: {extractedQuestions.length}
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <Label
+                        htmlFor="rangeStart"
+                        className="text-sm font-medium"
+                      >
+                        From:
+                      </Label>
+                      <Input
+                        id="rangeStart"
+                        type="number"
+                        min="1"
+                        max={extractedQuestions.length}
+                        value={rangeStart}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 1;
+                          setRangeStart(
+                            Math.max(
+                              1,
+                              Math.min(value, extractedQuestions.length)
+                            )
+                          );
+                        }}
+                        className="w-20"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="rangeEnd" className="text-sm font-medium">
+                        To:
+                      </Label>
+                      <Input
+                        id="rangeEnd"
+                        type="number"
+                        min="1"
+                        max={extractedQuestions.length}
+                        value={rangeEnd}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 1;
+                          setRangeEnd(
+                            Math.max(
+                              1,
+                              Math.min(value, extractedQuestions.length)
+                            )
+                          );
+                        }}
+                        className="w-20"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-sm text-blue-600">
+                    Selected Range: {rangeStart} - {rangeEnd}(
+                    {Math.max(0, rangeEnd - rangeStart + 1)} questions)
+                  </div>
+                  {rangeStart > rangeEnd && (
+                    <div className="text-sm text-red-600">
+                      ⚠️ Start range cannot be greater than end range
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Extracted Questions */}
           {extractedQuestions.length > 0 && (
             <div className="space-y-4">
@@ -475,7 +649,10 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
                 <div className="flex space-x-2">
                   <Button
                     onClick={handleImportQuestions}
-                    disabled={isImporting}
+                    disabled={
+                      isImporting ||
+                      (useRangeSelection && rangeStart > rangeEnd)
+                    }
                     className="bg-green-600 hover:bg-green-700"
                   >
                     {isImporting ? (
@@ -486,7 +663,11 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
                     ) : (
                       <>
                         <CheckCircle className="mr-2 h-4 w-4" />
-                        Import All Questions
+                        Import{" "}
+                        {useRangeSelection && showRangeSelector
+                          ? `${Math.max(0, rangeEnd - rangeStart + 1)} Selected`
+                          : "All"}{" "}
+                        Questions
                       </>
                     )}
                   </Button>
@@ -494,246 +675,271 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
               </div>
 
               <div className="space-y-4 max-h-96 overflow-y-auto">
-                {extractedQuestions.map((question, index) => (
-                  <Card key={index}>
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-sm font-medium">
-                            Question {index + 1}
-                          </CardTitle>
-                          <div className="flex items-center space-x-2 mt-1">
-                            {getQuestionTypeBadge(question.type)}
-                            {getDifficultyBadge(question.difficulty)}
-                            <Badge variant="secondary">
-                              {question.marks} marks
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="flex space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditQuestion(index)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteQuestion(index)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      {editingQuestion === index ? (
-                        <div className="space-y-4">
-                          <div>
-                            <Label>Question Text</Label>
-                            <Textarea
-                              value={editedQuestion?.text || ""}
-                              onChange={(e) =>
-                                setEditedQuestion({
-                                  ...editedQuestion!,
-                                  text: e.target.value,
-                                })
-                              }
-                              rows={3}
-                            />
-                          </div>
+                {extractedQuestions.map((question, index) => {
+                  const isInRange =
+                    useRangeSelection && showRangeSelector
+                      ? index >= rangeStart - 1 && index < rangeEnd
+                      : true;
 
-                          {editedQuestion?.type === "MCQ" && (
-                            <div>
-                              <Label>Options</Label>
-                              <div className="space-y-2">
-                                {editedQuestion.options?.map(
-                                  (option, optIndex) => (
-                                    <div
-                                      key={optIndex}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <Input
-                                        value={option}
-                                        onChange={(e) => {
-                                          const newOptions = [
-                                            ...(editedQuestion.options || []),
-                                          ];
-                                          newOptions[optIndex] = e.target.value;
-                                          setEditedQuestion({
-                                            ...editedQuestion,
-                                            options: newOptions,
-                                          });
-                                        }}
-                                        placeholder={`Option ${optIndex + 1}`}
-                                      />
-                                      <input
-                                        type="radio"
-                                        name="correctAnswer"
-                                        checked={
-                                          editedQuestion.correctAnswer ===
-                                          option
-                                        }
-                                        onChange={() =>
-                                          setEditedQuestion({
-                                            ...editedQuestion,
-                                            correctAnswer: option,
-                                          })
-                                        }
-                                      />
-                                      <Label className="text-sm">Correct</Label>
-                                    </div>
-                                  )
-                                )}
-                              </div>
+                  return (
+                    <Card key={index} className={isInRange ? "" : "opacity-50"}>
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-sm font-medium flex items-center">
+                              Question {index + 1}
+                              {useRangeSelection && showRangeSelector && (
+                                <span
+                                  className={`ml-2 px-2 py-1 text-xs rounded ${
+                                    isInRange
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-gray-100 text-gray-500"
+                                  }`}
+                                >
+                                  {isInRange ? "Selected" : "Not Selected"}
+                                </span>
+                              )}
+                            </CardTitle>
+                            <div className="flex items-center space-x-2 mt-1">
+                              {getQuestionTypeBadge(question.type)}
+                              {getDifficultyBadge(question.difficulty)}
+                              <Badge variant="secondary">
+                                {question.marks} marks
+                              </Badge>
                             </div>
-                          )}
-
-                          {(editedQuestion?.type === "Short" ||
-                            editedQuestion?.type === "Written") && (
+                          </div>
+                          <div className="flex space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditQuestion(index)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteQuestion(index)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        {editingQuestion === index ? (
+                          <div className="space-y-4">
                             <div>
-                              <Label>Expected Answer</Label>
+                              <Label>Question Text</Label>
                               <Textarea
-                                value={editedQuestion?.correctAnswer || ""}
+                                value={editedQuestion?.text || ""}
                                 onChange={(e) =>
                                   setEditedQuestion({
                                     ...editedQuestion!,
-                                    correctAnswer: e.target.value,
+                                    text: e.target.value,
                                   })
                                 }
-                                rows={2}
+                                rows={3}
                               />
                             </div>
-                          )}
 
-                          <div className="grid grid-cols-3 gap-4">
-                            <div>
-                              <Label>Marks</Label>
-                              <Input
-                                type="number"
-                                min="1"
-                                value={editedQuestion?.marks || 1}
-                                onChange={(e) =>
-                                  setEditedQuestion({
-                                    ...editedQuestion!,
-                                    marks: Number(e.target.value),
-                                  })
-                                }
-                              />
-                            </div>
-                            <div>
-                              <Label>Difficulty</Label>
-                              <Select
-                                value={editedQuestion?.difficulty || "medium"}
-                                onValueChange={(value) =>
-                                  setEditedQuestion({
-                                    ...editedQuestion!,
-                                    difficulty: value as
-                                      | "easy"
-                                      | "medium"
-                                      | "hard",
-                                  })
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="easy">Easy</SelectItem>
-                                  <SelectItem value="medium">Medium</SelectItem>
-                                  <SelectItem value="hard">Hard</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            {editedQuestion?.type === "Written" && (
+                            {editedQuestion?.type === "MCQ" && (
                               <div>
-                                <Label>Word Limit</Label>
-                                <Input
-                                  type="number"
-                                  min="50"
-                                  value={editedQuestion?.wordLimit || 50}
+                                <Label>Options</Label>
+                                <div className="space-y-2">
+                                  {editedQuestion.options?.map(
+                                    (option, optIndex) => (
+                                      <div
+                                        key={optIndex}
+                                        className="flex items-center space-x-2"
+                                      >
+                                        <Input
+                                          value={option}
+                                          onChange={(e) => {
+                                            const newOptions = [
+                                              ...(editedQuestion.options || []),
+                                            ];
+                                            newOptions[optIndex] =
+                                              e.target.value;
+                                            setEditedQuestion({
+                                              ...editedQuestion,
+                                              options: newOptions,
+                                            });
+                                          }}
+                                          placeholder={`Option ${optIndex + 1}`}
+                                        />
+                                        <input
+                                          type="radio"
+                                          name="correctAnswer"
+                                          checked={
+                                            editedQuestion.correctAnswer ===
+                                            option
+                                          }
+                                          onChange={() =>
+                                            setEditedQuestion({
+                                              ...editedQuestion,
+                                              correctAnswer: option,
+                                            })
+                                          }
+                                        />
+                                        <Label className="text-sm">
+                                          Correct
+                                        </Label>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {(editedQuestion?.type === "Short" ||
+                              editedQuestion?.type === "Written") && (
+                              <div>
+                                <Label>Expected Answer</Label>
+                                <Textarea
+                                  value={editedQuestion?.correctAnswer || ""}
                                   onChange={(e) =>
                                     setEditedQuestion({
                                       ...editedQuestion!,
-                                      wordLimit: Number(e.target.value),
+                                      correctAnswer: e.target.value,
+                                    })
+                                  }
+                                  rows={2}
+                                />
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-3 gap-4">
+                              <div>
+                                <Label>Marks</Label>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  value={editedQuestion?.marks || 1}
+                                  onChange={(e) =>
+                                    setEditedQuestion({
+                                      ...editedQuestion!,
+                                      marks: Number(e.target.value),
                                     })
                                   }
                                 />
                               </div>
-                            )}
-                          </div>
-
-                          <div className="flex space-x-2">
-                            <Button onClick={handleSaveEdit} size="sm">
-                              Save
-                            </Button>
-                            <Button
-                              onClick={handleCancelEdit}
-                              variant="outline"
-                              size="sm"
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <p className="text-sm">{question.text}</p>
-
-                          {question.type === "MCQ" && question.options && (
-                            <div className="space-y-1">
-                              <Label className="text-xs text-gray-500">
-                                Options:
-                              </Label>
-                              <div className="space-y-1">
-                                {question.options.map((option, optIndex) => (
-                                  <div
-                                    key={optIndex}
-                                    className={`text-xs p-2 rounded ${
-                                      option === question.correctAnswer
-                                        ? "bg-green-50 text-green-800 border border-green-200"
-                                        : "bg-gray-50"
-                                    }`}
-                                  >
-                                    {String.fromCharCode(65 + optIndex)}.{" "}
-                                    {option}
-                                    {option === question.correctAnswer && (
-                                      <span className="ml-2 text-green-600">
-                                        ✓
-                                      </span>
-                                    )}
-                                  </div>
-                                ))}
+                              <div>
+                                <Label>Difficulty</Label>
+                                <Select
+                                  value={editedQuestion?.difficulty || "medium"}
+                                  onValueChange={(value) =>
+                                    setEditedQuestion({
+                                      ...editedQuestion!,
+                                      difficulty: value as
+                                        | "easy"
+                                        | "medium"
+                                        | "hard",
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="easy">Easy</SelectItem>
+                                    <SelectItem value="medium">
+                                      Medium
+                                    </SelectItem>
+                                    <SelectItem value="hard">Hard</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
+                              {editedQuestion?.type === "Written" && (
+                                <div>
+                                  <Label>Word Limit</Label>
+                                  <Input
+                                    type="number"
+                                    min="50"
+                                    value={editedQuestion?.wordLimit || 50}
+                                    onChange={(e) =>
+                                      setEditedQuestion({
+                                        ...editedQuestion!,
+                                        wordLimit: Number(e.target.value),
+                                      })
+                                    }
+                                  />
+                                </div>
+                              )}
                             </div>
-                          )}
 
-                          {(question.type === "Short" ||
-                            question.type === "Written") &&
-                            question.correctAnswer && (
+                            <div className="flex space-x-2">
+                              <Button onClick={handleSaveEdit} size="sm">
+                                Save
+                              </Button>
+                              <Button
+                                onClick={handleCancelEdit}
+                                variant="outline"
+                                size="sm"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <p className="text-sm">{question.text}</p>
+
+                            {question.type === "MCQ" && question.options && (
                               <div className="space-y-1">
                                 <Label className="text-xs text-gray-500">
-                                  Expected Answer:
+                                  Options:
                                 </Label>
-                                <p className="text-xs bg-gray-50 p-2 rounded">
-                                  {question.correctAnswer}
-                                </p>
+                                <div className="space-y-1">
+                                  {question.options.map((option, optIndex) => (
+                                    <div
+                                      key={optIndex}
+                                      className={`text-xs p-2 rounded ${
+                                        option === question.correctAnswer
+                                          ? "bg-green-50 text-green-800 border border-green-200"
+                                          : "bg-gray-50"
+                                      }`}
+                                    >
+                                      {String.fromCharCode(65 + optIndex)}.{" "}
+                                      {option}
+                                      {option === question.correctAnswer && (
+                                        <span className="ml-2 text-green-600">
+                                          ✓
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             )}
 
-                          {question.type === "Written" && (
-                            <div className="flex space-x-4 text-xs text-gray-500">
-                              <span>Word Limit: {question.wordLimit}</span>
-                              <span>Time Limit: {question.timeLimit} min</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                            {(question.type === "Short" ||
+                              question.type === "Written") &&
+                              question.correctAnswer && (
+                                <div className="space-y-1">
+                                  <Label className="text-xs text-gray-500">
+                                    Expected Answer:
+                                  </Label>
+                                  <p className="text-xs bg-gray-50 p-2 rounded">
+                                    {question.correctAnswer}
+                                  </p>
+                                </div>
+                              )}
+
+                            {question.type === "Written" && (
+                              <div className="flex space-x-4 text-xs text-gray-500">
+                                <span>Word Limit: {question.wordLimit}</span>
+                                <span>
+                                  Time Limit: {question.timeLimit} min
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           )}
