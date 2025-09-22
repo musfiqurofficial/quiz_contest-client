@@ -178,14 +178,12 @@
 //   );
 // }
 
-
-
-
 "use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { Trophy } from "lucide-react";
 
 interface Judge {
   name: string;
@@ -225,70 +223,156 @@ export default function JudgeSection() {
 
   if (loading) {
     return (
-      <section className="py-20 text-center text-gray-500">
-        Loading judge panel...
-      </section>
+      <motion.section
+        className="py-20 bg-gradient-to-br from-orange-50 via-white to-orange-100"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-6 animate-pulse"></div>
+          <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4 animate-pulse"></div>
+          <div className="h-4 bg-gray-200 rounded w-96 mx-auto mb-12 animate-pulse"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-3xl p-6 shadow-lg animate-pulse"
+              >
+                <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4"></div>
+                <div className="h-6 bg-gray-200 rounded w-32 mx-auto mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-24 mx-auto"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
     );
   }
 
   if (!data) {
     return (
-      <section className="py-20 text-center text-red-500">
-        No judge data found.
-      </section>
+      <motion.section
+        className="py-20 bg-gradient-to-br from-orange-50 via-white to-orange-100"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <div className="bg-red-50 border border-red-200 rounded-3xl p-12">
+            <p className="text-lg text-red-500">No judge data found.</p>
+          </div>
+        </div>
+      </motion.section>
     );
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-orange-50 via-white to-orange-100 py-20 px-4">
-      <div className="max-w-6xl mx-auto text-center">
-        <motion.h2
-          initial={{ opacity: 0, y: -20 }}
+    <motion.section
+      className="relative bg-gradient-to-br from-orange-50 via-white to-orange-100 py-20 px-4 overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-40">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-yellow-50/50"></div>
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f25b29' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        ></div>
+      </div>
+
+      <div className="relative max-w-6xl mx-auto text-center">
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4"
+          className="mb-16"
         >
-          {data.panel}
-        </motion.h2>
+          <div className="inline-flex items-center gap-3 mb-6">
+            <div className="p-3 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full">
+              <Trophy className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-orange-600 to-orange-500 bg-clip-text text-transparent">
+              {data.panel}
+            </h2>
+          </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto mb-12"
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
+          >
+            {data.description}
+          </motion.p>
+        </motion.div>
+
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
         >
-          {data.description}
-        </motion.p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
           {data.members.map((judge, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
               viewport={{ once: true }}
-              className="group bg-white rounded-2xl shadow-md hover:shadow-xl transform transition-all duration-300 hover:-translate-y-2 p-6 border border-orange-100"
+              whileHover={{ y: -10, scale: 1.05 }}
+              className="group bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 p-8 border border-white/20"
             >
-              <div className="relative w-28 h-28 mx-auto mb-4">
+              <motion.div
+                className="relative w-32 h-32 mx-auto mb-6"
+                whileHover={{ rotate: 5 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
                 <Image
                   src={judge.image}
                   alt={judge.name}
                   fill
-                  className="object-cover rounded-full border-4 border-white shadow-md group-hover:scale-105 transition-transform duration-300"
+                  className="relative object-cover rounded-full border-4 border-white shadow-lg group-hover:scale-110 transition-transform duration-300"
                 />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 group-hover:text-orange-500 transition">
+              </motion.div>
+
+              <motion.h3
+                className="text-xl font-bold text-gray-800 group-hover:text-orange-500 transition-colors duration-300 mb-2"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ delay: index * 0.1 + 0.2, duration: 0.5 }}
+              >
                 {judge.name}
-              </h3>
-              <p className="text-sm text-gray-500 mt-1">{judge.designation}</p>
+              </motion.h3>
+
+              <motion.p
+                className="text-sm text-gray-600 font-medium"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
+              >
+                {judge.designation}
+              </motion.p>
+
+              {/* Decorative line */}
+              <motion.div
+                className="w-16 h-1 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full mx-auto mt-4"
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                transition={{ delay: index * 0.1 + 0.4, duration: 0.5 }}
+              />
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
-      {/* Decorative line */}
-      <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 to-orange-600 rounded-t-lg" />
-    </section>
+      {/* Decorative elements */}
+      <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 rounded-t-lg" />
+    </motion.section>
   );
 }
