@@ -19,9 +19,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { toast } from "sonner";
 import { AppDispatch, RootState } from "@/store/store";
-import Link from "next/link"; // Import Link from next/link
+import Link from "next/link";
 
 const sidebarItems = {
   student: [
@@ -33,11 +34,17 @@ const sidebarItems = {
   admin: [
     { label: "ড্যাশবোর্ড", href: "/admin/dashboard", icon: LayoutDashboard },
     { label: "ব্যবহারকারী", href: "/admin/users", icon: Users },
-    { label: "কুইজ পরিচালনা", href: "/admin/quizzes", icon: BookOpen },
-    { label: "পরিসংখ্যান", href: "/admin/analytics", icon: BarChart3 },
+    { label: "কুইজ পরিচালনা", href: "/admin/quiz-management", icon: BookOpen },
+    {
+      label: "পরিসংখ্যান",
+      href: "/admin/participant-analytics",
+      icon: BarChart3,
+    },
     { label: "রিপোর্ট", href: "/admin/reports", icon: FileText },
+    { label: "প্রোফাইল", href: "/admin/profile", icon: User },
   ],
 };
+
 export default function DashboardLayout({
   children,
 }: {
@@ -53,10 +60,14 @@ export default function DashboardLayout({
   const { user, isAuthenticated, isLoading } = useSelector(
     (state: RootState) => state.auth
   );
+
   // Check if mobile device
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(false);
+      }
     };
 
     checkMobile();
@@ -64,6 +75,7 @@ export default function DashboardLayout({
 
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
   // Initialize auth on component mount
   useEffect(() => {
     const checkAuth = async () => {
@@ -80,6 +92,7 @@ export default function DashboardLayout({
     };
     checkAuth();
   }, [dispatch]);
+
   // Handle authentication and authorization
   useEffect(() => {
     if (isCheckingAuth) return;
@@ -97,6 +110,7 @@ export default function DashboardLayout({
       router.replace("/admin/dashboard");
     }
   }, [pathname, user, isAuthenticated, isCheckingAuth, router]);
+
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap();
@@ -108,20 +122,26 @@ export default function DashboardLayout({
       );
     }
   };
+
   // Show loading while checking authentication
   if (isCheckingAuth || isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
-        <p className="mt-2 text-gray-600">লোড হচ্ছে...</p>
+      <div className="flex h-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-[#F06122] mx-auto mb-4" />
+          <p className="text-gray-600">লোড হচ্ছে...</p>
+        </div>
       </div>
     );
   }
+
   if (!isAuthenticated || !user) {
     return null;
   }
+
   const userRole = user.role?.toLowerCase() || "student";
   const items = sidebarItems[userRole as keyof typeof sidebarItems] || [];
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Mobile overlay */}
@@ -136,7 +156,8 @@ export default function DashboardLayout({
           />
         )}
       </AnimatePresence>
-      {/* Sidebar - Different animation for mobile vs desktop */}
+
+      {/* Sidebar */}
       {isMobile ? (
         <AnimatePresence>
           {sidebarOpen && (
@@ -145,7 +166,8 @@ export default function DashboardLayout({
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-600 to-indigo-700 text-white"
+              className="fixed inset-y-0 left-0 z-50 w-64"
+              style={{ backgroundColor: "#232323" }}
             >
               <SidebarContent
                 user={user}
@@ -159,7 +181,7 @@ export default function DashboardLayout({
         </AnimatePresence>
       ) : (
         <aside className="hidden lg:flex lg:flex-shrink-0">
-          <div className="w-64 bg-gradient-to-b from-blue-600 to-indigo-700 text-white">
+          <div className="w-64" style={{ backgroundColor: "#232323" }}>
             <SidebarContent
               user={user}
               items={items}
@@ -169,42 +191,44 @@ export default function DashboardLayout({
           </div>
         </aside>
       )}
+
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Top header */}
-        <header className="bg-white shadow-sm border-b">
+        <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-5 h-5 text-gray-700" />
               </button>
-              <h1 className="text-xl font-semibold text-gray-900">
+              <h1 className="text-xl font-semibold text-gray-900 truncate">
                 {items.find((item) => item.href === pathname)?.label ||
                   "ড্যাশবোর্ড"}
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              {/* Use Link with Button for client-side navigation */}
               <Button variant="outline" size="sm" asChild>
                 <Link href="/" className="flex items-center space-x-2">
                   <Home className="w-4 h-4" />
-                  <span>হোমপেজ</span>
+                  <span className="hidden sm:inline">হোমপেজ</span>
                 </Link>
               </Button>
             </div>
           </div>
         </header>
+
         {/* Page content */}
         <main className="flex-1 overflow-auto">
-          <div className="p-6">{children}</div>
+          <div className="p-4 sm:p-6">{children}</div>
         </main>
       </div>
     </div>
   );
 }
+
 // Separate sidebar content component
 function SidebarContent({
   user,
@@ -230,71 +254,95 @@ function SidebarContent({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-blue-500">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-            <LayoutDashboard className="w-5 h-5 text-blue-600" />
+      <div className="flex items-center justify-between p-4 border-b border-gray-700">
+        <div className="flex items-center space-x-3">
+          <div className="w-[55px] h-[50px] bg-[#fff] rounded-lg flex items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={500}
+              height={500}
+              className="h-[30px] w-full object-contain"
+            />
           </div>
-          <span className="text-xl font-bold">কুইজ প্রতিযোগিতা</span>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="lg:hidden p-1 rounded-lg hover:bg-blue-500"
+            className="lg:hidden p-1 rounded-lg hover:bg-gray-700 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-white" />
           </button>
         )}
       </div>
+
       {/* User info */}
-      <div className="p-4 border-b border-blue-500">
+      <div className="p-4 border-b border-gray-700">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-600 font-semibold">
+          <div className="w-10 h-10 bg-[#F06122] rounded-full flex items-center justify-center font-semibold text-white">
             {user?.fullNameEnglish?.charAt(0) ||
               user?.fullNameBangla?.charAt(0) ||
               "U"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">
+            <p className="text-sm font-medium text-white truncate">
               {user?.fullNameEnglish || user?.fullNameBangla}
             </p>
-            <p className="text-xs text-blue-200 truncate">
+            <p className="text-xs text-gray-300 truncate">
               {user?.role === "admin" ? "এডমিন" : "শিক্ষার্থী"}
             </p>
           </div>
         </div>
       </div>
+
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
+
           return (
-            // Use Link component instead of anchor tag
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all ${
+              className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 group ${
                 isActive
-                  ? "bg-white text-blue-600 shadow-lg"
-                  : "text-blue-100 hover:bg-blue-500 hover:text-white"
+                  ? "bg-[#F06122] bg-opacity-20 border-l-4 border-[#F06122]"
+                  : "hover:bg-[#F06122] hover:bg-opacity-10 border-l-4 border-transparent"
               }`}
-              onClick={() => onClose?.()} // Close sidebar on mobile after navigation
+              onClick={() => onClose?.()}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-sm font-medium">{item.label}</span>
+              <Icon
+                className={`w-5 h-5 transition-colors text-gray-300 group-hover:text-white" ${
+                  isActive
+                    ? "text-[#F06122]"
+                    : "text-gray-300 group-hover:text-[#fff]"
+                }`}
+              />
+              <span
+                className={`text-sm font-medium transition-colors text-gray-300 group-hover:text-white"${
+                  isActive
+                    ? "text-[#F06122]"
+                    : "text-gray-300 group-hover:text-white"
+                }`}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}
       </nav>
+
       {/* Logout */}
-      <div className="p-4 border-t border-blue-500">
+      <div className="p-4 border-t border-gray-700">
         <button
           onClick={onLogout}
-          className="flex items-center space-x-3 w-full px-3 py-2 text-blue-100 hover:bg-blue-500 hover:text-white rounded-lg transition-all"
+          className="flex items-center space-x-3 w-full px-3 py-3 rounded-lg transition-all duration-200 hover:bg-[#F06122] hover:bg-opacity-10 group"
         >
-          <LogOut className="w-5 h-5" />
-          <span className="text-sm font-medium">লগআউট</span>
+          <LogOut className="w-5 h-5 text-gray-300 group-hover:text-[#F06122] transition-colors" />
+          <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
+            লগআউট
+          </span>
         </button>
       </div>
     </div>

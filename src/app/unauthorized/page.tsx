@@ -10,7 +10,10 @@ export default function Unauthorized() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ backgroundColor: "var(--brand-primary)", opacity: 0.95 }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -25,22 +28,25 @@ export default function Unauthorized() {
         >
           <ShieldAlert className="w-8 h-8 text-red-600" />
         </motion.div>
-        
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">অননুমোদিত প্রবেশ</h1>
+
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          অননুমোদিত প্রবেশ
+        </h1>
         <p className="text-gray-600 mb-6">
           দুঃখিত, এই পেজে অ্যাক্সেস করার জন্য আপনার প্রয়োজনীয় অনুমতি নেই।
         </p>
-        
+
         <div className="space-y-3">
           <Button
             onClick={() => router.back()}
-            className="w-full bg-blue-600 hover:bg-blue-700"
+            className="w-full"
+            style={{ backgroundImage: "var(--brand-gradient)" }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             পিছনে যান
           </Button>
           <Button
-            onClick={() => router.push('/')}
+            onClick={() => router.push("/")}
             variant="outline"
             className="w-full"
           >

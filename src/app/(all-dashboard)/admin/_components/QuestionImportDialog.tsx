@@ -48,7 +48,6 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [selectedQuiz, setSelectedQuiz] = useState("");
   const [questionType, setQuestionType] = useState<
     "MCQ" | "Short" | "Written" | "Mixed"
   >("Mixed");
@@ -83,8 +82,8 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
   };
 
   const handleProcessFiles = async () => {
-    if (selectedFiles.length === 0 || !selectedQuiz) {
-      setErrors(["Please select files and a quiz"]);
+    if (selectedFiles.length === 0) {
+      setErrors(["Please select files to process"]);
       return;
     }
 
@@ -235,7 +234,7 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
     const questionsToImport: Partial<IQuestion>[] = questionsToProcess.map(
       (q) => {
         const baseQuestion = {
-          quizId: selectedQuiz,
+          quizId: quizzes[0]?._id || "",
           text: q.text,
           questionType: q.type,
           marks: q.marks,
@@ -257,7 +256,7 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
         } else if (q.type === "Short") {
           return {
             ...baseQuestion,
-            correctAnswer: q.correctAnswer || "Expected answer not provided",
+            correctAnswer: q.correctAnswer || "", // Optional for Short questions
             uploadedImages: [], // Add empty images array
             participantImages: [], // Add empty participant images array
           };
@@ -284,7 +283,6 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
 
   const resetForm = () => {
     setSelectedFiles([]);
-    setSelectedQuiz("");
     setQuestionType("Mixed");
     setExtractedQuestions([]);
     setErrors([]);
@@ -378,46 +376,26 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
         <div className="space-y-6">
           {/* File Upload Section */}
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="quizSelect">Select Quiz *</Label>
-                <Select value={selectedQuiz} onValueChange={setSelectedQuiz}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a quiz" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {quizzes
-                      .filter((q) => q.isActive !== false)
-                      .map((quiz) => (
-                        <SelectItem key={quiz._id} value={quiz._id}>
-                          {quiz.title}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="questionType">Question Type Filter</Label>
-                <Select
-                  value={questionType}
-                  onValueChange={(value) =>
-                    setQuestionType(
-                      value as "MCQ" | "Short" | "Written" | "Mixed"
-                    )
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Mixed">All Types (Mixed)</SelectItem>
-                    <SelectItem value="MCQ">MCQ Only</SelectItem>
-                    <SelectItem value="Short">Short Answer Only</SelectItem>
-                    <SelectItem value="Written">Essay Only</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="questionType">Question Type Filter</Label>
+              <Select
+                value={questionType}
+                onValueChange={(value) =>
+                  setQuestionType(
+                    value as "MCQ" | "Short" | "Written" | "Mixed"
+                  )
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Mixed">All Types (Mixed)</SelectItem>
+                  <SelectItem value="MCQ">MCQ Only</SelectItem>
+                  <SelectItem value="Short">Short Answer Only</SelectItem>
+                  <SelectItem value="Written">Essay Only</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -481,9 +459,7 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
 
             <Button
               onClick={handleProcessFiles}
-              disabled={
-                selectedFiles.length === 0 || !selectedQuiz || isProcessing
-              }
+              disabled={selectedFiles.length === 0 || isProcessing}
               className="w-full"
             >
               {isProcessing ? (
@@ -795,7 +771,11 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
                             {(editedQuestion?.type === "Short" ||
                               editedQuestion?.type === "Written") && (
                               <div>
-                                <Label>Expected Answer</Label>
+                                <Label>
+                                  Expected Answer
+                                  {editedQuestion?.type === "Short" &&
+                                    " (Optional)"}
+                                </Label>
                                 <Textarea
                                   value={editedQuestion?.correctAnswer || ""}
                                   onChange={(e) =>
@@ -803,6 +783,11 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
                                       ...editedQuestion!,
                                       correctAnswer: e.target.value,
                                     })
+                                  }
+                                  placeholder={
+                                    editedQuestion?.type === "Short"
+                                      ? "Enter expected answer (optional)"
+                                      : "Enter expected answer"
                                   }
                                   rows={2}
                                 />
@@ -914,17 +899,25 @@ const QuestionImportDialog: React.FC<QuestionImportDialogProps> = ({
                             )}
 
                             {(question.type === "Short" ||
-                              question.type === "Written") &&
-                              question.correctAnswer && (
-                                <div className="space-y-1">
-                                  <Label className="text-xs text-gray-500">
-                                    Expected Answer:
-                                  </Label>
+                              question.type === "Written") && (
+                              <div className="space-y-1">
+                                <Label className="text-xs text-gray-500">
+                                  Expected Answer:
+                                  {question.type === "Short" && " (Optional)"}
+                                </Label>
+                                {question.correctAnswer ? (
                                   <p className="text-xs bg-gray-50 p-2 rounded">
                                     {question.correctAnswer}
                                   </p>
-                                </div>
-                              )}
+                                ) : (
+                                  <p className="text-xs text-gray-400 italic">
+                                    {question.type === "Short"
+                                      ? "No expected answer provided (optional)"
+                                      : "No expected answer provided"}
+                                  </p>
+                                )}
+                              </div>
+                            )}
 
                             {question.type === "Written" && (
                               <div className="flex space-x-4 text-xs text-gray-500">

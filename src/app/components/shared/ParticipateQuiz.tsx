@@ -22,8 +22,17 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Clock, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Clock,
+  CheckCircle,
+  XCircle,
+  Upload,
+  Image as ImageIcon,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
+
 import {
   fetchQuestionsByQuizId,
   IQuestion,
@@ -40,6 +49,7 @@ import {
   selectCurrentUser,
   fetchUserProfile,
 } from "@/redux/features/auth/authSlice";
+import { api } from "@/data/api";
 
 interface ParticipateQuizProps {
   quizId: string;
@@ -143,13 +153,14 @@ export default function ParticipateQuiz({
 }: ParticipateQuizProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isWarningVisible, setIsWarningVisible] = useState(false);
   const [hasParticipated, setHasParticipated] = useState(false);
   const [participationStatus, setParticipationStatus] = useState<
     "completed" | "failed" | "pending" | null
   >(null);
   const [isCheckingParticipation, setIsCheckingParticipation] = useState(false);
   const [isFetchingProfile, setIsFetchingProfile] = useState(false);
+  const [answerImages, setAnswerImages] = useState<Record<string, File[]>>({});
+  const MAX_IMAGES = 5;
 
   // Use useReducer for quiz state management
   const [quizState, dispatchQuiz] = useReducer(quizReducer, {
@@ -175,16 +186,13 @@ export default function ParticipateQuiz({
   const { questions, loading: questionsLoading } = useSelector(
     (state: RootState) => state.questions
   );
-  // const { loading: participationLoading } = useSelector(
-  //   (state: RootState) => state.participations
-  // );
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const currentUser = useSelector(selectCurrentUser);
   const isAuthInitialized = useSelector(
     (state: RootState) => state.auth.isAuthInitialized
   );
 
-  // Since we're now fetching questions for this specific quiz, we don't need to filter
+  // Memoize quiz questions
   const quizQuestions = useMemo(() => questions || [], [questions]);
 
   // Reset isFetchingProfile when user data is available
@@ -257,17 +265,53 @@ export default function ParticipateQuiz({
     const totalScore = calculateScore();
 
     try {
-      await dispatch(
+      const created = await dispatch(
         createParticipation({
           studentId: userId!,
           quizId,
           answers,
           totalScore,
-          status: "pending", // Changed to pending for admin review
+          status: "pending",
         })
       ).unwrap();
 
+      // Upload Short/Written answer images if present
+      if (created && created._id) {
+        const participationId = created._id as string;
+        const uploads: Promise<Response>[] = [];
+        answers.forEach((ans) => {
+          const q = quizQuestions.find(
+            (qq: IQuestion) => qq._id === ans.questionId
+          );
+          if (!q) return;
+          if (
+            (q.questionType === "Short" || q.questionType === "Written") &&
+            answerImages[ans.questionId]?.length
+          ) {
+            const form = new FormData();
+            answerImages[ans.questionId].forEach((file) =>
+              form.append("images", file)
+            );
+            form.append("questionId", ans.questionId);
+            form.append("selectedOption", ans.selectedOption || "");
+            form.append("participantAnswer", ans.selectedOption || "");
+            form.append("isCorrect", String(ans.isCorrect ?? false));
+            form.append("marksObtained", String(ans.marksObtained ?? 0));
+            uploads.push(
+              fetch(`${api}/participations/${participationId}/submit-answer`, {
+                method: "POST",
+                body: form,
+              })
+            );
+          }
+        });
+        if (uploads.length) {
+          await Promise.all(uploads);
+        }
+      }
+
       dispatchQuiz({ type: "COMPLETE_QUIZ" });
+
       setHasParticipated(true);
       setParticipationStatus("pending");
       toast.success(
@@ -288,64 +332,15 @@ export default function ParticipateQuiz({
     quizId,
     answers,
     calculateScore,
+    answerImages,
+    quizQuestions,
   ]);
 
-  const handleQuizFail = useCallback(async () => {
-    const userId = currentUser?._id;
-
-    if (!currentUser || !currentUser._id) {
-      toast.error("User information not available. Please log in again.");
-      router.push("/auth");
-      return;
-    }
-
-    dispatchQuiz({ type: "COMPLETE_QUIZ" });
-
-    // Create a failed participation record
-    const failedAnswers: IAnswer[] = quizQuestions.map((question) => ({
-      questionId: question._id,
-      selectedOption: "",
-      isCorrect: false,
-      marksObtained: 0,
-    }));
-
-    try {
-      await dispatch(
-        createParticipation({
-          studentId: userId!,
-          quizId,
-          answers: failedAnswers,
-          totalScore: 0,
-          status: "failed",
-        })
-      ).unwrap();
-
-      setHasParticipated(true);
-      setParticipationStatus("failed");
-    } catch (error: unknown) {
-      console.error("Failed to record failed participation:", error);
-    }
-  }, [currentUser, router, dispatch, quizId, quizQuestions]);
-
-  // Define functions with useCallback
+  // Handle time up
   const handleTimeUp = useCallback(() => {
     toast.error("Time is up! Submitting your quiz now.");
     handleSubmitQuiz();
   }, [handleSubmitQuiz]);
-
-  const handleTabSwitchFail = useCallback(() => {
-    toast.error(
-      "You switched tabs during the quiz. This attempt is marked as failed."
-    );
-    handleQuizFail();
-  }, [handleQuizFail]);
-
-  const handleBackButtonFail = useCallback(() => {
-    toast.error(
-      "You pressed the back button during the quiz. This attempt is marked as failed."
-    );
-    handleQuizFail();
-  }, [handleQuizFail]);
 
   // Timer effect
   useEffect(() => {
@@ -364,101 +359,6 @@ export default function ParticipateQuiz({
       if (timer) clearTimeout(timer);
     };
   }, [open, quizStarted, quizCompleted, timeLeft, handleTimeUp]);
-
-  // Handle browser/tab change with stricter security
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden && quizStarted && !quizCompleted) {
-        setIsWarningVisible(true);
-        // Immediate failure for any tab switch or browser change
-        handleTabSwitchFail();
-      } else {
-        setIsWarningVisible(false);
-      }
-    };
-
-    // Handle window blur (switching to other applications)
-    const handleWindowBlur = () => {
-      if (quizStarted && !quizCompleted) {
-        handleTabSwitchFail();
-      }
-    };
-
-    // Handle window focus loss
-    const handleWindowFocus = () => {
-      if (quizStarted && !quizCompleted) {
-        // Check if user was away for too long
-        handleTabSwitchFail();
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleWindowBlur);
-    window.addEventListener("focus", handleWindowFocus);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleWindowBlur);
-      window.removeEventListener("focus", handleWindowFocus);
-    };
-  }, [quizStarted, quizCompleted, handleTabSwitchFail]);
-
-  // Handle back button with stricter prevention
-  useEffect(() => {
-    const handleBackButton = (e: PopStateEvent) => {
-      if (quizStarted && !quizCompleted) {
-        e.preventDefault();
-        e.stopPropagation();
-        handleBackButtonFail();
-        return false;
-      }
-    };
-
-    // Prevent back button navigation
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (quizStarted && !quizCompleted) {
-        e.preventDefault();
-        e.returnValue =
-          "Are you sure you want to leave? This will fail your quiz attempt.";
-        handleBackButtonFail();
-        return "Are you sure you want to leave? This will fail your quiz attempt.";
-      }
-    };
-
-    // Disable right-click context menu during quiz
-    const handleContextMenu = (e: MouseEvent) => {
-      if (quizStarted && !quizCompleted) {
-        e.preventDefault();
-        handleBackButtonFail();
-      }
-    };
-
-    // Disable F5, Ctrl+R, Ctrl+Shift+R refresh
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (quizStarted && !quizCompleted) {
-        if (
-          e.key === "F5" ||
-          (e.ctrlKey && e.key === "r") ||
-          (e.ctrlKey && e.shiftKey && e.key === "R")
-        ) {
-          e.preventDefault();
-          handleBackButtonFail();
-        }
-      }
-    };
-
-    window.addEventListener("popstate", handleBackButton);
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    document.addEventListener("contextmenu", handleContextMenu);
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("popstate", handleBackButton);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      document.removeEventListener("contextmenu", handleContextMenu);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [quizStarted, quizCompleted, handleBackButtonFail]);
 
   const handleOpen = async () => {
     // Prevent multiple clicks while processing
@@ -504,7 +404,7 @@ export default function ParticipateQuiz({
       return;
     }
 
-    // Check if user is authenticated (this should be true if we have user data)
+    // Check if user is authenticated
     if (!isAuthenticated) {
       toast.error("Authentication error. Please log in again.");
       router.push("/auth");
@@ -527,18 +427,12 @@ export default function ParticipateQuiz({
   };
 
   const handleClose = () => {
-    // Prevent closing dialog once quiz has started
-    if (quizStarted && !quizCompleted) {
-      // Do nothing - dialog cannot be closed during quiz
-      return;
-    } else {
-      setOpen(false);
-      resetQuizState();
-    }
+    setOpen(false);
+    resetQuizState();
   };
 
   const startQuiz = async () => {
-    // Initialize answers array first
+    // Initialize answers array
     let initialAnswers: IAnswer[] = [];
     try {
       if (quizQuestions && quizQuestions.length > 0) {
@@ -567,9 +461,7 @@ export default function ParticipateQuiz({
         ).unwrap();
       } catch (error: unknown) {
         console.log("Add participant error:", error);
-        // Always continue with quiz regardless of participant add result
         console.log("Continuing with quiz regardless of participant status");
-        // Don't show error to user, just log it
       }
     }
 
@@ -608,7 +500,6 @@ export default function ParticipateQuiz({
   const resetQuizState = () => {
     dispatchQuiz({ type: "RESET_QUIZ", payload: { duration } });
     setIsSubmitting(false);
-    setIsWarningVisible(false);
   };
 
   const formatTime = (seconds: number) => {
@@ -617,6 +508,14 @@ export default function ParticipateQuiz({
     return `${mins.toString().padStart(2, "0")}:${secs
       .toString()
       .padStart(2, "0")}`;
+  };
+
+  const handleRemoveImage = (questionId: string, index: number) => {
+    setAnswerImages((prev) => {
+      const files = [...(prev[questionId] || [])];
+      files.splice(index, 1);
+      return { ...prev, [questionId]: files };
+    });
   };
 
   const currentQuestion = quizQuestions[currentQuestionIndex];
@@ -662,7 +561,7 @@ export default function ParticipateQuiz({
           <Button
             asChild
             variant="outline"
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 border-0"
+            className="w-full bg-[#232323] text-white border-0"
           >
             <Link href="/student/quiz">View Results</Link>
           </Button>
@@ -691,7 +590,7 @@ export default function ParticipateQuiz({
         <DialogContent
           className={`${
             quizStarted
-              ? "max-w-full h-screen w-screen m-0 rounded-none"
+              ? "!max-w-full h-screen w-screen m-0 rounded-none"
               : "max-w-4xl h-[90vh]"
           } flex flex-col`}
         >
@@ -709,22 +608,6 @@ export default function ParticipateQuiz({
               </div>
             </DialogTitle>
           </DialogHeader>
-
-          {isWarningVisible && (
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <AlertTriangle className="h-5 w-5 text-yellow-400" />
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-yellow-700">
-                    Warning: Switching tabs or browsers will result in quiz
-                    failure. Return to the quiz immediately.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
 
           {questionsLoading ? (
             <div className="flex-1 flex items-center justify-center">
@@ -821,56 +704,32 @@ export default function ParticipateQuiz({
                   </>
                 )}
               </h2>
-              <Card className="w-full max-w-md">
-                <CardHeader>
-                  <CardTitle>Results</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Total Score:</span>
-                    <span className="font-bold">
-                      {calculateScore()} / {totalMarks}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Correct Answers:</span>
-                    <span>
-                      {answers.filter((a) => a.isCorrect).length} /{" "}
-                      {quizQuestions.length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Result:</span>
-                    <span
-                      className={`font-bold ${
-                        calculateScore() >= passingMarks
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {calculateScore() >= passingMarks ? "Passed" : "Failed"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Status:</span>
-                    <Badge
-                      variant={
-                        participationStatus === "completed"
-                          ? "default"
-                          : participationStatus === "pending"
-                          ? "secondary"
-                          : "destructive"
-                      }
-                    >
-                      {participationStatus === "completed"
-                        ? "Completed"
-                        : participationStatus === "pending"
-                        ? "Pending Review"
-                        : "Failed"}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+
+              {participationStatus === "pending" && (
+                <div className="w-full max-w-md bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-900">
+                  <h3 className="font-semibold mb-2">
+                    Your result is under review
+                  </h3>
+                  <ul className="list-disc ml-5 text-sm space-y-1">
+                    <li>
+                      Our admin will review your written/short answers and
+                      images.
+                    </li>
+                    <li>
+                      You can check the status from your dashboard once the
+                      review is complete.
+                    </li>
+                    <li>
+                      Please do not retake this quiz while the result is
+                      pending.
+                    </li>
+                    <li>
+                      Keep notifications on to be informed when the review is
+                      done.
+                    </li>
+                  </ul>
+                </div>
+              )}
 
               <Button
                 onClick={() => {
@@ -896,35 +755,130 @@ export default function ParticipateQuiz({
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <RadioGroup
-                    value={
-                      answers.find((a) => a.questionId === currentQuestion?._id)
-                        ?.selectedOption || ""
-                    }
-                    onValueChange={(value) =>
-                      handleAnswerChange(currentQuestion?._id || "", value)
-                    }
-                  >
-                    {currentQuestion?.options?.map(
-                      (option: string, index: number) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-2"
-                        >
-                          <RadioGroupItem
-                            value={option}
-                            id={`option-${index}`}
-                          />
-                          <Label
-                            htmlFor={`option-${index}`}
-                            className="cursor-pointer"
+                  {currentQuestion?.questionType === "MCQ" ? (
+                    <RadioGroup
+                      value={
+                        answers.find(
+                          (a) => a.questionId === currentQuestion?._id
+                        )?.selectedOption || ""
+                      }
+                      onValueChange={(value) =>
+                        handleAnswerChange(currentQuestion?._id || "", value)
+                      }
+                    >
+                      {currentQuestion?.options?.map(
+                        (option: string, index: number) => (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-2"
                           >
-                            {option}
-                          </Label>
+                            <RadioGroupItem
+                              value={option}
+                              id={`option-${index}`}
+                            />
+                            <Label
+                              htmlFor={`option-${index}`}
+                              className="cursor-pointer"
+                            >
+                              {option}
+                            </Label>
+                          </div>
+                        )
+                      )}
+                    </RadioGroup>
+                  ) : (
+                    <div className="space-y-3">
+                      <Label className="text-sm">Your Answer</Label>
+                      <Textarea
+                        rows={4}
+                        placeholder={
+                          currentQuestion?.questionType === "Short"
+                            ? "Write your short answer..."
+                            : "Write your essay answer..."
+                        }
+                        onChange={(e) => {
+                          handleAnswerChange(
+                            currentQuestion?._id || "",
+                            e.target.value
+                          );
+                        }}
+                        value={
+                          answers.find(
+                            (a) => a.questionId === currentQuestion?._id
+                          )?.selectedOption || ""
+                        }
+                      />
+                      <div className="space-y-2">
+                        <Label className="text-sm">
+                          Attach Images (optional)
+                        </Label>
+                        <div className="relative border-2 border-dashed rounded-lg p-4 text-center hover:bg-gray-50">
+                          <Upload className="h-6 w-6 mx-auto text-gray-500" />
+                          <p className="text-sm text-gray-600 mt-2">
+                            Click to upload (Max {MAX_IMAGES} images)
+                          </p>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            capture="environment"
+                            onChange={(e) => {
+                              const files = e.target.files
+                                ? Array.from(e.target.files)
+                                : [];
+                              const qid = currentQuestion?._id || "";
+                              setAnswerImages((prev) => {
+                                const existing = prev[qid] || [];
+                                const merged = [...existing, ...files].slice(
+                                  0,
+                                  MAX_IMAGES
+                                );
+                                return { ...prev, [qid]: merged };
+                              });
+                            }}
+                            className="absolute inset-0 opacity-0 cursor-pointer"
+                          />
                         </div>
-                      )
-                    )}
-                  </RadioGroup>
+                        {answerImages[currentQuestion?._id || ""]?.length ? (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                            {answerImages[currentQuestion?._id || ""].map(
+                              (file, idx) => (
+                                <div
+                                  key={idx}
+                                  className="relative border rounded-md p-2 text-xs flex items-center gap-2"
+                                >
+                                  <ImageIcon className="h-4 w-4 text-gray-500" />
+                                  <span className="truncate flex-1">
+                                    {file.name}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleRemoveImage(
+                                        currentQuestion?._id || "",
+                                        idx
+                                      )
+                                    }
+                                    className="h-5 w-5 inline-flex items-center justify-center rounded hover:bg-gray-100"
+                                    aria-label="Remove image"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-gray-500">
+                            No images selected
+                          </p>
+                        )}
+                        <p className="text-[11px] text-gray-400">
+                          Accepted: JPG/PNG • Up to {MAX_IMAGES} images
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

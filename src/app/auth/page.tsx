@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -20,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Eye,
   EyeOff,
@@ -31,6 +33,9 @@ import {
   Calendar,
   ChevronLeft,
   Loader2,
+  ArrowRight,
+  School,
+  Hash,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
@@ -61,6 +66,9 @@ export default function AuthPage() {
     fullNameEnglish: "",
     age: "",
     grade: "",
+    institutionName: "",
+    institutionAddress: "",
+    rollId: "",
     address: "",
     bloodGroup: "",
     parentContact: "",
@@ -108,7 +116,6 @@ export default function AuthPage() {
           loginUser({ contact, password })
         ).unwrap();
 
-        // Check if user is a student
         if (result.user.role !== "student") {
           toast.error("শুধুমাত্র শিক্ষার্থী অ্যাকাউন্ট দিয়ে লগইন করা যাবে");
           await dispatch(logoutUser());
@@ -143,23 +150,11 @@ export default function AuthPage() {
     }
   };
 
-  const toggleInterest = (interest: string) => {
-    setFormData((prev) => {
-      const interests = [...prev.interests];
-      if (interests.includes(interest)) {
-        return { ...prev, interests: interests.filter((i) => i !== interest) };
-      } else {
-        return { ...prev, interests: [...interests, interest] };
-      }
-    });
-  };
-
-  // লোডিং স্টেট প্রদর্শন
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-white">
         <div className="flex flex-col items-center">
-          <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+          <Loader2 className="w-10 h-10 animate-spin text-[#F06122]" />
           <p className="mt-2 text-gray-600">লোড হচ্ছে...</p>
         </div>
       </div>
@@ -167,35 +162,41 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-blue-50 to-emerald-100 py-[50px]">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full !max-w-xl"
       >
-        <Card className="shadow-2xl border-t-8 border-indigo-500 bg-white/90 backdrop-blur-md rounded-2xl overflow-hidden">
-          <CardHeader className="text-center">
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="mx-auto w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-3"
-            >
-              <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center">
-                <User className="h-6 w-6 text-white" />
+        <Card className="shadow-lg border-0 bg-white rounded-xl overflow-hidden">
+          <CardHeader className="text-center pb-0">
+            <div className="flex justify-center mb-2">
+              <div className="w-20 h-20  rounded-xl flex items-center justify-center">
+                <Image
+                  src="/logo.png"
+                  alt="Logo"
+                  width={500}
+                  height={500}
+                  className="object-contain"
+                />
               </div>
-            </motion.div>
+            </div>
 
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
-              কুইজ প্রতিযোগিতা
+            <CardTitle className="text-2xl font-bold text-[#232323]">
+              {step === 1
+                ? "আপনার অ্যাকাউন্টে প্রবেশ করুন"
+                : isExistingUser
+                ? "লগইন করুন"
+                : "নতুন অ্যাকাউন্ট তৈরি করুন"}
             </CardTitle>
+
             <CardDescription className="text-gray-600 mt-2">
               {step === 1
                 ? "লগইন অথবা রেজিস্ট্রেশন করুন"
                 : isExistingUser
-                ? "আপনার অ্যাকাউন্টে লগইন করুন"
-                : "নতুন অ্যাকাউন্ট তৈরি করুন"}
+                ? "আপনার পাসওয়ার্ড লিখুন"
+                : "আপনার তথ্য পূরণ করুন"}
             </CardDescription>
           </CardHeader>
 
@@ -221,22 +222,22 @@ export default function AuthPage() {
                           setContactType(value as "phone" | "email")
                         }
                       >
-                        <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1 rounded-xl">
+                        <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1 rounded-lg">
                           <TabsTrigger
                             value="phone"
-                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg"
+                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-[#232323] rounded-md"
                           >
                             <Phone size={16} /> ফোন
                           </TabsTrigger>
                           <TabsTrigger
                             value="email"
-                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg"
+                            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-[#232323] rounded-md"
                           >
                             <Mail size={16} /> ইমেইল
                           </TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="phone" className="mt-5">
+                        <TabsContent value="phone" className="mt-4">
                           <div className="space-y-2">
                             <Label htmlFor="phone" className="text-gray-700">
                               মোবাইল নম্বর
@@ -251,14 +252,14 @@ export default function AuthPage() {
                                 placeholder="০১৭১২-৩৪৫৬৭৮"
                                 value={contact}
                                 onChange={handleContactChange}
-                                className="pl-10 text-lg h-12 rounded-xl"
+                                className="pl-10 h-11 rounded-lg border-gray-300"
                                 required
                               />
                             </div>
                           </div>
                         </TabsContent>
 
-                        <TabsContent value="email" className="mt-5">
+                        <TabsContent value="email" className="mt-4">
                           <div className="space-y-2">
                             <Label htmlFor="email" className="text-gray-700">
                               ইমেইল ঠিকানা
@@ -273,7 +274,7 @@ export default function AuthPage() {
                                 placeholder="example@email.com"
                                 value={contact}
                                 onChange={handleContactChange}
-                                className="pl-10 text-lg h-12 rounded-xl"
+                                className="pl-10 h-11 rounded-lg border-gray-300"
                                 required
                               />
                             </div>
@@ -284,16 +285,19 @@ export default function AuthPage() {
 
                     <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-lg py-3 h-12 rounded-xl shadow-md"
+                      className="w-full h-11 rounded-lg bg-[#232323] hover:bg-[#F06122] text-white transition-colors"
                       disabled={!contact || userCheckLoading}
                     >
                       {userCheckLoading ? (
                         <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           যাচাই করা হচ্ছে...
                         </>
                       ) : (
-                        "পরবর্তী ধাপ"
+                        <>
+                          পরবর্তী ধাপ
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </>
                       )}
                     </Button>
                   </motion.div>
@@ -309,20 +313,18 @@ export default function AuthPage() {
                     className="space-y-6"
                   >
                     <div className="text-center mb-4">
-                      <div className="flex items-center justify-center gap-4">
-                        <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 shadow-inner">
-                          <User size={14} />
-                        </div>
-                        <p className="text-gray-600 font-medium">
+                      <div className="bg-gray-100 rounded-lg p-3 inline-flex items-center gap-2">
+                        <User className="w-4 h-4 text-[#F06122]" />
+                        <span className="text-gray-700 font-medium">
                           {contactType === "phone"
                             ? `ফোন: ${contact}`
                             : `ইমেইল: ${contact}`}
-                        </p>
+                        </span>
                       </div>
                       <button
                         type="button"
                         onClick={handleBack}
-                        className="mt-2 text-sm text-indigo-600 hover:text-indigo-800 flex items-center justify-center mx-auto"
+                        className="mt-2 text-sm text-[#F06122] hover:underline flex items-center justify-center mx-auto"
                       >
                         <ChevronLeft size={16} /> পরিবর্তন করুন
                       </button>
@@ -342,7 +344,7 @@ export default function AuthPage() {
                           placeholder="পাসওয়ার্ড লিখুন"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="pl-10 pr-10 text-lg h-12 rounded-xl"
+                          className="pl-10 pr-10 h-11 rounded-lg border-gray-300"
                           required
                         />
                         <button
@@ -362,28 +364,26 @@ export default function AuthPage() {
                     <div className="text-right">
                       <a
                         href="#"
-                        className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline"
+                        className="text-sm text-[#F06122] hover:underline"
                       >
                         পাসওয়ার্ড ভুলে গেছেন?
                       </a>
                     </div>
 
-                    <div className="flex flex-col gap-3">
-                      <Button
-                        type="submit"
-                        className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-lg py-3 h-12 rounded-xl shadow-md"
-                        disabled={!password || isLoading}
-                      >
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            প্রক্রিয়া চলছে...
-                          </>
-                        ) : (
-                          "লগইন করুন"
-                        )}
-                      </Button>
-                    </div>
+                    <Button
+                      type="submit"
+                      className="w-full h-11 rounded-lg bg-[#232323] hover:bg-[#F06122] text-white transition-colors"
+                      disabled={!password || isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          লগইন হচ্ছে...
+                        </>
+                      ) : (
+                        "লগইন করুন"
+                      )}
+                    </Button>
                   </motion.div>
                 )}
 
@@ -397,35 +397,38 @@ export default function AuthPage() {
                     className="space-y-4"
                   >
                     <div className="text-center mb-4">
-                      <p className="text-gray-600 font-medium">
-                        {contactType === "phone"
-                          ? `ফোন: ${contact}`
-                          : `ইমেইল: ${contact}`}
-                      </p>
+                      <div className="bg-gray-100 rounded-lg p-3 inline-flex items-center gap-2">
+                        <User className="w-4 h-4 text-[#F06122]" />
+                        <span className="text-gray-700 font-medium">
+                          {contactType === "phone"
+                            ? `ফোন: ${contact}`
+                            : `ইমেইল: ${contact}`}
+                        </span>
+                      </div>
                       <button
                         type="button"
                         onClick={handleBack}
-                        className="mt-1 text-sm text-indigo-600 hover:text-indigo-800 flex items-center justify-center mx-auto"
+                        className="mt-2 text-sm text-[#F06122] hover:underline flex items-center justify-center mx-auto"
                       >
                         <ChevronLeft size={16} /> পরিবর্তন করুন
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label
                           htmlFor="fullNameBangla"
                           className="text-gray-700"
                         >
-                          পূর্ণ নাম (বাংলায়)
+                          নাম (বাংলা)
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                            <User size={18} />
+                            <User size={16} />
                           </div>
                           <Input
                             id="fullNameBangla"
-                            placeholder="আপনার নাম লিখুন"
+                            placeholder="আপনার নাম"
                             value={formData.fullNameBangla}
                             onChange={(e) =>
                               setFormData({
@@ -433,7 +436,7 @@ export default function AuthPage() {
                                 fullNameBangla: e.target.value,
                               })
                             }
-                            className="pl-10 h-11 rounded-xl"
+                            className="pl-10 h-10 rounded-lg border-gray-300"
                             required
                           />
                         </div>
@@ -444,15 +447,15 @@ export default function AuthPage() {
                           htmlFor="fullNameEnglish"
                           className="text-gray-700"
                         >
-                          পূর্ণ নাম (ইংরেজিতে)
+                          নাম (English)
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                            <User size={18} />
+                            <User size={16} />
                           </div>
                           <Input
                             id="fullNameEnglish"
-                            placeholder="Your full name"
+                            placeholder="Your name"
                             value={formData.fullNameEnglish}
                             onChange={(e) =>
                               setFormData({
@@ -460,21 +463,21 @@ export default function AuthPage() {
                                 fullNameEnglish: e.target.value,
                               })
                             }
-                            className="pl-10 h-11 rounded-xl"
+                            className="pl-10 h-10 rounded-lg border-gray-300"
                             required
                           />
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="age" className="text-gray-700">
                           বয়স
                         </Label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                            <Calendar size={18} />
+                            <Calendar size={16} />
                           </div>
                           <Input
                             id="age"
@@ -484,7 +487,7 @@ export default function AuthPage() {
                             onChange={(e) =>
                               setFormData({ ...formData, age: e.target.value })
                             }
-                            className="pl-10 h-11 rounded-xl"
+                            className="pl-10 h-10 rounded-lg border-gray-300"
                             required
                           />
                         </div>
@@ -492,26 +495,120 @@ export default function AuthPage() {
 
                       <div className="space-y-2">
                         <Label htmlFor="grade" className="text-gray-700">
-                          শ্রেণি
+                          শ্রেণি / বর্ষ
                         </Label>
                         <Select
                           onValueChange={(value) =>
                             setFormData({ ...formData, grade: value })
                           }
                         >
-                          <SelectTrigger className="!h-11 rounded-xl w-full">
+                          <SelectTrigger className="h-10 rounded-lg w-full border-gray-300">
                             <SelectValue placeholder="শ্রেণি নির্বাচন" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="6">৬ষ্ঠ শ্রেণি</SelectItem>
-                            <SelectItem value="7">৭ম শ্রেণি</SelectItem>
-                            <SelectItem value="8">৮ম শ্রেণি</SelectItem>
-                            <SelectItem value="9">৯ম শ্রেণি</SelectItem>
-                            <SelectItem value="10">১০ম শ্রেণি</SelectItem>
-                            <SelectItem value="11">১১শ শ্রেণি</SelectItem>
-                            <SelectItem value="12">১২শ শ্রেণি</SelectItem>
+                            {[6, 7, 8, 9, 10, 11, 12].map((grade) => (
+                              <SelectItem key={grade} value={grade.toString()}>
+                                {grade}ষ্ঠ শ্রেণি
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="college-1">
+                              কলেজ ১ম বর্ষ
+                            </SelectItem>
+                            <SelectItem value="college-2">
+                              কলেজ ২য় বর্ষ
+                            </SelectItem>
+                            <SelectItem value="college-3">
+                              কলেজ ৩য় বর্ষ
+                            </SelectItem>
+                            <SelectItem value="university-1">
+                              বিশ্ববিদ্যালয় ১ম বর্ষ
+                            </SelectItem>
+                            <SelectItem value="university-2">
+                              বিশ্ববিদ্যালয় ২য় বর্ষ
+                            </SelectItem>
+                            <SelectItem value="university-3">
+                              বিশ্ববিদ্যালয় ৩য় বর্ষ
+                            </SelectItem>
+                            <SelectItem value="university-4">
+                              বিশ্ববিদ্যালয় ৪র্থ বর্ষ
+                            </SelectItem>
                           </SelectContent>
                         </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="institutionName"
+                          className="text-gray-700"
+                        >
+                          শিক্ষাপ্রতিষ্ঠানের নাম
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <School size={16} />
+                          </div>
+                          <Input
+                            id="institutionName"
+                            placeholder="আপনার শিক্ষাপ্রতিষ্ঠানের নাম"
+                            value={formData.institutionName || ""}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                institutionName: e.target.value,
+                              })
+                            }
+                            className="pl-10 h-10 rounded-lg border-gray-300"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="institutionAddress"
+                          className="text-gray-700"
+                        >
+                          শিক্ষাপ্রতিষ্ঠানের ঠিকানা
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <MapPin size={16} />
+                          </div>
+                          <Input
+                            id="institutionAddress"
+                            placeholder="শিক্ষাপ্রতিষ্ঠানের ঠিকানা (সংক্ষেপে)"
+                            value={formData.institutionAddress || ""}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                institutionAddress: e.target.value,
+                              })
+                            }
+                            className="pl-10 h-10 rounded-lg border-gray-300"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="rollId" className="text-gray-700">
+                          রোল/আইডি নম্বর
+                        </Label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <Hash size={16} />
+                          </div>
+                          <Input
+                            id="rollId"
+                            placeholder="রোল/আইডি নম্বর (যদি থাকে)"
+                            value={formData.rollId || ""}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                rollId: e.target.value,
+                              })
+                            }
+                            className="pl-10 h-10 rounded-lg border-gray-300"
+                          />
+                        </div>
                       </div>
                     </div>
 
@@ -521,7 +618,7 @@ export default function AuthPage() {
                       </Label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                          <MapPin size={18} />
+                          <MapPin size={16} />
                         </div>
                         <Input
                           id="address"
@@ -533,93 +630,47 @@ export default function AuthPage() {
                               address: e.target.value,
                             })
                           }
-                          className="pl-10 h-11 rounded-xl"
+                          className="pl-10 h-10 rounded-lg border-gray-300"
                           required
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="parentContact" className="text-gray-700">
-                        অভিভাবকের মোবাইল নম্বর
-                      </Label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                          <Phone size={18} />
-                        </div>
-                        <Input
-                          id="parentContact"
-                          type="tel"
-                          placeholder="অভিভাবকের মোবাইল নম্বর"
-                          value={formData.parentContact}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              parentContact: e.target.value,
-                            })
-                          }
-                          className="pl-10 h-11 rounded-xl"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
                       <Label className="text-gray-700">
-                        আগ্রহের বিষয় (এক বা একাধিক নির্বাচন করুন)
+                        আগ্রহের বিষয় (ঐচ্ছিক)
                       </Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {[
-                          "গণিত",
-                          "বিজ্ঞান",
-                          "ইতিহাস",
-                          "বাংলা",
-                          "ইংরেজি",
-                          "সাধারণ জ্ঞান",
-                        ].map((subject) => (
-                          <motion.div
-                            key={subject}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => toggleInterest(subject)}
-                            className={`flex items-center gap-2 p-3 rounded-xl cursor-pointer transition-all ${
-                              formData.interests.includes(subject)
-                                ? "bg-indigo-100 border border-indigo-300 shadow-inner"
-                                : "bg-gray-100 hover:bg-gray-200 border border-transparent"
-                            }`}
-                          >
-                            <div
-                              className={`w-5 h-5 rounded-md flex items-center justify-center ${
-                                formData.interests.includes(subject)
-                                  ? "bg-indigo-600 text-white"
-                                  : "bg-white text-transparent border border-gray-300"
-                              }`}
-                            >
-                              <svg
-                                className="w-3 h-3"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="3"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </div>
-                            <span className="text-sm">{subject}</span>
-                          </motion.div>
-                        ))}
-                      </div>
+                      <MultiSelect
+                        options={[
+                          { label: "গণিত", value: "গণিত" },
+                          { label: "বিজ্ঞান", value: "বিজ্ঞান" },
+                          { label: "ইতিহাস", value: "ইতিহাস" },
+                          { label: "বাংলা", value: "বাংলা" },
+                          { label: "ইংরেজি", value: "ইংরেজি" },
+                          { label: "সাধারণ জ্ঞান", value: "সাধারণ জ্ঞান" },
+                          { label: "ভূগোল", value: "ভূগোল" },
+                          { label: "অর্থনীতি", value: "অর্থনীতি" },
+                          { label: "রাজনীতি", value: "রাজনীতি" },
+                          { label: "সাহিত্য", value: "সাহিত্য" },
+                          { label: "দর্শন", value: "দর্শন" },
+                          { label: "মনোবিজ্ঞান", value: "মনোবিজ্ঞান" },
+                        ]}
+                        selected={formData.interests}
+                        onChange={(selected) =>
+                          setFormData({ ...formData, interests: selected })
+                        }
+                        placeholder="আপনার আগ্রহের বিষয় নির্বাচন করুন"
+                        className="w-full"
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="password" className="text-gray-700">
-                        পাসওয়ার্ড তৈরি করুন
+                        পাসওয়ার্ড
                       </Label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                          <Lock size={18} />
+                          <Lock size={16} />
                         </div>
                         <Input
                           id="password"
@@ -627,7 +678,7 @@ export default function AuthPage() {
                           placeholder="পাসওয়ার্ড লিখুন"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="pl-10 pr-10 text-lg h-12 rounded-xl"
+                          className="pl-10 pr-10 h-10 rounded-lg border-gray-300"
                           required
                         />
                         <button
@@ -636,37 +687,35 @@ export default function AuthPage() {
                           className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
                         >
                           {showPassword ? (
-                            <EyeOff size={18} />
+                            <EyeOff size={16} />
                           ) : (
-                            <Eye size={18} />
+                            <Eye size={16} />
                           )}
                         </button>
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-3 pt-2">
-                      <Button
-                        type="submit"
-                        className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-lg py-3 h-12 rounded-xl shadow-md"
-                        disabled={
-                          !formData.fullNameBangla ||
-                          !formData.fullNameEnglish ||
-                          !formData.age ||
-                          !formData.grade ||
-                          !formData.address ||
-                          isLoading
-                        }
-                      >
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            প্রক্রিয়া চলছে...
-                          </>
-                        ) : (
-                          "নিবন্ধন করুন"
-                        )}
-                      </Button>
-                    </div>
+                    <Button
+                      type="submit"
+                      className="w-full h-11 rounded-lg bg-[#232323] hover:bg-[#F06122] text-white transition-colors"
+                      disabled={
+                        !formData.fullNameBangla ||
+                        !formData.fullNameEnglish ||
+                        !formData.age ||
+                        !formData.grade ||
+                        !formData.address ||
+                        isLoading
+                      }
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          নিবন্ধন হচ্ছে...
+                        </>
+                      ) : (
+                        "নিবন্ধন করুন"
+                      )}
+                    </Button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -678,14 +727,13 @@ export default function AuthPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="mt-6 text-center text-sm text-gray-600 bg-white/70 p-4 rounded-xl backdrop-blur-sm"
+          className="mt-6 text-center text-sm text-gray-600 bg-white p-4 rounded-lg border"
         >
           <p className="font-medium">তথ্য সুরক্ষা নিশ্চিত</p>
-          <p className="mt-1">
-            এই তথ্য শুধুমাত্র কুইজ প্রতিযোগিতা ও শিক্ষার্থী উন্নয়নের কাজে
-            ব্যবহৃত হবে।
+          <p className="mt-1 text-xs">
+            আপনার তথ্য শুধুমাত্র কুইজ প্রতিযোগিতা ও শিক্ষার্থী উন্নয়নের কাজে
+            ব্যবহৃত হবে
           </p>
-          <p>তৃতীয় পক্ষের সাথে শেয়ার করা হবে না।</p>
         </motion.div>
       </motion.div>
     </div>

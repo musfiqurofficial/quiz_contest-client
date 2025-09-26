@@ -16,6 +16,8 @@ export interface User {
   age?: number;
   grade?: string;
   institutionName?: string;
+  institutionAddress?: string;
+  rollId?: string;
   address?: string;
   profileImage?: string;
   bloodGroup?: string;
@@ -45,6 +47,8 @@ export interface RegisterPayload {
   password: string;
   age?: number;
   grade?: string;
+  institutionAddress?: string;
+  rollId?: string;
   address?: string;
   bloodGroup?: string;
   parentContact?: string;

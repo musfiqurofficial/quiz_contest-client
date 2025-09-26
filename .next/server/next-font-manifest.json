@@ -1,9 +1,1 @@
-{
-  "app": {
-    "[project]/src/app/(main)/[eventId]/page": [],
-    "[project]/src/app/(main)/page": []
-  },
-  "appUsingSizeAdjust": false,
-  "pages": {},
-  "pagesUsingSizeAdjust": false
-}
+{"pages":{},"app":{},"appUsingSizeAdjust":false,"pagesUsingSizeAdjust":false}

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Menu,
   X,
@@ -38,6 +39,7 @@ export default function Navbar() {
 
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const user = useSelector(selectCurrentUser);
+  const rolePath = user?.role === "admin" ? "admin" : "student";
 
   // পেজ লোডের সময় অথেনটিকেশন চেক করা
   useEffect(() => {
@@ -92,11 +94,14 @@ export default function Navbar() {
     <>
       <header className="border-b bg-white/95 backdrop-blur-md shadow-sm fixed top-0 w-full z-50">
         <div className="container max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-indigo-700 transition-all"
-          >
-            কুইজ প্রতিযোগিতা
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={500}
+              height={500}
+              className="h-[70px] w-full object-contain"
+            />
           </Link>
 
           <nav className="hidden md:flex gap-6 items-center">
@@ -106,7 +111,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center gap-1 text-gray-700 hover:text-indigo-600 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-indigo-50"
+                  className="flex items-center gap-1 text-gray-700 hover:text-[color:var(--brand-primary)] font-medium transition-colors px-3 py-2 rounded-lg hover:bg-[color:var(--brand-primary)]/10"
                 >
                   <Icon className="w-4 h-4" />
                   {link.label}
@@ -120,15 +125,24 @@ export default function Navbar() {
               <div className="relative" ref={profileRef}>
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-2 rounded-full px-3 py-2 hover:bg-indigo-100"
+                  className="flex items-center gap-2 rounded-full hover:bg-transparent"
                   onClick={() => setProfileOpen(!isProfileOpen)}
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center text-white font-medium text-sm">
-                    {user?.fullNameEnglish?.charAt(0) ||
+                  <div className="w-[50px] h-[50px] border-2 border-[color:var(--brand-primary)] rounded-full overflow-hidden bg-[image:var(--brand-gradient)] flex items-center justify-center text-white font-medium text-sm">
+                    {user?.profileImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={user.profileImage}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      user?.fullNameEnglish?.charAt(0) ||
                       user?.fullNameBangla?.charAt(0) ||
-                      "U"}
+                      "U"
+                    )}
                   </div>
-                  <span className="text-gray-700">
+                  <span className="text-gray-700 font-medium text-[16px]">
                     {user?.fullNameBangla || user?.fullNameEnglish || "User"}
                   </span>
                 </Button>
@@ -143,8 +157,8 @@ export default function Navbar() {
                     </div>
 
                     <Link
-                      href="/dashboard"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                      href={`/${rolePath}/dashboard`}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-[color:var(--brand-primary)]/10 hover:text-[color:var(--brand-primary)]"
                       onClick={() => setProfileOpen(false)}
                     >
                       <User className="w-4 h-4" />
@@ -152,8 +166,8 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                      href="/profile"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                      href={`/${rolePath}/profile`}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-[color:var(--brand-primary)]/10 hover:text-[color:var(--brand-primary)]"
                       onClick={() => setProfileOpen(false)}
                     >
                       <Settings className="w-4 h-4" />
@@ -172,7 +186,7 @@ export default function Navbar() {
               </div>
             ) : (
               <Link href="/auth">
-                <Button className="px-6 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-md transition-all">
+                <Button className="px-6 py-2 rounded-xl bg-[color:var(--brand-primary)] hover:opacity-90 text-white shadow-md transition-all">
                   লগইন / রেজিস্টার
                 </Button>
               </Link>
@@ -181,10 +195,19 @@ export default function Navbar() {
 
           <div className="md:hidden flex items-center gap-3">
             {isAuthenticated && (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center text-white font-medium text-sm mr-2">
-                {user?.fullNameEnglish?.charAt(0) ||
+              <div className="w-[50px] h-[50px] rounded-full overflow-hidden bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center text-white font-medium text-sm mr-2">
+                {user?.profileImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={user.profileImage}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  user?.fullNameEnglish?.charAt(0) ||
                   user?.fullNameBangla?.charAt(0) ||
-                  "U"}
+                  "U"
+                )}
               </div>
             )}
             <Button
@@ -192,7 +215,7 @@ export default function Navbar() {
               size="icon"
               onClick={() => setMenuOpen(true)}
               aria-label="Open mobile menu"
-              className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-100"
+              className="text-gray-700 hover:text-[color:var(--brand-primary)] hover:bg-[color:var(--brand-primary)]/10"
             >
               <Menu className="w-6 h-6" />
             </Button>
@@ -219,10 +242,16 @@ export default function Navbar() {
             <div className="flex justify-between items-center mb-4">
               <Link
                 href="/"
-                className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                className="flex items-center"
                 onClick={() => setMenuOpen(false)}
               >
-                কুইজ প্রতিযোগিতা
+                <Image
+                  src="/logo.png"
+                  alt="Logo"
+                  width={500}
+                  height={500}
+                  className="h-[70px] w-full object-contain"
+                />
               </Link>
               <button
                 onClick={() => setMenuOpen(false)}
@@ -234,7 +263,7 @@ export default function Navbar() {
             </div>
 
             {isAuthenticated && (
-              <div className="px-4 py-3 bg-indigo-50 rounded-lg mb-4">
+              <div className="px-4 py-3 bg-[color:var(--brand-primary)]/10 rounded-lg mb-4">
                 <p className="font-medium text-gray-900">
                   {user?.fullNameEnglish}
                 </p>
@@ -249,7 +278,7 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="flex items-center gap-3 text-gray-700 hover:text-indigo-600 font-medium transition p-3 rounded-lg hover:bg-indigo-50"
+                    className="flex items-center gap-3 text-gray-700 hover:text-[color:var(--brand-primary)] font-medium transition p-3 rounded-lg hover:bg-[color:var(--brand-primary)]/10"
                     onClick={() => setMenuOpen(false)}
                   >
                     <Icon className="w-5 h-5" />
@@ -263,8 +292,8 @@ export default function Navbar() {
               {isAuthenticated ? (
                 <div className="space-y-2">
                   <Link
-                    href="/dashboard"
-                    className="flex items-center gap-3 text-gray-700 hover:text-indigo-600 font-medium transition p-3 rounded-lg hover:bg-indigo-50"
+                    href={`/${rolePath}/dashboard`}
+                    className="flex items-center gap-3 text-gray-700 hover:text-[color:var(--brand-primary)] font-medium transition p-3 rounded-lg hover:bg-[color:var(--brand-primary)]/10"
                     onClick={() => setMenuOpen(false)}
                   >
                     <User className="w-5 h-5" />
@@ -280,7 +309,7 @@ export default function Navbar() {
                 </div>
               ) : (
                 <Link href="/auth" onClick={() => setMenuOpen(false)}>
-                  <Button className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-md">
+                  <Button className="w-full bg-[color:var(--brand-primary)] hover:opacity-90 text-white shadow-md">
                     লগইন / রেজিস্টার
                   </Button>
                 </Link>

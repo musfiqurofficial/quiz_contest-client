@@ -2,17 +2,22 @@
 
 import { Mail, Phone, MapPin, Heart } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-br from-gray-50 to-indigo-50 border-t border-gray-200">
+    <footer className="border-t border-gray-200 bg-white">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              কুইজ প্রতিযোগিতা
-            </h3>
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={56}
+              height={56}
+              className="h-14 w-14 object-contain"
+            />
             <p className="text-gray-600 text-sm">
               শিক্ষার্থীদের জন্য একটি ইন্টারেক্টিভ কুইজ প্ল্যাটফর্ম। জ্ঞান
               পরীক্ষা করুন এবং পুরস্কার জিতুন।
@@ -28,7 +33,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/rules"
-                  className="text-gray-600 hover:text-indigo-600 text-sm"
+                  className="text-gray-600 hover:text-[color:var(--brand-primary)] text-sm"
                 >
                   নিয়মবলি
                 </Link>
@@ -36,7 +41,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/result"
-                  className="text-gray-600 hover:text-indigo-600 text-sm"
+                  className="text-gray-600 hover:text-[color:var(--brand-primary)] text-sm"
                 >
                   ফলাফল
                 </Link>
@@ -44,7 +49,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/ask-question"
-                  className="text-gray-600 hover:text-indigo-600 text-sm"
+                  className="text-gray-600 hover:text-[color:var(--brand-primary)] text-sm"
                 >
                   জিঙ্গাসা
                 </Link>
@@ -52,7 +57,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/faq"
-                  className="text-gray-600 hover:text-indigo-600 text-sm"
+                  className="text-gray-600 hover:text-[color:var(--brand-primary)] text-sm"
                 >
                   সচরাচর প্রশ্ন
                 </Link>
@@ -67,17 +72,26 @@ export default function Footer() {
             </h4>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-indigo-600" />
+                <Mail
+                  className="w-4 h-4"
+                  style={{ color: "var(--brand-primary)" }}
+                />
                 <span className="text-gray-600 text-sm">
                   support@quizcontest.com
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-indigo-600" />
+                <Phone
+                  className="w-4 h-4"
+                  style={{ color: "var(--brand-primary)" }}
+                />
                 <span className="text-gray-600 text-sm">+৮৮০ ১৭XX-XXXXXX</span>
               </div>
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-indigo-600 mt-1" />
+                <MapPin
+                  className="w-4 h-4 mt-1"
+                  style={{ color: "var(--brand-primary)" }}
+                />
                 <span className="text-gray-600 text-sm">ঢাকা, বাংলাদেশ</span>
               </div>
             </div>
@@ -95,9 +109,9 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="আপনার ইমেইল"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="flex-1 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 border border-gray-300"
               />
-              <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition">
+              <button className="px-4 py-2 rounded-lg text-sm transition text-white bg-[color:var(--brand-primary)] hover:opacity-90">
                 পাঠান
               </button>
             </div>
@@ -111,10 +125,16 @@ export default function Footer() {
             <Heart className="w-4 h-4 text-red-500" /> বাংলাদেশে
           </p>
           <div className="flex gap-4 mt-4 md:mt-0">
-            <a href="#" className="text-gray-600 hover:text-indigo-600 text-sm">
+            <a
+              href="#"
+              className="text-gray-600 hover:text-[color:var(--brand-primary)] text-sm"
+            >
               গোপনীয়তা নীতি
             </a>
-            <a href="#" className="text-gray-600 hover:text-indigo-600 text-sm">
+            <a
+              href="#"
+              className="text-gray-600 hover:text-[color:var(--brand-primary)] text-sm"
+            >
               সেবার শর্তাবলী
             </a>
           </div>

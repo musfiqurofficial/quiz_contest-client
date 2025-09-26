@@ -4,11 +4,10 @@
 @import "slick-carousel/slick/slick-theme.css";
 @custom-variant dark (&:is(.dark *));
 
-
 @font-face {
   font-family: "AnekBangla";
   src: url("/fonts/anek-bangla/AnekBangla-Regular.ttf") format("truetype"),
-       url("/fonts/anek-bangla/AnekBangla-Medium.ttf") format("truetype");
+    url("/fonts/anek-bangla/AnekBangla-Medium.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -59,6 +58,14 @@ body {
 }
 
 :root {
+  /* Brand Colors */
+  --brand-primary: #f26122; /* Orange */
+  --brand-secondary: #232323; /* Charcoal */
+  --brand-gradient: linear-gradient(
+    90deg,
+    var(--brand-primary),
+    var(--brand-secondary)
+  );
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -66,10 +73,11 @@ body {
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
+  /* Map brand colors into design tokens */
+  --primary: var(--brand-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--brand-secondary);
+  --secondary-foreground: #ffffff;
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
@@ -94,16 +102,24 @@ body {
 }
 
 .dark {
+  /* Brand colors remain the same in dark; adjust foregrounds if needed */
+  --brand-primary: #f26122;
+  --brand-secondary: #232323;
+  --brand-gradient: linear-gradient(
+    90deg,
+    var(--brand-primary),
+    var(--brand-secondary)
+  );
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
+  --primary: var(--brand-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--brand-secondary);
+  --secondary-foreground: #ffffff;
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);

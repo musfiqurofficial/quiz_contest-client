@@ -213,7 +213,7 @@ const questionSlice = createSlice({
             (q) => q._id === action.payload._id
           );
           if (index !== -1) {
-            state.questions[index] = action.payload;
+            state.questions.splice(index, 1, action.payload);
           }
         }
       )
@@ -289,7 +289,7 @@ const questionSlice = createSlice({
             (q) => q._id === action.payload._id
           );
           if (index !== -1) {
-            state.questions[index] = action.payload;
+            state.questions.splice(index, 1, action.payload);
           }
         }
       )

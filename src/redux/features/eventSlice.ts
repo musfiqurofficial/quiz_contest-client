@@ -239,7 +239,7 @@ const eventSlice = createSlice({
           (event) => event._id === action.payload._id
         );
         if (index !== -1) {
-          state.events[index] = action.payload;
+          state.events.splice(index, 1, action.payload);
         }
         if (state.selectedEvent?._id === action.payload._id) {
           state.selectedEvent = action.payload;
@@ -263,7 +263,7 @@ const eventSlice = createSlice({
           (event) => event._id === action.payload._id
         );
         if (index !== -1) {
-          state.events[index] = action.payload;
+          state.events.splice(index, 1, action.payload);
         }
         // Update selected event if it's the same
         if (state.selectedEvent?._id === action.payload._id) {

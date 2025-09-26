@@ -62,6 +62,8 @@ interface User {
   address?: string;
   grade?: string;
   institutionName?: string;
+  institutionAddress?: string;
+  rollId?: string;
   contact: string;
   parentContact?: string;
   bloodGroup?: string;
@@ -115,6 +117,8 @@ const ProfilePage = () => {
     address: user?.address || "",
     grade: user?.grade || "",
     institutionName: user?.institutionName || "",
+    institutionAddress: user?.institutionAddress || "",
+    rollId: user?.rollId || "",
     contact: user?.contact || "",
     parentContact: user?.parentContact || "",
     bloodGroup: user?.bloodGroup || "",
@@ -158,6 +162,8 @@ const ProfilePage = () => {
         address: user.address || "",
         grade: user.grade || "",
         institutionName: user.institutionName || "",
+        institutionAddress: user.institutionAddress || "",
+        rollId: user.rollId || "",
         contact: user.contact || "",
         parentContact: user.parentContact || "",
         bloodGroup: user.bloodGroup || "",
@@ -672,7 +678,7 @@ const ProfilePage = () => {
                     <h3 className="font-semibold mb-4">শিক্ষাগত তথ্য</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="grade">শ্রেণি</Label>
+                        <Label htmlFor="grade">শ্রেণি / বর্ষ</Label>
                         <Select
                           value={profileData.grade || ""}
                           onValueChange={(value) =>
@@ -691,12 +697,33 @@ const ProfilePage = () => {
                             <SelectItem value="10">১০ম শ্রেণি</SelectItem>
                             <SelectItem value="11">১১শ শ্রেণি</SelectItem>
                             <SelectItem value="12">১২শ শ্রেণি</SelectItem>
+                            <SelectItem value="college-1">
+                              কলেজ ১ম বর্ষ
+                            </SelectItem>
+                            <SelectItem value="college-2">
+                              কলেজ ২য় বর্ষ
+                            </SelectItem>
+                            <SelectItem value="college-3">
+                              কলেজ ৩য় বর্ষ
+                            </SelectItem>
+                            <SelectItem value="university-1">
+                              বিশ্ববিদ্যালয় ১ম বর্ষ
+                            </SelectItem>
+                            <SelectItem value="university-2">
+                              বিশ্ববিদ্যালয় ২য় বর্ষ
+                            </SelectItem>
+                            <SelectItem value="university-3">
+                              বিশ্ববিদ্যালয় ৩য় বর্ষ
+                            </SelectItem>
+                            <SelectItem value="university-4">
+                              বিশ্ববিদ্যালয় ৪র্থ বর্ষ
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="institutionName">
-                          শিক্ষা প্রতিষ্ঠান
+                          শিক্ষাপ্রতিষ্ঠানের নাম
                         </Label>
                         <Input
                           id="institutionName"
@@ -708,7 +735,39 @@ const ProfilePage = () => {
                             })
                           }
                           disabled={!isEditing}
-                          placeholder="আপনার শিক্ষা প্রতিষ্ঠানের নাম"
+                          placeholder="আপনার শিক্ষাপ্রতিষ্ঠানের নাম"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="institutionAddress">
+                          শিক্ষাপ্রতিষ্ঠানের ঠিকানা
+                        </Label>
+                        <Input
+                          id="institutionAddress"
+                          value={profileData.institutionAddress || ""}
+                          onChange={(e) =>
+                            setProfileData({
+                              ...profileData,
+                              institutionAddress: e.target.value,
+                            })
+                          }
+                          disabled={!isEditing}
+                          placeholder="শিক্ষাপ্রতিষ্ঠানের ঠিকানা (সংক্ষেপে)"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="rollId">রোল/আইডি নম্বর</Label>
+                        <Input
+                          id="rollId"
+                          value={profileData.rollId || ""}
+                          onChange={(e) =>
+                            setProfileData({
+                              ...profileData,
+                              rollId: e.target.value,
+                            })
+                          }
+                          disabled={!isEditing}
+                          placeholder="রোল/আইডি নম্বর (যদি থাকে)"
                         />
                       </div>
                     </div>

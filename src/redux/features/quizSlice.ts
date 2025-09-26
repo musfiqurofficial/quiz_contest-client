@@ -229,7 +229,7 @@ const quizSlice = createSlice({
           (quiz) => quiz._id === action.payload._id
         );
         if (index !== -1) {
-          state.quizzes[index] = action.payload;
+          state.quizzes.splice(index, 1, action.payload);
         }
         if (state.selectedQuiz?._id === action.payload._id) {
           state.selectedQuiz = action.payload;

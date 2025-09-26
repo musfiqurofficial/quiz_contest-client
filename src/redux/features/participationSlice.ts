@@ -8,6 +8,8 @@ export interface IAnswer {
   selectedOption: string;
   isCorrect: boolean;
   marksObtained: number;
+  participantAnswer?: string;
+  participantImages?: string[];
 }
 
 export interface IStudent {
@@ -17,10 +19,25 @@ export interface IStudent {
   contact: string;
 }
 
+export interface IQuiz {
+  _id: string;
+  title: string;
+  eventId: string;
+  duration: number;
+  totalMarks: number;
+  questions: unknown[];
+  isActive: boolean;
+  passingMarks: number;
+  instructions: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 export interface IParticipation {
   _id: string;
   studentId: string | IStudent;
-  quizId: string;
+  quizId: string | IQuiz;
   answers: IAnswer[];
   totalScore: number;
   status: "completed" | "failed" | "pending";
@@ -154,7 +171,7 @@ const participationSlice = createSlice({
             (p) => p._id === action.payload._id
           );
           if (index !== -1) {
-            state.participations[index] = action.payload;
+            state.participations.splice(index, 1, action.payload);
           }
         }
       )
