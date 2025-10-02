@@ -167,7 +167,7 @@ export default function AuthPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full !max-w-xl"
+        className="w-full !max-w-[480px]"
       >
         <Card className="shadow-lg border-0 bg-white rounded-xl overflow-hidden">
           <CardHeader className="text-center pb-0">
@@ -588,7 +588,7 @@ export default function AuthPage() {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-2 col-span-2">
                         <Label htmlFor="rollId" className="text-gray-700">
                           রোল/আইডি নম্বর
                         </Label>

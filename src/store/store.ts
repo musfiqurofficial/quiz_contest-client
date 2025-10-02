@@ -6,6 +6,7 @@ import eventReducer from "@/redux/features/eventSlice";
 import quizReducer from "@/redux/features/quizSlice";
 import questionReducer from "@/redux/features/questionSlice";
 import participationReducer from "@/redux/features/participationSlice";
+import usersReducer from "@/redux/features/usersSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     quizzes: quizReducer,
     questions: questionReducer,
     participations: participationReducer,
+    users: usersReducer,
   },
 });
 

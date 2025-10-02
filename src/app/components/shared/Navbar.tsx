@@ -100,7 +100,7 @@ export default function Navbar() {
               alt="Logo"
               width={500}
               height={500}
-              className="h-[70px] w-full object-contain"
+              className="h-[60px] w-full object-contain"
             />
           </Link>
 
@@ -128,7 +128,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 rounded-full hover:bg-transparent"
                   onClick={() => setProfileOpen(!isProfileOpen)}
                 >
-                  <div className="w-[50px] h-[50px] border-2 border-[color:var(--brand-primary)] rounded-full overflow-hidden bg-[image:var(--brand-gradient)] flex items-center justify-center text-white font-medium text-sm">
+                  <div className="w-[40px] h-[40px] border-2 border-[color:var(--brand-primary)] rounded-full overflow-hidden bg-[image:var(--brand-gradient)] flex items-center justify-center text-white font-medium text-sm">
                     {user?.profileImage ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -250,7 +250,7 @@ export default function Navbar() {
                   alt="Logo"
                   width={500}
                   height={500}
-                  className="h-[70px] w-full object-contain"
+                  className="h-[60px] w-full object-contain"
                 />
               </Link>
               <button

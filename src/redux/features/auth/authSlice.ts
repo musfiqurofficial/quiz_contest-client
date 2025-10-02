@@ -13,6 +13,7 @@ export interface User {
   contact: string;
   contactType: "phone" | "email";
   role: "student" | "admin";
+  whatsappNumber?: string;
   age?: number;
   grade?: string;
   institutionName?: string;
