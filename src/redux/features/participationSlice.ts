@@ -54,8 +54,17 @@ export interface ParticipationState {
 // Async thunks
 export const fetchParticipations = createAsyncThunk<IParticipation[]>(
   "participations/fetchAll",
-  async () => {
-    const res = await axios.get(`${api}/participations`);
+  async (_, { getState }) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const res = await axios.get(`${api}/participations`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return res.data.data as IParticipation[];
   }
 );
@@ -70,7 +79,16 @@ export const createParticipation = createAsyncThunk<
     status: "completed" | "failed" | "pending";
   }
 >("participations/create", async (participationData) => {
-  const res = await axios.post(`${api}/participations`, participationData);
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  const res = await axios.post(`${api}/participations`, participationData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return res.data.data as IParticipation;
 });
 
@@ -104,7 +122,16 @@ export const deleteParticipation = createAsyncThunk<string, string>(
 export const getParticipationById = createAsyncThunk<IParticipation, string>(
   "participations/getById",
   async (id) => {
-    const res = await axios.get(`${api}/participations/${id}`);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const res = await axios.get(`${api}/participations/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return res.data.data as IParticipation;
   }
 );

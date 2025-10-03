@@ -395,7 +395,6 @@ export const UserDetailsDialog: React.FC<UserDetailsDialogProps> = ({
                                   </Badge>
                                   {participation.event?.status && (
                                     <Badge
-                                      variant="outline"
                                       className="text-xs"
                                       {...getEventStatusBadge(
                                         participation.event.status
