@@ -106,7 +106,7 @@ export default function QuizSection() {
     const fetchQuizData = async () => {
       try {
         const res = await fetch(
-          "https://backend-weld-two-15.vercel.app/api/v1/quiz-data"
+          `${process.env.NEXT_PUBLIC_BASE_URL}/quiz-data`
         );
         const json = await res.json();
 

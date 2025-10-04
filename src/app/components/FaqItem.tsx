@@ -152,22 +152,15 @@ export default function FaqSection() {
   useEffect(() => {
     const fetchFaq = async () => {
       try {
-        const res = await fetch(
-          "https://backend-weld-two-15.vercel.app/api/v1/faq"
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/faq`);
         const json = await res.json();
-
-        if (json.success && json.data.length > 0) {
-          setFaqData(json.data[0].faq); // get the 'faq' array inside first item
-        }
-      } catch (err) {
-        console.error("Error fetching FAQ:", err);
+        setFaqData(json.data);
+      } catch (error) {
+        console.error('Failed to fetch FAQ:', error);
       }
     };
-
     fetchFaq();
   }, []);
-
   return (
     <motion.section
       className="py-20 bg-gradient-to-br from-white via-gray-50 to-orange-50 relative overflow-hidden"

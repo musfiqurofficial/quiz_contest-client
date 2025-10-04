@@ -181,7 +181,7 @@ export const BulkMessagingDialog: React.FC<BulkMessagingDialogProps> = ({
       // Make API call to backend
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000"
         }/api/v1/messaging/bulk-send`,
         {
           method: "POST",

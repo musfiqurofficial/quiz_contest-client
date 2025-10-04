@@ -43,24 +43,15 @@ export default function Banner() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await fetch(
-          "https://backend-weld-two-15.vercel.app/api/v1/banner"
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/banner`);
         const json = await res.json();
-        if (json.success && Array.isArray(json.data)) {
-          const approvedBanners = json.data.filter(
-            (item: BannerItem) => item.status === "approved"
-          );
-          setBanners(approvedBanners);
-        }
+        setBanners(json.data);
       } catch (error) {
-        console.error("Failed to fetch banners:", error);
+        console.error('Failed to fetch banners:', error);
       }
     };
-
     fetchBanners();
   }, []);
-
   // Auto slide every 5 seconds
   useEffect(() => {
     if (!instanceRef.current) return;

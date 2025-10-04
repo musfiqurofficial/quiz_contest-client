@@ -142,7 +142,7 @@ export default function QuizTimelineAndInstructions() {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "https://backend-weld-two-15.vercel.app/api/v1/time-instruction"
+          `${process.env.NEXT_PUBLIC_BASE_URL}/time-instruction`
         );
         const json = await res.json();
 

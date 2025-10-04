@@ -64,7 +64,7 @@ const Gift = () => {
     const fetchGiftData = async () => {
       try {
         const response = await axios.get(
-          "https://backend-weld-two-15.vercel.app/api/v1/offers"
+          `${process.env.NEXT_PUBLIC_BASE_URL}/offers`
         );
 
         if (response.data.success && response.data.data.length > 0) {
