@@ -45,9 +45,11 @@ export default function Banner() {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/banner`);
         const json = await res.json();
-        setBanners(json.data);
+        // Ensure data is an array and handle undefined/null cases
+        setBanners(Array.isArray(json.data) ? json.data : []);
       } catch (error) {
-        console.error('Failed to fetch banners:', error);
+        console.error("Failed to fetch banners:", error);
+        setBanners([]); // Set empty array on error
       }
     };
     fetchBanners();
@@ -77,7 +79,20 @@ export default function Banner() {
     };
   }, [loaded, instanceRef]);
 
-  if (banners.length === 0) return null; // You can replace with loader if needed
+  // Handle loading and empty states
+  if (!banners || banners.length === 0) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-600">
+              Loading banners...
+            </h2>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <motion.section
