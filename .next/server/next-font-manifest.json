@@ -1,1 +1,10 @@
-{"pages":{},"app":{},"appUsingSizeAdjust":false,"pagesUsingSizeAdjust":false}
+{
+  "app": {
+    "[project]/src/app/(main)/[eventId]/page": [],
+    "[project]/src/app/(main)/page": [],
+    "[project]/src/app/auth/page": []
+  },
+  "appUsingSizeAdjust": false,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}
