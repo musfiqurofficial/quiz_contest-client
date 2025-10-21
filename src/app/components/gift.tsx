@@ -63,9 +63,7 @@ const Gift = () => {
   useEffect(() => {
     const fetchGiftData = async () => {
       try {
-        const response = await axios.get(
-          "https://backend-weld-two-15.vercel.app/api/v1/offers"
-        );
+        const response = await axios.get("http://localhost:5000/api/v1/offers");
 
         if (response.data.success && response.data.data.length > 0) {
           const approvedOffer = response.data.data.find(

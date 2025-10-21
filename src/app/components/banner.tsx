@@ -27,6 +27,8 @@ export default function Banner() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
     loop: true,
@@ -43,18 +45,33 @@ export default function Banner() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await fetch(
-          "https://backend-weld-two-15.vercel.app/api/v1/banner"
-        );
+        setLoading(true);
+        setError(null);
+        const res = await fetch("http://localhost:5000/api/v1/banner");
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         const json = await res.json();
+        console.log("Banner API Response:", json); // Debug log
+
         if (json.success && Array.isArray(json.data)) {
           const approvedBanners = json.data.filter(
             (item: BannerItem) => item.status === "approved"
           );
+          console.log("Approved Banners:", approvedBanners); // Debug log
           setBanners(approvedBanners);
+        } else {
+          setError("No banners available");
         }
       } catch (error) {
         console.error("Failed to fetch banners:", error);
+        setError(
+          error instanceof Error ? error.message : "Failed to load banners"
+        );
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -86,7 +103,48 @@ export default function Banner() {
     };
   }, [loaded, instanceRef]);
 
-  if (banners.length === 0) return null; // You can replace with loader if needed
+  // Loading state
+  if (loading) {
+    return (
+      <section className="relative bg-gradient-to-br from-slate-50 via-white to-orange-50 pt-10 md:pt-0">
+        <div className="w-full h-[400px] md:h-[700px] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-600">Loading banners...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <section className="relative bg-gradient-to-br from-slate-50 via-white to-orange-50 pt-10 md:pt-0">
+        <div className="w-full h-[400px] md:h-[700px] flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-red-600 mb-2">⚠️ {error}</p>
+            <p className="text-gray-500 text-sm">
+              Please check your backend server
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // No banners state
+  if (banners.length === 0) {
+    return (
+      <section className="relative bg-gradient-to-br from-slate-50 via-white to-orange-50 pt-10 md:pt-0">
+        <div className="w-full h-[400px] md:h-[700px] flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-600">No banners available at the moment</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <motion.section

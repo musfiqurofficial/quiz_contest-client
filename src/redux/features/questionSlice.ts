@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { api } from "@/data/api";
+import authAxios from "@/lib/api/axios";
 
 // Types
 export interface IQuestionFile {
@@ -72,7 +73,7 @@ export const fetchQuestionsByQuizId = createAsyncThunk<IQuestion[], string>(
 export const createQuestion = createAsyncThunk<IQuestion, Partial<IQuestion>>(
   "questions/create",
   async (questionData) => {
-    const res = await axios.post(`${api}/questions`, questionData);
+    const res = await authAxios.post(`/questions`, questionData);
     return res.data.data as IQuestion;
   }
 );
@@ -81,14 +82,14 @@ export const updateQuestion = createAsyncThunk<
   IQuestion,
   { id: string; data: Partial<IQuestion> }
 >("questions/update", async ({ id, data }) => {
-  const res = await axios.put(`${api}/questions/${id}`, data);
+  const res = await authAxios.put(`/questions/${id}`, data);
   return res.data.data as IQuestion;
 });
 
 export const deleteQuestion = createAsyncThunk<string, string>(
   "questions/delete",
   async (id) => {
-    await axios.delete(`${api}/questions/${id}`);
+    await authAxios.delete(`/questions/${id}`);
     return id;
   }
 );
@@ -97,7 +98,7 @@ export const deleteQuestion = createAsyncThunk<string, string>(
 export const bulkDeleteQuestions = createAsyncThunk<string[], string[]>(
   "questions/bulkDelete",
   async (ids) => {
-    const response = await axios.delete(`${api}/questions/bulk`, {
+    const response = await authAxios.delete(`/questions/bulk`, {
       data: { questionIds: ids },
     });
 
@@ -115,7 +116,7 @@ export const uploadQuestionImages = createAsyncThunk<IQuestionFile[], FileList>(
       formData.append("images", file);
     });
 
-    const res = await axios.post(`${api}/questions/upload-images`, formData, {
+    const res = await authAxios.post(`/questions/upload-images`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -155,7 +156,7 @@ export const importQuestions = createAsyncThunk<
   IQuestion[],
   Partial<IQuestion>[]
 >("questions/import", async (questionsData) => {
-  const res = await axios.post(`${api}/questions/bulk`, {
+  const res = await authAxios.post(`/questions/bulk`, {
     questions: questionsData,
   });
   return res.data.data as IQuestion[];

@@ -204,9 +204,7 @@ export default function JudgeSection() {
   useEffect(() => {
     const fetchJudges = async () => {
       try {
-        const res = await fetch(
-          "https://backend-weld-two-15.vercel.app/api/v1/judge"
-        );
+        const res = await fetch("http://localhost:5000/api/v1/judge");
         const json = await res.json();
         if (json.success && json.data.length > 0) {
           setData(json.data[0]); // Show first judge panel (you can loop if multiple)

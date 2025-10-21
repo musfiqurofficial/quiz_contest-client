@@ -152,9 +152,7 @@ export default function FaqSection() {
   useEffect(() => {
     const fetchFaq = async () => {
       try {
-        const res = await fetch(
-          "https://backend-weld-two-15.vercel.app/api/v1/faq"
-        );
+        const res = await fetch("http://localhost:5000/api/v1/faq");
         const json = await res.json();
 
         if (json.success && json.data.length > 0) {

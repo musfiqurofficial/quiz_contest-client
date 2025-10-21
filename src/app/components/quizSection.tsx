@@ -105,9 +105,7 @@ export default function QuizSection() {
   useEffect(() => {
     const fetchQuizData = async () => {
       try {
-        const res = await fetch(
-          "https://backend-weld-two-15.vercel.app/api/v1/quiz-data"
-        );
+        const res = await fetch("http://localhost:5000/api/v1/quiz-data");
         const json = await res.json();
 
         if (json.success && json.data.length > 0) {

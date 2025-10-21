@@ -1,4 +1,3 @@
-// src/app/admin/login/page.tsx
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -16,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Shield, Lock, Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { loginUser } from "@/redux/features/auth/authSlice";
+import { loginUser, logoutUser } from "@/redux/features/auth/authSlice";
 import { RootState, AppDispatch } from "@/store/store";
 import { toast } from "sonner";
 
@@ -47,7 +46,15 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate inputs
+    if (!credentials.username || !credentials.password) {
+      toast.error("ইমেইল এবং পাসওয়ার্ড প্রয়োজন");
+      return;
+    }
+
     try {
+      console.log("Admin login attempt:", credentials.username);
+
       // For admin login, we'll use email as username
       const result = await dispatch(
         loginUser({
@@ -56,18 +63,42 @@ export default function AdminLoginPage() {
         })
       ).unwrap();
 
+      console.log("Login result:", result);
+
       // Verify the user has admin role
       if (result.user.role !== "admin") {
         toast.error("শুধুমাত্র অ্যাডমিন অ্যাকাউন্ট দিয়ে লগইন করা যাবে");
+        // Logout the non-admin user
+        await dispatch(logoutUser());
         return;
       }
 
       toast.success("অ্যাডমিন লগইন সফল হয়েছে!");
       router.push("/admin/dashboard");
     } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "লগইন ব্যর্থ হয়েছে";
-      toast.error(errorMessage);
+      console.error("Admin login error:", err);
+      let errorMessage = "লগইন ব্যর্থ হয়েছে";
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === "string") {
+        errorMessage = err;
+      }
+
+      // Show more specific error messages
+      if (
+        errorMessage.includes("not found") ||
+        errorMessage.includes("পাওয়া যায়নি")
+      ) {
+        toast.error("এই ইমেইল দিয়ে কোনো ব্যবহারকারী পাওয়া যায়নি");
+      } else if (
+        errorMessage.includes("credentials") ||
+        errorMessage.includes("পাসওয়ার্ড")
+      ) {
+        toast.error("পাসওয়ার্ড ভুল হয়েছে");
+      } else {
+        toast.error(errorMessage);
+      }
     }
   };
 

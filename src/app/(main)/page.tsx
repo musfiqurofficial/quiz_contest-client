@@ -32,10 +32,6 @@ export default function Home() {
       </Suspense>
 
       <Suspense fallback={<SectionSkeleton />}>
-        <QuizSection />
-      </Suspense>
-
-      <Suspense fallback={<SectionSkeleton />}>
         <JudgeSection />
       </Suspense>
 
@@ -43,9 +39,9 @@ export default function Home() {
         <EventSection />
       </Suspense>
 
-      <Suspense fallback={<SectionSkeleton />}>
+      {/* <Suspense fallback={<SectionSkeleton />}>
         <QuizTimelineAndInstructions />
-      </Suspense>
+      </Suspense> */}
 
       <Suspense fallback={<SectionSkeleton />}>
         <FaqSection />

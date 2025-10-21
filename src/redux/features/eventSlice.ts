@@ -1,6 +1,7 @@
 import { api } from "@/data/api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import authAxios from "@/lib/api/axios";
 
 export interface Event {
   _id: string;
@@ -43,7 +44,7 @@ export const createEvent = createAsyncThunk(
   "events/createEvent",
   async (eventData: Partial<Event>, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${api}/events`, eventData);
+      const response = await authAxios.post(`/events`, eventData);
       return response.data.data;
     } catch (error: unknown) {
       const errorMessage =
@@ -100,7 +101,7 @@ export const updateEvent = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.patch(`${api}/events/${id}`, data);
+      const response = await authAxios.patch(`/events/${id}`, data);
       return response.data.data;
     } catch (error: unknown) {
       const errorMessage =
@@ -121,7 +122,7 @@ export const addParticipant = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.post(`${api}/events/add-participant`, {
+      const response = await authAxios.post(`/events/add-participant`, {
         eventId,
         studentId,
       });
@@ -160,7 +161,7 @@ export const deleteEvent = createAsyncThunk(
   "events/deleteEvent",
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`${api}/events/${id}`);
+      await authAxios.delete(`/events/${id}`);
       return id;
     } catch (error: unknown) {
       const errorMessage =

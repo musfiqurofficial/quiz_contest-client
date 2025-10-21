@@ -1,6 +1,7 @@
 import { api } from "@/data/api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import authAxios from "@/lib/api/axios";
 
 export interface Quiz {
   _id: string;
@@ -40,7 +41,7 @@ export const createQuiz = createAsyncThunk(
   "quizzes/createQuiz",
   async (quizData: Partial<Quiz>, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${api}/quizzes`, quizData);
+      const response = await authAxios.post(`/quizzes`, quizData);
       return response.data.data;
     } catch (error: unknown) {
       const errorMessage =
@@ -117,7 +118,7 @@ export const updateQuiz = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.patch(`${api}/quizzes/${id}`, data);
+      const response = await authAxios.patch(`/quizzes/${id}`, data);
       return response.data.data;
     } catch (error: unknown) {
       const errorMessage =
@@ -135,7 +136,7 @@ export const deleteQuiz = createAsyncThunk(
   "quizzes/deleteQuiz",
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`${api}/quizzes/${id}`);
+      await authAxios.delete(`/quizzes/${id}`);
       return id;
     } catch (error: unknown) {
       const errorMessage =
